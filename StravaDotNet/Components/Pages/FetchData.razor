@@ -12,10 +12,10 @@
     {
         isLoading = true;
         isDataLoaded = false;
-
+        string requestUri = $"https://localhost:7237/api/Strava/{userId}?includeAllEfforts=true";
         try
         {
-            activity = await Http.GetFromJsonAsync<DetailedActivity>($"https://localhost:7237/api/Strava/{userId}?includeAllEfforts=true");
+            activity = await Http.GetFromJsonAsync<DetailedActivity>(requestUri);
             isDataLoaded = true;
         }
         catch (Exception ex)
