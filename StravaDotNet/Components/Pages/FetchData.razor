@@ -1,0 +1,61 @@
+﻿@page "/fetchdata"
+@using Strava.Models
+@inject HttpClient Http
+@rendermode InteractiveServer
+@code {
+    private int userId;
+    private DetailedActivity activity;
+    private bool isLoading = false;
+    private bool isDataLoaded = false;
+
+    private async Task FetchActivityAsync()
+    {
+        isLoading = true;
+        isDataLoaded = false;
+
+        try
+        {
+            activity = await Http.GetFromJsonAsync<DetailedActivity>($"https://localhost:7237/api/Strava/{userId}?includeAllEfforts=true");
+            isDataLoaded = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching data: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+    private void TestMethod()
+    {
+        Console.WriteLine("TestMethod called");
+    }
+}
+
+<div>
+    <h3>Fetch Activity</h3>
+    <form>
+        <div class="form-group">
+            <label for="userId">Enter Activity ID:</label>
+            <input type="number" @bind="userId" class="form-control" id="userId" />
+        </div>
+        <button type="button" class="btn btn-primary" @onclick="FetchActivityAsync">Fetch Activity</button>
+
+    </form>
+
+    @if (isLoading)
+    {
+        <p>Loading...</p>
+    }
+    else if (isDataLoaded)
+    {
+        <div>
+            <h3>Activity Details</h3>
+            <p><strong>Activity ID:</strong> @activity.Id</p>
+            <p><strong>Distance:</strong> @activity.Distance</p>
+            <p><strong>Duration:</strong> @activity.ElapsedTime</p>
+            <!-- Add more fields as needed -->
+        </div>
+    }
+</div>
