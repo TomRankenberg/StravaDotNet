@@ -7,15 +7,16 @@ namespace StravaDotNet.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StravaController(HttpClient httpClient) : Controller
+    public class StravaController(HttpClient httpClient) : ControllerBase
     {
+        [HttpGet("{id}")]
         public async Task<DetailedActivity> GetActivityByIdAsync(long? id, bool? includeAllEfforts)
         {
             // Verify the required parameter 'id' is set
             //if (id == null) throw new ApiException(400, "Missing required parameter 'id' when calling GetActivityById");
 
             //var path = $"/activities/{id}";
-            var path = "/activities/144414";
+            var path = "https://www.strava.com/api/v3/activities/144414";
             var queryParams = new List<string>();
 
             if (includeAllEfforts.HasValue) queryParams.Add($"include_all_efforts={includeAllEfforts.Value.ToString().ToLower()}");
