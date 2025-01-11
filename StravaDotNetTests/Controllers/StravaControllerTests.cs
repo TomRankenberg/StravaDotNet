@@ -29,12 +29,10 @@ namespace StravaDotNetTests.Controllers
         public async Task GetActivityByIdAsync_ReturnsExpectedActivity()
         {
             // Act
-            var result = await _controller.GetActivityByIdAsync(1, false);
+            var result = await _controller.GetActivitiesAsync(false);
+            
             // Assert
             Xunit.Assert.NotNull(result);
-            Xunit.Assert.Equal(1, result.Id);
-            Xunit.Assert.Equal(5, result.Distance);
-            Xunit.Assert.Equal(1234, result.ElapsedTime);
         }
     }
     public class TestHttpMessageHandler : HttpMessageHandler

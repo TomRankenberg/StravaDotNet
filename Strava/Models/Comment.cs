@@ -4,13 +4,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Strava.Models;
 
-namespace Strava.NET.Model {
+namespace Strava.NET.Model
+{
 
-  /// <summary>
-  /// 
-  /// </summary>
-  [DataContract]
+    /// <summary>
+    /// 
+    /// </summary>
+    [DataContract]
   public class Comment {
     /// <summary>
     /// The unique identifier of this comment

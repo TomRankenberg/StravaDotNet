@@ -5,17 +5,27 @@
 @code {
     private int userId;
     private DetailedActivity activity;
+    private float? averageDistance;
+    private float? averageSpeed;
     private bool isLoading = false;
     private bool isDataLoaded = false;
 
-    private async Task FetchActivityAsync()
+    private async Task GetActivitiesAsync()
     {
         isLoading = true;
         isDataLoaded = false;
-        string requestUri = $"https://localhost:7237/api/Strava/{userId}?includeAllEfforts=true";
+        string requestUri = $"https://localhost:7237/api/Strava/GetActivitiesAsync?includeAllEfforts=true";
         try
         {
-            activity = await Http.GetFromJsonAsync<DetailedActivity>(requestUri);
+            var response = await Http.GetAsync(requestUri);
+            List<DetailedActivity> activities = await response.Content.ReadFromJsonAsync<List<DetailedActivity>>();
+
+            if (activities != null && activities.Count > 10)
+            {
+                activity = activities[0];
+                averageDistance = activities.Where(a => a.Type == "Run").Take(10).Average(b => b.Distance);
+                averageSpeed = activities.Where(a => a.Type == "Run").Take(10).Average(b => b.AverageSpeed);
+            }
             isDataLoaded = true;
         }
         catch (Exception ex)
@@ -40,7 +50,7 @@
             <label for="userId">Enter Activity ID:</label>
             <input type="number" @bind="userId" class="form-control" id="userId" />
         </div>
-        <button type="button" class="btn btn-primary" @onclick="FetchActivityAsync">Fetch Activity</button>
+        <button type="button" class="btn btn-primary" @onclick="GetActivitiesAsync">Fetch Activity</button>
 
     </form>
 
@@ -50,6 +60,12 @@
     }
     else if (isDataLoaded)
     {
+        <div>
+            <h3>Average of last ten runs</h3>
+            <p><strong>Distance:</strong> @averageDistance</p>
+            <p><strong>Speed:</strong> @averageSpeed</p>
+            <!-- Add more fields as needed -->
+        </div>
         <div>
             <h3>Activity Details</h3>
             <p><strong>Activity ID:</strong> @activity.Id</p>
