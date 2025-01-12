@@ -23,7 +23,7 @@ namespace StravaDotNetTests.Controllers
             };
             var httpMessageHandler = new TestHttpMessageHandler(response);
             _httpClient = new HttpClient(httpMessageHandler);
-            _controller = new StravaController(_httpClient);
+            _controller = new StravaController("accesstoken", _httpClient);
         }
         [Fact]
         public async Task GetActivityByIdAsync_ReturnsExpectedActivity()
@@ -31,6 +31,15 @@ namespace StravaDotNetTests.Controllers
             // Act
             var result = await _controller.GetActivitiesAsync(false);
             
+            // Assert
+            Xunit.Assert.NotNull(result);
+        }
+        [Fact]
+        public async Task GetAccessTokenTest()
+        {
+            // Act
+            var result = await _controller.GetAccessToken();
+
             // Assert
             Xunit.Assert.NotNull(result);
         }
