@@ -23,7 +23,7 @@ namespace StravaDotNetTests.Controllers
             };
             var httpMessageHandler = new TestHttpMessageHandler(response);
             _httpClient = new HttpClient(httpMessageHandler);
-            _controller = new StravaController("accesstoken", _httpClient);
+            _controller = new StravaController();
         }
         [Fact]
         public async Task GetActivityByIdAsync_ReturnsExpectedActivity()
