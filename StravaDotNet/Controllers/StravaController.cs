@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Strava.Models;
 
 namespace StravaDotNet.Controllers
@@ -39,7 +39,7 @@ namespace StravaDotNet.Controllers
             // Check the response status
             var content = await response.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<DetailedActivity>(content);
+            return JsonSerializer.Deserialize<DetailedActivity>(content);
         }
         [HttpGet]
         [Route("GetActivitiesAsync")]
@@ -55,7 +55,7 @@ namespace StravaDotNet.Controllers
 
             var response = await new HttpClient().GetAsync(path);
             var data = response.Content.ReadAsStringAsync().Result;
-            List<DetailedActivity> activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
+            List<DetailedActivity> activities = JsonSerializer.Deserialize<List<DetailedActivity>>(data);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -77,7 +77,7 @@ namespace StravaDotNet.Controllers
                 grant_type = "authorization_code"
             };
 
-            var json = JsonConvert.SerializeObject(tokenRequest);
+            var json = JsonSerializer.Serialize(tokenRequest);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await new HttpClient().PostAsync(path, data);
@@ -90,7 +90,7 @@ namespace StravaDotNet.Controllers
             }
             else
             {
-                TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(result);
+                TokenResponse tokenResponse = JsonSerializer.Deserialize<TokenResponse>(result);
                 AccessToken = tokenResponse.access_token;
 
                 return Ok(result);
