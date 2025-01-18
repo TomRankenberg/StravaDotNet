@@ -1,3 +1,5 @@
+using Data.Context;
+using Data.Models;
 using StravaDotNet.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +9,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
+builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection(nameof(MongoDBSettings))); 
+builder.Services.AddSingleton<MongoDBContext>();
 
 var app = builder.Build();
 
