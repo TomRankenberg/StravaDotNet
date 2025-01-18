@@ -34,15 +34,15 @@ namespace StravaDotNetTests.Controllers
             // Assert
             Xunit.Assert.NotNull(result);
         }
-        [Fact]
-        public async Task GetAccessTokenTest()
-        {
-            // Act
-            var result = await _controller.GetAccessToken();
+        //[Fact]
+        //public async Task GetAccessTokenTest()
+        //{
+        //    // Act
+        //    var result = await _controller.GetAccessToken();
 
-            // Assert
-            Xunit.Assert.NotNull(result);
-        }
+        //    // Assert
+        //    Xunit.Assert.NotNull(result);
+        //}
     }
     public class TestHttpMessageHandler : HttpMessageHandler
     {

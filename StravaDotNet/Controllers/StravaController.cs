@@ -4,6 +4,7 @@ using System.Text.Json;
 using Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Strava.Models;
+using static System.Net.WebRequestMethods;
 
 namespace StravaDotNet.Controllers
 {
@@ -83,8 +84,7 @@ namespace StravaDotNet.Controllers
                 }
             }
 
-
-            else if (!response.IsSuccessStatusCode)
+            else
             {
                 return BadRequest();
             }
@@ -109,17 +109,27 @@ namespace StravaDotNet.Controllers
             var response = await new HttpClient().PostAsync(path, data);
             var result = response.Content.ReadAsStringAsync().Result;
 
-
-            if (!response.IsSuccessStatusCode)
-            {
-                //return BadRequest();
-            }
-            else
+            if (response.IsSuccessStatusCode)
             {
                 AccessToken tokenResponse = JsonSerializer.Deserialize<AccessToken>(result);
                 Token = tokenResponse.Access_token;
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                // get new auth code
 
-                //return Ok(result);
+                // ?client_id=144414&response_type=code&redirect_uri=http://localhost/exchange_token&approval_prompt=force&scope=activity:read_all
+                string baseUrl = "https://www.strava.com/oauth/authorize";
+                string redirectUri = "http://localhost:7237/Auth/exchange_token";
+                string authUrl = $"{baseUrl}?client_id={tokenRequest.client_id}&response_type=code&redirect_uri={redirectUri}&approval_prompt=auto&scope=activity:read_all";
+
+                var authCodeResponse = await new HttpClient().GetAsync(authUrl);
+
+                if (authCodeResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var authResult = authCodeResponse.Content.ReadAsStringAsync().Result;
+                }
+
             }
         }
         [HttpGet]
@@ -142,6 +152,17 @@ namespace StravaDotNet.Controllers
             public string client_secret { get; set; }
             public string code { get; set; }
             public string grant_type { get; set; }
+        }
+
+        [Route("[controller]")]
+        public class AuthController : Controller
+        {
+            [HttpGet("exchange_token")]
+            public IActionResult ExchangeToken(string code)
+            { // Do something with the authorization code 
+                // For now, just returning it as part of the response
+                return Ok(new { Code = code }); 
+            } 
         }
     }
 }
