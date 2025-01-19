@@ -20,29 +20,7 @@ namespace StravaDotNet.Controllers
 
         private string Token { get; set; }
         private HttpClient HttpClient { get; set; }
-        public async Task<DetailedActivity> GetAthlete(long id, bool? includeAllEfforts)
-        {
-            //var path = "https://www.strava.com/api/v3/activities/144414/";
-            var path = "https://www.strava.com/api/v3/athlete";
-            var queryParams = new List<string>();
 
-            if (includeAllEfforts.HasValue) queryParams.Add($"include_all_efforts={includeAllEfforts.Value.ToString().ToLower()}");
-
-            if (queryParams.Count > 0) path += "?" + string.Join("&", queryParams);
-
-            // Set up the HttpRequestMessage
-            var request = new HttpRequestMessage(HttpMethod.Post, path); // Set the authorization header (assumes Bearer token is used)
-
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "99e020164feb3c7a3aa0d9407a35f475867fa970");
-
-            // Send the request
-            var response = await HttpClient.SendAsync(request);
-
-            // Check the response status
-            var content = await response.Content.ReadAsStringAsync();
-
-            return JsonSerializer.Deserialize<DetailedActivity>(content);
-        }
         [HttpGet]
         [Route("GetActivitiesAsync")]
         public async Task<IActionResult> GetActivitiesAsync(bool includeAllEfforts)
@@ -50,7 +28,7 @@ namespace StravaDotNet.Controllers
             string path = "https://www.strava.com/api/v3/athlete/activities/";
 
             string effort = $"?include_all_efforts={includeAllEfforts.ToString().ToLower()}";
-            string accessToken = "&access_token=c1715239176fc9201dafb8bcaefcc0f807ea75d4";              
+            string accessToken = $"&access_token={Token}";
 
             string url = path + effort + accessToken;
 
@@ -63,7 +41,6 @@ namespace StravaDotNet.Controllers
                 List<DetailedActivity> activities = JsonSerializer.Deserialize<List<DetailedActivity>>(data);
                 return Ok(activities);
             }
-
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
                 GetAccessToken();
@@ -83,13 +60,12 @@ namespace StravaDotNet.Controllers
                     return BadRequest();
                 }
             }
-
             else
             {
                 return BadRequest();
             }
-
         }
+
         [HttpPost]
         [Route("GetAccessToken")]
         public async void GetAccessToken()
@@ -112,7 +88,7 @@ namespace StravaDotNet.Controllers
             if (response.IsSuccessStatusCode)
             {
                 AccessToken tokenResponse = JsonSerializer.Deserialize<AccessToken>(result);
-                Token = tokenResponse.Access_token;
+                Token = tokenResponse.access_token;
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
             {
@@ -129,23 +105,9 @@ namespace StravaDotNet.Controllers
                 {
                     var authResult = authCodeResponse.Content.ReadAsStringAsync().Result;
                 }
-
             }
         }
-        [HttpGet]
-        [Route("GetAuthCode")]
-        public async Task<IActionResult> GetAuthCode()
-        {
-            string path = "https://www.strava.com/oauth/authorize";
-            var queryParams = new List<string>();
-            queryParams.Add("client_id=144414");
-            queryParams.Add("response_type=code");
-            queryParams.Add("redirect_uri=http://localhost:5000/api/strava/getaccesstoken");
-            queryParams.Add("approval_prompt=auto");
-            queryParams.Add("scope=read,activity:read_all");
-            if (queryParams.Count > 0) path += "?" + string.Join("&", queryParams);
-            return Redirect(path);
-        }
+
         public class TokenRequest
         {
             public string client_id { get; set; }
@@ -154,15 +116,60 @@ namespace StravaDotNet.Controllers
             public string grant_type { get; set; }
         }
 
-        [Route("[controller]")]
-        public class AuthController : Controller
+        [HttpGet]
+        [Route("ConnectToStrava")]
+        public IActionResult ConnectToStrava()
         {
-            [HttpGet("exchange_token")]
-            public IActionResult ExchangeToken(string code)
-            { // Do something with the authorization code 
-                // For now, just returning it as part of the response
-                return Ok(new { Code = code }); 
-            } 
+            string clientId = "144414";
+            string redirectUri = "https://localhost:7237/api/Strava/StravaCallback"; // Your specific callback endpoint
+            string state = Guid.NewGuid().ToString();
+
+            var stravaAuthUrl = $"https://www.strava.com/oauth/authorize?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&scope=read&state={state}";
+            return new JsonResult(new { url = stravaAuthUrl });
+        }
+
+        // Callback endpoint to handle the response from Strava
+        [HttpGet]
+        [Route("StravaCallback")]
+        public async Task<IActionResult> StravaCallback(string state, string code, string scope)
+        {
+            if (string.IsNullOrEmpty(code))
+            {
+                return BadRequest("Missing authorization code.");
+            }
+
+            // Exchange the authorization code for an access token
+            var token = await GetAccessTokenAsync(code);
+            if (token == null)
+            {
+                return BadRequest("Error getting access token.");
+            }
+            else
+            {
+                Token = token.access_token;
+            }
+
+            // Save the token and use it to access Strava API
+            // (Store token appropriately based on your application's needs)
+            return Ok();
+        }
+
+        public async Task<AccessToken> GetAccessTokenAsync(string authorizationCode)
+        {
+            var client = new HttpClient();
+            var tokenRequest = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("client_id", "144414"),
+                new KeyValuePair<string, string>("client_secret", "31fa85c14dc72fee6ebf5bbb9a44f32e625898ad"),
+                new KeyValuePair<string, string>("code", authorizationCode),
+                new KeyValuePair<string, string>("grant_type", "authorization_code")
+            });
+
+            var response = await client.PostAsync("https://www.strava.com/oauth/token", tokenRequest);
+            var content = await response.Content.ReadAsStringAsync();
+            AccessToken token = JsonSerializer.Deserialize<AccessToken>(content);
+
+            return token;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿@page "/fetchdata"
 @using Strava.Models
 @inject HttpClient Http
+@inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 @code {
     private int userId;
@@ -41,6 +42,29 @@
     {
         Console.WriteLine("TestMethod called");
     }
+    private async Task ConnectToStrava() 
+    { 
+        try { 
+            var response = await Http.GetAsync("https://localhost:7237/api/Strava/ConnectToStrava"); 
+            if (response.IsSuccessStatusCode) 
+            { 
+                var jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>(); 
+                var stravaAuthUrl = jsonResponse.Url; // Perform the redirection 
+                NavigationManager.NavigateTo(stravaAuthUrl, forceLoad: false);
+            } else { 
+                Console.WriteLine("Error calling ConnectToStrava"); 
+            } 
+        } catch (Exception ex) 
+        { 
+            Console.WriteLine($"Exception: {ex.Message}"); 
+        } 
+     }
+
+    public class JsonResponse 
+    { 
+        public string Url { get; set; } 
+    }
+
 }
 
 <div>
@@ -50,6 +74,7 @@
             <label for="userId">Enter Activity ID:</label>
             <input type="number" @bind="userId" class="form-control" id="userId" />
         </div>
+        <button type="button" class="btn btn-primary" @onclick="ConnectToStrava">Connect</button>
         <button type="button" class="btn btn-primary" @onclick="GetActivitiesAsync">Fetch Activity</button>
 
     </form>
