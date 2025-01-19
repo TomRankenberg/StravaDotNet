@@ -4,7 +4,6 @@ using System.Text.Json;
 using Data.Models;
 using Microsoft.AspNetCore.Mvc;
 using Strava.Models;
-using static System.Net.WebRequestMethods;
 
 namespace StravaDotNet.Controllers
 {
@@ -12,12 +11,6 @@ namespace StravaDotNet.Controllers
     [Route("api/[controller]")]
     public class StravaController : ControllerBase
     {
-        //public StravaController(string accessToken, HttpClient httpClient)
-        //{
-        //    AccessToken = accessToken;
-        //    HttpClient = httpClient;
-        //}
-
         private string Token { get; set; }
         private HttpClient HttpClient { get; set; }
 
@@ -41,80 +34,80 @@ namespace StravaDotNet.Controllers
                 List<DetailedActivity> activities = JsonSerializer.Deserialize<List<DetailedActivity>>(data);
                 return Ok(activities);
             }
-            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                GetAccessToken();
-                string newUrl = path + effort + "&access_token=" + Token;
+            //else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            //{
+            //    GetAccessToken();
+            //    string newUrl = path + effort + "&access_token=" + Token;
 
-                var newResponse = await new HttpClient().GetAsync(newUrl);
+            //    var newResponse = await new HttpClient().GetAsync(newUrl);
 
-                if (newResponse.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    string data = newResponse.Content.ReadAsStringAsync().Result;
+            //    if (newResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            //    {
+            //        string data = newResponse.Content.ReadAsStringAsync().Result;
 
-                    List<DetailedActivity> activities = JsonSerializer.Deserialize<List<DetailedActivity>>(data);
-                    return Ok(activities);
-                }
-                else
-                {
-                    return BadRequest();
-                }
-            }
+            //        List<DetailedActivity> activities = JsonSerializer.Deserialize<List<DetailedActivity>>(data);
+            //        return Ok(activities);
+            //    }
+            //    else
+            //    {
+            //        return BadRequest();
+            //    }
+            //}
             else
             {
                 return BadRequest();
             }
         }
 
-        [HttpPost]
-        [Route("GetAccessToken")]
-        public async void GetAccessToken()
-        {
-            string path = "https://www.strava.com/oauth/token";
-            TokenRequest tokenRequest = new TokenRequest
-            {
-                client_id = "144414",
-                client_secret = "31fa85c14dc72fee6ebf5bbb9a44f32e625898ad",
-                code = "62ded79dd894e0296f5f0dfa2e93784d44f69563",
-                grant_type = "authorization_code"
-            };
+        //[HttpPost]
+        //[Route("GetAccessToken")]
+        //public async void GetAccessToken()
+        //{
+        //    string path = "https://www.strava.com/oauth/token";
+        //    TokenRequest tokenRequest = new TokenRequest
+        //    {
+        //        client_id = "144414",
+        //        client_secret = "31fa85c14dc72fee6ebf5bbb9a44f32e625898ad",
+        //        code = "62ded79dd894e0296f5f0dfa2e93784d44f69563",
+        //        grant_type = "authorization_code"
+        //    };
 
-            var json = JsonSerializer.Serialize(tokenRequest);
-            var data = new StringContent(json, Encoding.UTF8, "application/json");
+        //    var json = JsonSerializer.Serialize(tokenRequest);
+        //    var data = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await new HttpClient().PostAsync(path, data);
-            var result = response.Content.ReadAsStringAsync().Result;
+        //    var response = await new HttpClient().PostAsync(path, data);
+        //    var result = response.Content.ReadAsStringAsync().Result;
 
-            if (response.IsSuccessStatusCode)
-            {
-                AccessToken tokenResponse = JsonSerializer.Deserialize<AccessToken>(result);
-                Token = tokenResponse.access_token;
-            }
-            else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
-            {
-                // get new auth code
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        AccessToken tokenResponse = JsonSerializer.Deserialize<AccessToken>(result);
+        //        Token = tokenResponse.access_token;
+        //    }
+        //    else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+        //    {
+        //        // get new auth code
 
-                // ?client_id=144414&response_type=code&redirect_uri=http://localhost/exchange_token&approval_prompt=force&scope=activity:read_all
-                string baseUrl = "https://www.strava.com/oauth/authorize";
-                string redirectUri = "http://localhost:7237/Auth/exchange_token";
-                string authUrl = $"{baseUrl}?client_id={tokenRequest.client_id}&response_type=code&redirect_uri={redirectUri}&approval_prompt=auto&scope=activity:read_all";
+        //        // ?client_id=144414&response_type=code&redirect_uri=http://localhost/exchange_token&approval_prompt=force&scope=activity:read_all
+        //        string baseUrl = "https://www.strava.com/oauth/authorize";
+        //        string redirectUri = "http://localhost:7237/Auth/exchange_token";
+        //        string authUrl = $"{baseUrl}?client_id={tokenRequest.client_id}&response_type=code&redirect_uri={redirectUri}&approval_prompt=auto&scope=activity:read_all";
 
-                var authCodeResponse = await new HttpClient().GetAsync(authUrl);
+        //        var authCodeResponse = await new HttpClient().GetAsync(authUrl);
 
-                if (authCodeResponse.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    var authResult = authCodeResponse.Content.ReadAsStringAsync().Result;
-                }
-            }
-        }
+        //        if (authCodeResponse.StatusCode == System.Net.HttpStatusCode.OK)
+        //        {
+        //            var authResult = authCodeResponse.Content.ReadAsStringAsync().Result;
+        //        }
+        //    }
+        //}
 
-        public class TokenRequest
-        {
-            public string client_id { get; set; }
-            public string client_secret { get; set; }
-            public string code { get; set; }
-            public string grant_type { get; set; }
-        }
+        //public class TokenRequest
+        //{
+        //    public string client_id { get; set; }
+        //    public string client_secret { get; set; }
+        //    public string code { get; set; }
+        //    public string grant_type { get; set; }
+        //}
 
         [HttpGet]
         [Route("ConnectToStrava")]
