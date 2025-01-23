@@ -1,13 +1,14 @@
 using Data.Models;
+using Data.Repos;
 using StravaDotNet.Components;
-using System.Data.SQLite;
-
-SQLiteConnection sqlite_conn = new SQLiteConnection("Data Source=database.db;Version=3;New=True;Compress=True;");
+using Microsoft.EntityFrameworkCore;
+using Data.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddScoped<SQLiteConnection>(_ => new SQLiteConnection(connectionString));
+builder.Services.AddDbContext<DatabaseContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

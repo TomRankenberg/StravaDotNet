@@ -2,7 +2,9 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Data.Interfaces;
 using Data.Models;
+using Data.Repos;
 using Microsoft.AspNetCore.Mvc;
 using Strava.Models;
 
@@ -10,15 +12,10 @@ namespace StravaDotNet.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StravaController : ControllerBase
+    public class StravaController(IStravaUserRepo userRepo) : ControllerBase
     {
-        private readonly SQLiteConnection _connection;
         private string Token { get; set; }
         private HttpClient HttpClient { get; set; }
-        public StravaController(SQLiteConnection connection)
-        {
-            _connection = connection;
-        }
 
         [HttpGet]
         [Route("GetActivitiesAsync")]
@@ -146,10 +143,27 @@ namespace StravaDotNet.Controllers
             else
             {
                 Token = token.access_token;
+                StravaUser stravaUser = userRepo.GetUserById(1);
+
+                if (stravaUser == null)
+                {
+                    stravaUser = new StravaUser
+                    {
+                        UserId = 1,
+                        AccessToken = token.access_token,
+                        RefreshToken = token.refresh_token,
+                        AccessTokenExpiresAt = token.expires_at.ToString(),
+                        Secret = "31fa85c14dc72fee6ebf5bbb9a44f32e625898ad",
+                        StravaId = 144414
+                    };
+                    userRepo.AddUser(stravaUser);
+                }
+                stravaUser.AccessToken = token.access_token;
+                stravaUser.RefreshToken = token.refresh_token;
+                stravaUser.AccessTokenExpiresAt = token.expires_at.ToString();
+                userRepo.UpdateUser(stravaUser);
             }
 
-            // Save the token and use it to access Strava API
-            // (Store token appropriately based on your application's needs)
             return Ok();
         }
 
