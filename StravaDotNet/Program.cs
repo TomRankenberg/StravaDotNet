@@ -1,16 +1,19 @@
-using Data.Context;
 using Data.Models;
 using StravaDotNet.Components;
+using System.Data.SQLite;
+
+SQLiteConnection sqlite_conn = new SQLiteConnection("Data Source=database.db;Version=3;New=True;Compress=True;");
 
 var builder = WebApplication.CreateBuilder(args);
+
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddScoped<SQLiteConnection>(_ => new SQLiteConnection(connectionString));
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
-builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection(nameof(MongoDBSettings))); 
-builder.Services.AddSingleton<MongoDBContext>();
 
 var app = builder.Build();
 

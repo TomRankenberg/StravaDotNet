@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Data.SQLite;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Data.Models;
@@ -11,8 +12,13 @@ namespace StravaDotNet.Controllers
     [Route("api/[controller]")]
     public class StravaController : ControllerBase
     {
+        private readonly SQLiteConnection _connection;
         private string Token { get; set; }
         private HttpClient HttpClient { get; set; }
+        public StravaController(SQLiteConnection connection)
+        {
+            _connection = connection;
+        }
 
         [HttpGet]
         [Route("GetActivitiesAsync")]
