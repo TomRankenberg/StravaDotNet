@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using Data.Interfaces;
+using Data.Repos;
 using Strava.Models;
 using StravaDotNet.Controllers;
 using Xunit;
@@ -23,7 +25,8 @@ namespace StravaDotNetTests.Controllers
             };
             var httpMessageHandler = new TestHttpMessageHandler(response);
             _httpClient = new HttpClient(httpMessageHandler);
-            _controller = new StravaController();
+            //IStravaUserRepo stravaUserRepo = new StravaUserRepo();
+            //_controller = new StravaController(stravaUserRepo);
         }
         [Fact]
         public async Task GetActivityByIdAsync_ReturnsExpectedActivity()

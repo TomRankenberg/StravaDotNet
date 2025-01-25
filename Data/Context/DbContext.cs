@@ -2,14 +2,22 @@
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-public class DatabaseContext : DbContext
+namespace Data.Context
 {
-    public DatabaseContext(DbContextOptions<DatabaseContext> options)
-    : base(options)
+    public class DatabaseContext : DbContext
     {
-        ModelBuilder modelBuilder = new ModelBuilder();
-        modelBuilder.Entity<StravaUser>().HasKey(x => x.UserId);
+        public DatabaseContext(DbContextOptions<DatabaseContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<StravaUser> Users { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<StravaUser>().HasKey(x => x.UserId);
+            base.OnModelCreating(modelBuilder);
+        }
     }
 
-    public DbSet<StravaUser> Users { get; set; }
 }
