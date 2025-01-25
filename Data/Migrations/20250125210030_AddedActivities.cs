@@ -40,7 +40,7 @@ namespace Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Polyline = table.Column<string>(type: "TEXT", nullable: false),
+                    Polyline = table.Column<string>(type: "TEXT", nullable: true),
                     SummaryPolyline = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>

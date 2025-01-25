@@ -26,7 +26,7 @@ namespace Strava.NET.Model {
     /// <value>The polyline of the map</value>
     [DataMember(Name="polyline", EmitDefaultValue=false)]
     [JsonProperty(PropertyName = "polyline")]
-    public string Polyline { get; set; }
+    public string? Polyline { get; set; }
 
     /// <summary>
     /// The summary polyline of the map
@@ -34,7 +34,7 @@ namespace Strava.NET.Model {
     /// <value>The summary polyline of the map</value>
     [DataMember(Name="summary_polyline", EmitDefaultValue=false)]
     [JsonProperty(PropertyName = "summary_polyline")]
-    public string SummaryPolyline { get; set; }
+    public string? SummaryPolyline { get; set; }
 
 
     /// <summary>

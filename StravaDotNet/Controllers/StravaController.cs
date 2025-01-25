@@ -8,7 +8,7 @@ namespace StravaDotNet.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StravaController(IStravaUserRepo userRepo) : ControllerBase
+    public class StravaController(IStravaUserRepo userRepo, IActivitiesRepo activityRepo) : ControllerBase
     {
         private string Token { get; set; }
         private HttpClient HttpClient { get; set; }
@@ -37,6 +37,15 @@ namespace StravaDotNet.Controllers
                 string data = response.Content.ReadAsStringAsync().Result;
 
                 List<DetailedActivity> activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
+
+                List<int> activityIds = activityRepo.GetAllActivityIds();
+                foreach (var activity in activities)
+                {
+                    if (activity.Id != 0 && !activityIds.Contains((int)activity.Id) && activity.Type == "Run")
+                    {
+                        activityRepo.AddActivity(activity);
+                    }
+                }
                 return Ok(activities);
             }
             else

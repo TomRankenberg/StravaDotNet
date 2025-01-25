@@ -12,6 +12,8 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
         b => b.MigrationsAssembly("Data")));
 
 builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
+builder.Services.AddScoped<IActivitiesRepo, ActivitiesRepo>();
+
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

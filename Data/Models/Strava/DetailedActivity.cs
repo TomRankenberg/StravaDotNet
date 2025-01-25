@@ -329,7 +329,7 @@ namespace Data.Models.Strava
         /// <value>The description of the activity</value>
         [DataMember(Name = "description", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "description")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         ///// <summary>
         ///// Gets or Sets Photos
@@ -343,7 +343,7 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "gear", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "gear")]
-        public SummaryGear Gear { get; set; }
+        public SummaryGear? Gear { get; set; }
 
         /// <summary>
         /// The number of kilocalories consumed during this activity
@@ -367,7 +367,7 @@ namespace Data.Models.Strava
         /// <value>The name of the device used to record the activity</value>
         [DataMember(Name = "device_name", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "device_name")]
-        public string DeviceName { get; set; }
+        public string? DeviceName { get; set; }
 
         /// <summary>
         /// The token used to embed a Strava activity
@@ -375,7 +375,7 @@ namespace Data.Models.Strava
         /// <value>The token used to embed a Strava activity</value>
         [DataMember(Name = "embed_token", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "embed_token")]
-        public string EmbedToken { get; set; }
+        public string? EmbedToken { get; set; }
 
         /// <summary>
         /// The splits of this activity in metric units (for runs)
