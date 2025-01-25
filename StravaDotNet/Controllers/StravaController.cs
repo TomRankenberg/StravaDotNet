@@ -1,10 +1,6 @@
-﻿using System.Data.SQLite;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Data.Interfaces;
 using Data.Models;
-using Data.Repos;
 using Microsoft.AspNetCore.Mvc;
 using Strava.Models;
 
@@ -27,7 +23,7 @@ namespace StravaDotNet.Controllers
             if (Token == null)
             {
                 StravaUser stravaUser = userRepo.GetUserById(1);
-                Token = stravaUser.AccessToken; 
+                Token = stravaUser.AccessToken;
             }
 
             string accessToken = $"&access_token={Token}";
@@ -43,7 +39,6 @@ namespace StravaDotNet.Controllers
                 List<DetailedActivity> activities = JsonSerializer.Deserialize<List<DetailedActivity>>(data);
                 return Ok(activities);
             }
-
             else
             {
                 return BadRequest();
@@ -58,7 +53,7 @@ namespace StravaDotNet.Controllers
             string redirectUri = "https://localhost:7237/api/Strava/StravaCallback"; // Your specific callback endpoint
             string state = Guid.NewGuid().ToString();
 
-            var stravaAuthUrl = $"https://www.strava.com/oauth/authorize?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&scope=read&state={state}";
+            var stravaAuthUrl = $"https://www.strava.com/oauth/authorize?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&scope=read,activity:read_all&state={state}";
             return new JsonResult(new { url = stravaAuthUrl });
         }
 
@@ -92,14 +87,18 @@ namespace StravaDotNet.Controllers
                         RefreshToken = token.refresh_token,
                         AccessTokenExpiresAt = token.expires_at.ToString(),
                         Secret = "31fa85c14dc72fee6ebf5bbb9a44f32e625898ad",
-                        StravaId = 144414
+                        StravaId = 144414,
+                        Email = "tomrankenberg@live.nl"
                     };
                     userRepo.AddUser(stravaUser);
                 }
-                stravaUser.AccessToken = token.access_token;
-                stravaUser.RefreshToken = token.refresh_token;
-                stravaUser.AccessTokenExpiresAt = token.expires_at.ToString();
-                userRepo.UpdateUser(stravaUser);
+                else
+                {
+                    stravaUser.AccessToken = token.access_token;
+                    stravaUser.RefreshToken = token.refresh_token;
+                    stravaUser.AccessTokenExpiresAt = token.expires_at.ToString();
+                    userRepo.UpdateUser(stravaUser);
+                }
             }
 
             return Ok();

@@ -14,7 +14,7 @@ namespace Data.Repos
         public void AddUser(StravaUser user)
         {
             context.Users.Add(user);
-            context.SaveChangesAsync();
+            context.SaveChanges();
         }
         public void UpdateUser(StravaUser user)
         {
