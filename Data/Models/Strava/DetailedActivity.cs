@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Strava.NET.Model;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Data.Models.Strava
 {
@@ -330,12 +331,12 @@ namespace Data.Models.Strava
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
 
-        /// <summary>
-        /// Gets or Sets Photos
-        /// </summary>
-        [DataMember(Name = "photos", EmitDefaultValue = false)]
-        [JsonProperty(PropertyName = "photos")]
-        public PhotosSummary Photos { get; set; }
+        ///// <summary>
+        ///// Gets or Sets Photos
+        ///// </summary>
+        //[DataMember(Name = "photos", EmitDefaultValue = false)]
+        //[JsonProperty(PropertyName = "photos")]
+        //public PhotosSummary Photos { get; set; }
 
         /// <summary>
         /// Gets or Sets Gear
@@ -357,6 +358,7 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "segment_efforts", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "segment_efforts")]
+        [NotMapped]
         public List<DetailedSegmentEffort> SegmentEfforts { get; set; }
 
         /// <summary>
@@ -381,15 +383,16 @@ namespace Data.Models.Strava
         /// <value>The splits of this activity in metric units (for runs)</value>
         [DataMember(Name = "splits_metric", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "splits_metric")]
+        [NotMapped]
         public List<Split> SplitsMetric { get; set; }
 
-        /// <summary>
-        /// The splits of this activity in imperial units (for runs)
-        /// </summary>
-        /// <value>The splits of this activity in imperial units (for runs)</value>
-        [DataMember(Name = "splits_standard", EmitDefaultValue = false)]
-        [JsonProperty(PropertyName = "splits_standard")]
-        public List<Split> SplitsStandard { get; set; }
+        ///// <summary>
+        ///// The splits of this activity in imperial units (for runs)
+        ///// </summary>
+        ///// <value>The splits of this activity in imperial units (for runs)</value>
+        //[DataMember(Name = "splits_standard", EmitDefaultValue = false)]
+        //[JsonProperty(PropertyName = "splits_standard")]
+        //public List<Split> SplitsStandard { get; set; }
 
         /// <summary>
         /// Gets or Sets Laps
@@ -403,6 +406,7 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "best_efforts", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "best_efforts")]
+        [NotMapped]
         public List<DetailedSegmentEffort> BestEfforts { get; set; }
 
 
@@ -454,14 +458,14 @@ namespace Data.Models.Strava
             sb.Append("  MaxWatts: ").Append(MaxWatts).Append("\n");
             sb.Append("  WeightedAverageWatts: ").Append(WeightedAverageWatts).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
-            sb.Append("  Photos: ").Append(Photos).Append("\n");
+            //sb.Append("  Photos: ").Append(Photos).Append("\n");
             sb.Append("  Gear: ").Append(Gear).Append("\n");
             sb.Append("  Calories: ").Append(Calories).Append("\n");
             sb.Append("  SegmentEfforts: ").Append(SegmentEfforts).Append("\n");
             sb.Append("  DeviceName: ").Append(DeviceName).Append("\n");
             sb.Append("  EmbedToken: ").Append(EmbedToken).Append("\n");
             sb.Append("  SplitsMetric: ").Append(SplitsMetric).Append("\n");
-            sb.Append("  SplitsStandard: ").Append(SplitsStandard).Append("\n");
+            //sb.Append("  SplitsStandard: ").Append(SplitsStandard).Append("\n");
             sb.Append("  Laps: ").Append(Laps).Append("\n");
             sb.Append("  BestEfforts: ").Append(BestEfforts).Append("\n");
             sb.Append("}\n");

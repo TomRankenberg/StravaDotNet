@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using Data.Interfaces;
-using Data.Repos;
+using Data.Models.Strava;
 using Strava.Models;
 using StravaDotNet.Controllers;
 using Xunit;
