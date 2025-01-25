@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
+﻿using Newtonsoft.Json;
 using Data.Interfaces;
 using Data.Models;
+using Data.Models.Strava;
 using Microsoft.AspNetCore.Mvc;
-using Strava.Models;
 
 namespace StravaDotNet.Controllers
 {
@@ -36,7 +36,7 @@ namespace StravaDotNet.Controllers
             {
                 string data = response.Content.ReadAsStringAsync().Result;
 
-                List<DetailedActivity> activities = JsonSerializer.Deserialize<List<DetailedActivity>>(data);
+                List<DetailedActivity> activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
                 return Ok(activities);
             }
             else
@@ -117,7 +117,7 @@ namespace StravaDotNet.Controllers
 
             var response = await client.PostAsync("https://www.strava.com/oauth/token", tokenRequest);
             var content = await response.Content.ReadAsStringAsync();
-            AccessToken token = JsonSerializer.Deserialize<AccessToken>(content);
+            AccessToken token = JsonConvert.DeserializeObject<AccessToken>(content);
 
             return token;
         }

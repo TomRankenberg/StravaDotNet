@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Strava.NET.Model;
 
-namespace Strava.Models
+namespace Data.Models.Strava
 {
 
     /// <summary>
