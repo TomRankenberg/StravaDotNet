@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace StravaDotNet.Migrations
+namespace Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250125124115_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250125140821_NewMigration")]
+    partial class NewMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

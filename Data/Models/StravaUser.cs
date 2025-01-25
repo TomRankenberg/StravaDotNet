@@ -8,8 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Data.Models
 {
-    [PrimaryKey(nameof(UserId))]
-
     public class StravaUser
     {
         public int UserId { get; set; }

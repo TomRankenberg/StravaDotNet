@@ -1,5 +1,4 @@
-﻿using System.Xml;
-using Data.Models;
+﻿using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.Context
@@ -11,7 +10,7 @@ namespace Data.Context
         {
         }
 
-        public DbSet<StravaUser> Users { get; set; }
+        public virtual DbSet<StravaUser> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

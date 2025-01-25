@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("StravaDotNet")));
+        b => b.MigrationsAssembly("Data")));
 
 builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
 
