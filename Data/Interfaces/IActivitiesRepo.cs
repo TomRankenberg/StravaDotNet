@@ -8,5 +8,6 @@ namespace Data.Interfaces
         public DetailedActivity GetActivityById(int id);
         public void UpdateActivity(DetailedActivity detailedActivity);
         public List<int> GetAllActivityIds();
+        public List<DetailedActivity> GetAllActivities();
     }
 }

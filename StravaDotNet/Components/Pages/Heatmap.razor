@@ -1,0 +1,36 @@
+﻿@page "/heatmap"
+@inject HttpClient Http
+@using System.Text.Json;
+@rendermode InteractiveServer
+
+<h3>Heatmap</h3>
+
+@code {
+    private async Task GetHeatmap()
+    {
+        try
+        {
+            var response = await Http.GetAsync("https://localhost:7237/api/Heatmap/GetHeatmap");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
+    }
+
+    public class JsonResponse
+    {
+        public string Url { get; set; }
+    }
+}
+
+ <div>
+    <form>
+        <button type="button" class="btn btn-primary" @onclick="GetHeatmap">Load heatmap</button>
+    </form>
+</div>

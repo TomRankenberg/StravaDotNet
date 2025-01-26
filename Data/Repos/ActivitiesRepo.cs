@@ -30,5 +30,9 @@ namespace Data.Repos
             }
             return ids;
         }
+        public List<DetailedActivity> GetAllActivities()
+        {
+            return context.Activities.ToList();
+        }
     }
 }
