@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Strava.Models;
+using Data.Models.Strava;
 
 namespace Strava.NET.Model
 {

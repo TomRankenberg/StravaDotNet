@@ -44,9 +44,9 @@ namespace Data.Models.Strava
         /// <summary>
         /// Gets or Sets Athlete
         /// </summary>
-        [DataMember(Name = "athlete", EmitDefaultValue = false)]
-        [JsonProperty(PropertyName = "athlete")]
-        public MetaAthlete Athlete { get; set; }
+        //[DataMember(Name = "athlete", EmitDefaultValue = false)]
+        //[JsonProperty(PropertyName = "athlete")]
+        //public MetaAthlete Athlete { get; set; }
 
         /// <summary>
         /// The name of the activity
@@ -203,6 +203,7 @@ namespace Data.Models.Strava
         [DataMember(Name = "map", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "map")]
         public PolylineMap Map { get; set; }
+        public string? Polyline { get; set; }
 
         /// <summary>
         /// Whether this activity was recorded on a training machine
@@ -282,7 +283,7 @@ namespace Data.Models.Strava
         /// <value>The id of the gear for the activity</value>
         [DataMember(Name = "gear_id", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "gear_id")]
-        public string GearId { get; set; }
+        public string? GearId { get; set; }
 
         /// <summary>
         /// The total work done in kilojoules during this activity. Rides only
@@ -342,9 +343,9 @@ namespace Data.Models.Strava
         /// <summary>
         /// Gets or Sets Gear
         /// </summary>
-        [DataMember(Name = "gear", EmitDefaultValue = false)]
-        [JsonProperty(PropertyName = "gear")]
-        public SummaryGear? Gear { get; set; }
+        //[DataMember(Name = "gear", EmitDefaultValue = false)]
+        //[JsonProperty(PropertyName = "gear")]
+        //public SummaryGear? Gear { get; set; }
 
         /// <summary>
         /// The number of kilocalories consumed during this activity
@@ -422,7 +423,7 @@ namespace Data.Models.Strava
             sb.Append("  Id: ").Append(Id).Append("\n");
             sb.Append("  ExternalId: ").Append(ExternalId).Append("\n");
             sb.Append("  UploadId: ").Append(UploadId).Append("\n");
-            sb.Append("  Athlete: ").Append(Athlete).Append("\n");
+            //sb.Append("  Athlete: ").Append(Athlete).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Distance: ").Append(Distance).Append("\n");
             sb.Append("  MovingTime: ").Append(MovingTime).Append("\n");
@@ -460,7 +461,7 @@ namespace Data.Models.Strava
             sb.Append("  WeightedAverageWatts: ").Append(WeightedAverageWatts).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             //sb.Append("  Photos: ").Append(Photos).Append("\n");
-            sb.Append("  Gear: ").Append(Gear).Append("\n");
+            //sb.Append("  Gear: ").Append(Gear).Append("\n");
             sb.Append("  Calories: ").Append(Calories).Append("\n");
             sb.Append("  SegmentEfforts: ").Append(SegmentEfforts).Append("\n");
             sb.Append("  DeviceName: ").Append(DeviceName).Append("\n");

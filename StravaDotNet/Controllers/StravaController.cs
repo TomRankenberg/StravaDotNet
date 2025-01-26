@@ -43,6 +43,9 @@ namespace StravaDotNet.Controllers
                 {
                     if (activity.Id != 0 && !activityIds.Contains((int)activity.Id) && activity.Type == "Run")
                     {
+                        //activity.AthleteId = activity.Athlete.Id;
+                        activity.Polyline = activity.Map.Polyline ?? "";
+                        activity.Map.ActivityId = activity.Id;
                         activityRepo.AddActivity(activity);
                     }
                 }
