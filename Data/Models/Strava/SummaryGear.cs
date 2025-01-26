@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Data.Models.Strava;
 
 namespace Strava.NET.Model {
 
@@ -52,12 +53,15 @@ namespace Strava.NET.Model {
     [JsonProperty(PropertyName = "distance")]
     public float? Distance { get; set; }
 
+   public ICollection<DetailedActivity> Activities { get; set; }
 
-    /// <summary>
-    /// Get the string presentation of the object
-    /// </summary>
-    /// <returns>String presentation of the object</returns>
-    public override string ToString()  {
+
+
+        /// <summary>
+        /// Get the string presentation of the object
+        /// </summary>
+        /// <returns>String presentation of the object</returns>
+        public override string ToString()  {
       var sb = new StringBuilder();
       sb.Append("class SummaryGear {\n");
       sb.Append("  Id: ").Append(Id).Append("\n");

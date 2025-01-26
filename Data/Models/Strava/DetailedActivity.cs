@@ -16,6 +16,7 @@ namespace Data.Models.Strava
     [DataContract]
     public class DetailedActivity
     {
+        public int AthleteId { get; set; }
         /// <summary>
         /// The unique identifier of the activity
         /// </summary>
