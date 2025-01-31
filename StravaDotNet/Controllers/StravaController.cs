@@ -28,7 +28,9 @@ namespace StravaDotNet.Controllers
 
             string accessToken = $"&access_token={Token}";
 
-            string url = path + effort + accessToken;
+            string activitiesToGet = "&per_page=30";
+
+            string url = path + effort + accessToken + activitiesToGet;
 
             var response = await new HttpClient().GetAsync(url);
 
@@ -44,7 +46,8 @@ namespace StravaDotNet.Controllers
                     if (activity.Id != 0 && !activityIds.Contains((int)activity.Id) && activity.Type == "Run")
                     {
                         //activity.AthleteId = activity.Athlete.Id;
-                        activity.Polyline = activity.Map.Polyline ?? "";
+                        activity.Polyline = activity.Map.SummaryPolyline ?? "";
+                        //activity.Map.Id = activity.Map.Id;
                         activity.Map.ActivityId = activity.Id;
                         activityRepo.AddActivity(activity);
                     }
