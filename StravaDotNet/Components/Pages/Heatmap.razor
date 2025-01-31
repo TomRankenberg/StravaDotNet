@@ -1,26 +1,42 @@
 ﻿@page "/heatmap"
 @inject HttpClient Http
+
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+
 @using System.Text.Json;
 @rendermode InteractiveServer
 
 <h3>Heatmap</h3>
 
 @code {
+    private List<string> polylines = new List<string>();
+
     private async Task GetHeatmap()
     {
         try
         {
-            var response = await Http.GetAsync("https://localhost:7237/api/Heatmap/GetHeatmap");
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>();
-            }
+            //var response = await Http.GetAsync("https://localhost:7237/api/Heatmap/GetHeatmap");
+            polylines = await Http.GetFromJsonAsync<List<string>>("https://localhost:7237/api/Heatmap/GetHeatmap");
+            await InitializeMap();
+
+    //         if (response.IsSuccessStatusCode)
+    //         {
+				// string responseStream = await response.Content.ReadAsStringAsync();
+    //             var jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>();
+    //         }
 
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Exception: {ex.Message}");
         }
+    }
+
+    private async Task InitializeMap()
+    {
+        // Initialize the map using JS Interop
+        await JSRuntime.InvokeVoidAsync("initializeMap", polylines);
     }
 
     public class JsonResponse
