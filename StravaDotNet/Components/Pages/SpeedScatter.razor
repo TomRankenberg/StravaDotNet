@@ -10,15 +10,15 @@
 <form>
     <button type="button" class="btn btn-secondary" margin-right:30px @onclick="LoadData">Load Data</button>
     <button type="button" class="btn btn-primary" @onclick="PlotRunSpeed">Plot run speed</button>
+    <button type="button" class="btn btn-primary" @onclick="PlotRideSpeed">Plot bike speed</button>
     <button type="button" class="btn btn-primary" @onclick="PlotMonthlyActivities">Plot monthly activities</button>
-
 
 </form>
 @if (detailedActivities != null)
 {
-    <canvas id="scatterPlot" width="400" height="200"></canvas>
-    <canvas id="stackedBars" width="400" height="200"></canvas>
-
+    <canvas id="scatterPlotRun" width="100" height="50"></canvas>
+    <canvas id="scatterPlotRide" width="100" height="50"></canvas>
+    <canvas id="stackedBars" width="200" height="100"></canvas>
 }
 
 @code {
@@ -35,7 +35,17 @@
         {
             List<DetailedActivity> selectedActivities = detailedActivities.Where(da => da.Type == "Run").ToList();
             StateHasChanged();
-            PlotScatterChart(selectedActivities);
+            PlotScatterChart(selectedActivities, "scatterPlotRide");
+        }
+    }
+
+    private async void PlotRideSpeed()
+    {
+        if (detailedActivities != null)
+        {
+            List<DetailedActivity> selectedActivities = detailedActivities.Where(da => da.Type == "Ride").ToList();
+            StateHasChanged();
+            PlotScatterChart(selectedActivities, "scatterPlotRun");
         }
     }
 
@@ -92,7 +102,7 @@
         }
     }
 
-    private void PlotScatterChart(List<DetailedActivity> activities)
+    private void PlotScatterChart(List<DetailedActivity> activities, string type)
     {
         var minDate = activities.Min(da => da.StartDate);
         var maxDate = activities.Max(da => da.StartDate);
@@ -107,7 +117,7 @@
 
         var jsonData = JsonConvert.SerializeObject(data);
 
-        JSRuntime.InvokeVoidAsync("plotScatterChart", jsonData);
+        JSRuntime.InvokeVoidAsync("plotScatterChart", jsonData, type);
     }
 
     private string GetColorForDate(DateTime? date, DateTime? minDate, DateTime? maxDate)

@@ -1,6 +1,6 @@
-﻿function plotScatterChart(data) {
+﻿function plotScatterChart(data, type) {
     var parsedData = JSON.parse(data); // Parse the JSON data
-    var ctx = document.getElementById('scatterPlot').getContext('2d');
+    var ctx = document.getElementById(type).getContext('2d');
     var scatterChart = new Chart(ctx, {
         type: 'scatter',
         data: {
