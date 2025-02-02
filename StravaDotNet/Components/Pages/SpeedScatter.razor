@@ -1,0 +1,34 @@
+﻿@page "/detailed-activity-scatter-plot"
+@using Data.Models.Strava
+@using Newtonsoft.Json
+@inject DetailedActivityService DetailedActivityService
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<h3>Detailed Activity Scatter Plot</h3>
+
+<button @onclick="LoadData">Load Data</button>
+
+@if (detailedActivities != null)
+{
+    <canvas id="scatterPlot" width="800" height="400"></canvas>
+}
+
+@code {
+    private List<DetailedActivity> detailedActivities;
+
+    private async Task LoadData()
+    {
+        detailedActivities = await DetailedActivityService.GetDetailedActivitiesAsync();
+        StateHasChanged();
+        PlotScatterChart();
+    }
+
+    private void PlotScatterChart()
+    {
+        var data = detailedActivities.Select(da => new { x = da.Distance, y = da.MovingTime }).ToList();
+        var jsonData = JsonConvert.SerializeObject(data);
+
+        JSRuntime.InvokeVoidAsync("plotScatterChart", jsonData);
+    }
+}

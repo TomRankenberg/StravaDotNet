@@ -4,6 +4,7 @@ using StravaDotNet.Components;
 using Microsoft.EntityFrameworkCore;
 using Data.Interfaces;
 using Data.Context;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,12 +15,18 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
 builder.Services.AddScoped<IActivitiesRepo, ActivitiesRepo>();
 
-
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
+builder.Services.AddRazorPages();
+builder.Services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/Components/Pages");
+
+builder.Services.AddHttpClient<DetailedActivityService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["BaseAddress"]);
+});
 
 var app = builder.Build();
 
@@ -27,7 +34,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -42,5 +48,8 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 app.MapControllers();
+//app.MapBlazorHub();
+app.MapRazorPages(); // Ensure Razor Pages are mapped
+//app.MapFallbackToPage("/_Host");
 
 app.Run();
