@@ -5,13 +5,20 @@
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
-<h3>Detailed Activity Scatter Plot</h3>
+<h3>Detailed Activity Plots</h3>
 
-<button @onclick="LoadData">Load Data</button>
+<form>
+    <button type="button" class="btn btn-secondary" margin-right:30px @onclick="LoadData">Load Data</button>
+    <button type="button" class="btn btn-primary" @onclick="PlotRunSpeed">Plot run speed</button>
+    <button type="button" class="btn btn-primary" @onclick="PlotMonthlyActivities">Plot monthly activities</button>
 
+
+</form>
 @if (detailedActivities != null)
 {
-    <canvas id="scatterPlot" width="800" height="400"></canvas>
+    <canvas id="scatterPlot" width="400" height="200"></canvas>
+    <canvas id="stackedBars" width="400" height="200"></canvas>
+
 }
 
 @code {
@@ -20,9 +27,69 @@
     private async Task LoadData()
     {
         detailedActivities = await DetailedActivityService.GetDetailedActivitiesAsync();
-		List<DetailedActivity> selectedActivities = detailedActivities.Where(da => da.Type == "Run").ToList();
-        StateHasChanged();
-        PlotScatterChart(selectedActivities);
+    }
+
+    private async void PlotRunSpeed()
+    {
+        if (detailedActivities != null)
+        {
+            List<DetailedActivity> selectedActivities = detailedActivities.Where(da => da.Type == "Run").ToList();
+            StateHasChanged();
+            PlotScatterChart(selectedActivities);
+        }
+    }
+
+    private async void PlotMonthlyActivities()
+    {
+		if (detailedActivities != null)
+        {
+            var filtereByActivity = detailedActivities.Where(da => da.Type == "Run" || da.Type == "Ride" || da.Type == "Swim").ToList();
+            var groupedActivities = filtereByActivity
+                           .GroupBy(da => new { da.StartDate.Value.Year, da.StartDate.Value.Month, da.Type })
+                           .Select(g => new
+                           {
+                               Year = g.Key.Year,
+                               Month = g.Key.Month,
+                               Type = g.Key.Type,
+                               Count = g.Count()
+                           })
+                           .ToList();
+
+            var labels = groupedActivities
+                .Select(g => $"{g.Year}-{g.Month:00}")
+                .Distinct()
+                .OrderBy(label => label)
+                .ToList();
+
+            var types = groupedActivities
+                .Select(g => g.Type)
+                .Distinct()
+                .ToList();
+
+            var datasets = types.Select(type => new
+            {
+                label = type,
+                data = labels.Select(label =>
+                {
+                    var yearMonth = label.Split('-');
+                    var year = int.Parse(yearMonth[0]);
+                    var month = int.Parse(yearMonth[1]);
+                    return groupedActivities
+                        .Where(g => g.Year == year && g.Month == month && g.Type == type)
+                        .Sum(g => g.Count);
+                }).ToList()
+            }).ToList();
+
+            var chartData = new
+            {
+                labels,
+                datasets
+            };
+
+            var jsonData = JsonConvert.SerializeObject(chartData);
+
+            JSRuntime.InvokeVoidAsync("plotStackedBarChart", jsonData);
+        }
     }
 
     private void PlotScatterChart(List<DetailedActivity> activities)
