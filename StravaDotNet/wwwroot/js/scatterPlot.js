@@ -30,6 +30,9 @@
                 }
             },
             plugins: {
+                legend: {
+                    display: false
+                },
                 tooltip: {
                     callbacks: {
                         label: function (context) {

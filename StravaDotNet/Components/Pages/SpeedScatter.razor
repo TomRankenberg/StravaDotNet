@@ -1,4 +1,4 @@
-﻿@page "/detailed-activity-scatter-plot"
+﻿@page "/detailed-activity-plots"
 @using Data.Models.Strava
 @using Newtonsoft.Json
 @inject DetailedActivityService DetailedActivityService
@@ -100,7 +100,7 @@
         var data = activities.Select(da => new
         {
             x = da.Distance / 1000,
-            y = (da.Distance / da.MovingTime) * 3.6,
+            y = Math.Round((decimal)((da.Distance / da.MovingTime) * 3.6), 3),
             date = da.StartDate?.ToString("yyyy-MM-dd"),
             color = GetColorForDate(da.StartDate, minDate, maxDate)
         }).ToList();
