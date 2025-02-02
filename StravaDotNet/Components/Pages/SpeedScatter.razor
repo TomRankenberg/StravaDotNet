@@ -20,15 +20,44 @@
     private async Task LoadData()
     {
         detailedActivities = await DetailedActivityService.GetDetailedActivitiesAsync();
+		List<DetailedActivity> selectedActivities = detailedActivities.Where(da => da.Type == "Run").ToList();
         StateHasChanged();
-        PlotScatterChart();
+        PlotScatterChart(selectedActivities);
     }
 
-    private void PlotScatterChart()
+    private void PlotScatterChart(List<DetailedActivity> activities)
     {
-        var data = detailedActivities.Select(da => new { x = da.Distance / 1000, y = (da.Distance / da.MovingTime) * 3.6 }).ToList();
+        var minDate = activities.Min(da => da.StartDate);
+        var maxDate = activities.Max(da => da.StartDate);
+
+        var data = activities.Select(da => new
+        {
+            x = da.Distance / 1000,
+            y = (da.Distance / da.MovingTime) * 3.6,
+            date = da.StartDate?.ToString("yyyy-MM-dd"),
+            color = GetColorForDate(da.StartDate, minDate, maxDate)
+        }).ToList();
+
         var jsonData = JsonConvert.SerializeObject(data);
 
         JSRuntime.InvokeVoidAsync("plotScatterChart", jsonData);
     }
+
+    private string GetColorForDate(DateTime? date, DateTime? minDate, DateTime? maxDate)
+    {
+        if (date == null || minDate == null || maxDate == null)
+            return "rgba(75, 192, 192, 0.2)"; // Default color
+
+        var totalDays = (maxDate.Value - minDate.Value).TotalDays;
+        var daysFromStart = (date.Value - minDate.Value).TotalDays;
+        var ratio = daysFromStart / totalDays;
+
+        // Calculate color based on ratio (0.0 to 1.0)
+        var red = (int)(255 * ratio);
+        var green = (int)(192 * (1 - ratio));
+        var blue = 192;
+
+        return $"rgba({red}, {green}, {blue}, 0.8)";
+    }
 }
+

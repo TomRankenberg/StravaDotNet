@@ -1,14 +1,14 @@
 ﻿function plotScatterChart(data) {
-    var parsedData = JSON.parse(data);
+    var parsedData = JSON.parse(data); // Parse the JSON data
     var ctx = document.getElementById('scatterPlot').getContext('2d');
     var scatterChart = new Chart(ctx, {
         type: 'scatter',
         data: {
             datasets: [{
                 label: 'Detailed Activities',
-                data: parsedData,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
+                data: parsedData.map(point => ({ x: point.x, y: point.y, date: point.date })),
+                backgroundColor: parsedData.map(point => point.color), // Use the color property
+                borderColor: parsedData.map(point => point.color), // Use the color property
                 borderWidth: 1
             }]
         },
@@ -25,7 +25,22 @@
                 y: {
                     title: {
                         display: true,
-                        text: 'Speed (km/h)'
+                        text: 'Average speed (km/h)'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            var label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += '(' + context.raw.x + ', ' + context.raw.y + ')';
+                            label += ' Date: ' + context.raw.date;
+                            return label;
+                        }
                     }
                 }
             }
