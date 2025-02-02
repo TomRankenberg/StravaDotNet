@@ -19,13 +19,13 @@
                     position: 'bottom',
                     title: {
                         display: true,
-                        text: 'Distance (meters)'
+                        text: 'Distance (km)'
                     }
                 },
                 y: {
                     title: {
                         display: true,
-                        text: 'Moving Time (seconds)'
+                        text: 'Speed (km/h)'
                     }
                 }
             }

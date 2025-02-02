@@ -26,7 +26,7 @@
 
     private void PlotScatterChart()
     {
-        var data = detailedActivities.Select(da => new { x = da.Distance, y = da.MovingTime }).ToList();
+        var data = detailedActivities.Select(da => new { x = da.Distance / 1000, y = (da.Distance / da.MovingTime) * 3.6 }).ToList();
         var jsonData = JsonConvert.SerializeObject(data);
 
         JSRuntime.InvokeVoidAsync("plotScatterChart", jsonData);

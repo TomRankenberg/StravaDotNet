@@ -28,9 +28,12 @@ namespace StravaDotNet.Controllers
 
             string accessToken = $"&access_token={Token}";
 
-            string activitiesToGet = "&per_page=30";
+            string activitiesToGet = "&per_page=50";
 
-            string url = path + effort + accessToken + activitiesToGet;
+            int page = 1;
+            string numberOfPages = $"&page={page}";
+
+            string url = path + effort + accessToken + activitiesToGet + numberOfPages;
 
             var response = await new HttpClient().GetAsync(url);
 
@@ -43,19 +46,37 @@ namespace StravaDotNet.Controllers
                 List<int> activityIds = activityRepo.GetAllActivityIds();
                 foreach (var activity in activities)
                 {
-                    if (activity.Id != 0 && !activityIds.Contains((int)activity.Id) && activity.Type == "Run")
+                    if (activity.Id != 0 && !activityIds.Contains((int)activity.Id))
                     {
-                        //activity.AthleteId = activity.Athlete.Id;
                         activity.Polyline = activity.Map.SummaryPolyline ?? "";
-                        //activity.Map.Id = activity.Map.Id;
                         activity.Map.ActivityId = activity.Id;
                         activityRepo.AddActivity(activity);
+                    }
+                }
+                while (activities.Count == 50)
+                {
+                    page++;
+                    numberOfPages = $"&page={page}";
+                    url = path + effort + accessToken + activitiesToGet + numberOfPages;
+                    response = await new HttpClient().GetAsync(url);
+                    data = response.Content.ReadAsStringAsync().Result;
+                    activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
+                    foreach (var activity in activities)
+                    {
+                        if (activity.Id != 0 && !activityIds.Contains((int)activity.Id))
+                        {
+                            activity.Polyline = activity.Map.SummaryPolyline ?? "";
+                            activity.Map.ActivityId = activity.Id;
+                            activityRepo.AddActivity(activity);
+                        }
                     }
                 }
                 return Ok(activities);
             }
             else
             {
+                string data = response.Content.ReadAsStringAsync().Result;
+
                 return BadRequest();
             }
         }
