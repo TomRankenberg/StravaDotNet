@@ -13,10 +13,10 @@ function initializeHeatMap(polylines) {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    polylines.forEach(function (polyline) {
-        var latlngs = L.PolylineUtil.decode(polyline);
-        L.polyline(latlngs, { color: 'red' }).addTo(map);
+    polylines.forEach(function (encodedLine) {
+        var latlngs = polyline.decode(encodedLine).map(function (coord) {
+            return [coord[0], coord[1]];
+        });
+        L.polyline(latlngs, {smoothFactor: 5, color: 'blue',  opacity: 0.1 }).addTo(map);
     });
 }
-
-

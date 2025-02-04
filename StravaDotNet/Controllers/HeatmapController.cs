@@ -13,7 +13,8 @@ namespace StravaDotNet.Controllers
         {
             List<DetailedActivity> activities = activitiesRepo.GetAllActivities();
 
-            List<string> polylines = activities.Select(a => a.Polyline).ToList();
+            List<string> polylines = activities.Where(a => a.Type =="Run").Select(a => a.Polyline).ToList();
+
             return Ok(polylines);
         }
     }

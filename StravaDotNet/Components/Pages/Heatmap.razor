@@ -42,7 +42,7 @@
 
     private async Task InitializeMap()
     {
-        await JSRuntime.InvokeVoidAsync("initializeHeatMap", polylines.Take(2));
+        await JSRuntime.InvokeVoidAsync("initializeHeatMap", polylines);
     }
 
     public class JsonResponse
