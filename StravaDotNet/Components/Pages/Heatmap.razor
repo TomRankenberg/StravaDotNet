@@ -12,27 +12,19 @@
         <button type="button" class="btn btn-primary" @onclick="GetHeatmap">Load heatmap</button>
     </form>
 </div>
-<div id="map" style="width: 100%; height: 400px;"></div> <!-- Update to a div with appropriate dimensions -->
+<div id="map" style="width: 70%; height: 400px;"></div>
+<p>Number of activities plotted: @polylineCount</p>
 @code {
     private List<string> polylines = new List<string>();
-
-    private IJSObjectReference? module;
-    private string? result;
-
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     if (firstRender)
-    //     {
-    //         await JSRuntime.InvokeVoidAsync("load_map"); // Ensure correct invocation
-    //     }
-    // }
+	private int polylineCount = 0;
 
     private async Task GetHeatmap()
     {
         try
         {
-            polylines = await Http.GetFromJsonAsync<List<string>>("https://localhost:7237/api/Heatmap/GetHeatmap");
+            polylines = await Http.GetFromJsonAsync<List<string>>("https://localhost:7237/api/Heatmap/GetHeatmap?activity=Run");
             await InitializeMap();
+			polylineCount = polylines.Count;
         }
         catch (Exception ex)
         {

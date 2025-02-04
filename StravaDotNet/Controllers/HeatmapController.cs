@@ -9,11 +9,11 @@ namespace StravaDotNet.Controllers
     {
         [HttpGet]
         [Route("GetHeatmap")]
-        public IActionResult GetHeatmap()
+        public IActionResult GetHeatmap(string activity)
         {
             List<DetailedActivity> activities = activitiesRepo.GetAllActivities();
 
-            List<string> polylines = activities.Where(a => a.Type =="Run").Select(a => a.Polyline).ToList();
+            List<string> polylines = activities.Where(a => a.Type == activity).Select(a => a.Polyline).ToList();
 
             return Ok(polylines);
         }
