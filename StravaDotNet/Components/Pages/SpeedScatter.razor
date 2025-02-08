@@ -9,16 +9,13 @@
 
 <form>
     <button type="button" class="btn btn-secondary" margin-right:30px @onclick="LoadData">Load Data</button>
-    <button type="button" class="btn btn-primary" @onclick="PlotRunSpeed">Plot run speed</button>
-    <button type="button" class="btn btn-primary" @onclick="PlotRideSpeed">Plot bike speed</button>
-    <button type="button" class="btn btn-primary" @onclick="PlotMonthlyActivities">Plot monthly activities</button>
-
 </form>
 @if (detailedActivities != null)
 {
     <canvas id="scatterPlotRun" width="100" height="50"></canvas>
     <canvas id="scatterPlotRide" width="100" height="50"></canvas>
-    <canvas id="stackedBars" width="200" height="100"></canvas>
+    <canvas id="stackedBarsMonths" width="200" height="100"></canvas>
+    <canvas id="stackedBarsHours" width="200" height="100"></canvas>
 }
 
 @code {
@@ -27,6 +24,10 @@
     private async Task LoadData()
     {
         detailedActivities = await DetailedActivityService.GetDetailedActivitiesAsync();
+        PlotRunSpeed();
+        PlotRideSpeed();
+        PlotMonthlyActivities();
+        PlotHourlyActivities();
     }
 
     private async void PlotRunSpeed()
@@ -98,7 +99,63 @@
 
             var jsonData = JsonConvert.SerializeObject(chartData);
 
-            JSRuntime.InvokeVoidAsync("plotStackedBarChart", jsonData);
+			string stackedBarsMonths = "stackedBarsMonths";
+            JSRuntime.InvokeVoidAsync("plotStackedBarChart", jsonData, stackedBarsMonths, "Year-Month");
+        }
+    }
+
+    private async void PlotHourlyActivities()
+    {
+        if (detailedActivities != null)
+        {
+            var filtereByActivity = detailedActivities.Where(da => da.Type == "Run" || da.Type == "Ride" || da.Type == "Swim").ToList();
+            var groupedActivities = filtereByActivity
+                           .GroupBy(da => new { da.StartDateLocal.Value.Year, da.StartDateLocal.Value.Hour, da.Type })
+                           .Select(g => new
+                           {
+                               Year = g.Key.Year,
+                               Hour = g.Key.Hour,
+                               Type = g.Key.Type,
+                               Count = g.Count()
+                           })
+                           .ToList();
+
+            var labels = groupedActivities
+                .Select(g => $"{g.Year}-{g.Hour:00}")
+                .Distinct()
+                .OrderBy(label => label)
+                .ToList();
+
+            var types = groupedActivities
+                .Select(g => g.Type)
+                .Distinct()
+                .ToList();
+
+            var datasets = types.Select(type => new
+            {
+                label = type,
+                data = labels.Select(label =>
+                {
+                    var yearHour = label.Split('-');
+                    var year = int.Parse(yearHour[0]);
+                    var hour = int.Parse(yearHour[1]);
+                    return groupedActivities
+                        .Where(g => g.Year == year && g.Hour == hour && g.Type == type)
+                        .Sum(g => g.Count);
+                }).ToList()
+            }).ToList();
+
+            var chartData = new
+            {
+                labels,
+                datasets
+            };
+
+            var jsonData = JsonConvert.SerializeObject(chartData);
+
+            string stackedBarsHours = "stackedBarsHours";
+
+            JSRuntime.InvokeVoidAsync("plotStackedBarChart", jsonData, stackedBarsHours, "Year-Hour");
         }
     }
 
