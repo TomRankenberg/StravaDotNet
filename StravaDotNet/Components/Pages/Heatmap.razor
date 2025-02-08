@@ -2,6 +2,7 @@
 @inject HttpClient Http
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
+@using Data.Models.Strava
 
 @using System.Text.Json;
 @rendermode InteractiveServer
@@ -16,7 +17,9 @@
 <p>Number of activities plotted: @polylineCount</p>
 @code {
     private List<string> polylines = new List<string>();
-	private int polylineCount = 0;
+    private int polylineCount = 0;
+
+    private List<LatLng> latLngs = new List<LatLng>();
 
     private async Task GetHeatmap()
     {
@@ -24,12 +27,19 @@
         {
             polylines = await Http.GetFromJsonAsync<List<string>>("https://localhost:7237/api/Heatmap/GetHeatmap?activity=Run");
             await InitializeMap();
-			polylineCount = polylines.Count;
+            polylineCount = polylines.Count;
+
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Exception: {ex.Message}");
         }
+    }
+
+    private async Task PolyLinesToLatLngs()
+    {
+        var latLngsDirect = await JSRuntime.InvokeAsync<List<LatLng>>("polylinesToLatLngs", polylines);
+        latLngs = latLngsDirect;
     }
 
     private async Task InitializeMap()

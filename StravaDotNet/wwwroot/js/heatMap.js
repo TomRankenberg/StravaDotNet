@@ -20,3 +20,14 @@ function initializeHeatMap(polylines) {
         L.polyline(latlngs, {smoothFactor: 5, color: 'blue',  opacity: 0.1 }).addTo(map);
     });
 }
+
+function polylinesToLatLngs(polylines) {
+    var allLatLngs = [];
+    polylines.forEach(function (encodedLine) {
+        var latlngs = polyline.decode(encodedLine).map(function (coord) {
+            return [coord[0], coord[1]];
+        });
+        allLatLngs.push(latlngs);
+    });
+    return allLatLngs
+}
