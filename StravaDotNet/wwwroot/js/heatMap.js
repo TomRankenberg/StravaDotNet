@@ -17,7 +17,7 @@ function initializeHeatMap(polylines) {
         var latlngs = polyline.decode(encodedLine).map(function (coord) {
             return [coord[0], coord[1]];
         });
-        L.polyline(latlngs, {smoothFactor: 5, color: 'blue',  opacity: 0.1 }).addTo(map);
+        L.polyline(latlngs, {smoothFactor: 5, color: 'blue',  opacity: 0.2 }).addTo(map);
     });
 }
 

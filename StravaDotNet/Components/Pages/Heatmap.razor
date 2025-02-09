@@ -1,5 +1,6 @@
 ﻿@page "/heatmap"
 @inject HttpClient Http
+@using DataManagement.Models
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
 @using Data.Models.Strava
@@ -20,12 +21,15 @@
     private int polylineCount = 0;
 
     private List<LatLng> latLngs = new List<LatLng>();
-
+	private HeatMapData heatMapData = new HeatMapData();
     private async Task GetHeatmap()
     {
         try
         {
-            polylines = await Http.GetFromJsonAsync<List<string>>("https://localhost:7237/api/Heatmap/GetHeatmap?activity=Run");
+            heatMapData = await Http.GetFromJsonAsync<HeatMapData>("https://localhost:7237/api/Heatmap/GetHeatmap?activity=Run");
+
+			polylines = heatMapData.Input.Select(i => i.Polyline).ToList();
+
             await InitializeMap();
             polylineCount = polylines.Count;
 
@@ -44,7 +48,7 @@
 
     private async Task InitializeMap()
     {
-        await JSRuntime.InvokeVoidAsync("initializeHeatMap", polylines);
+        await JSRuntime.InvokeVoidAsync("initializeHeatMap", heatMapData);
     }
 
     public class JsonResponse

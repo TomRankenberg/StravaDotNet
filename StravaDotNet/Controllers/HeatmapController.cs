@@ -1,5 +1,7 @@
 ﻿using Data.Interfaces;
 using Data.Models.Strava;
+using DataManagement.BusinessLogic;
+using DataManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace StravaDotNet.Controllers
@@ -12,10 +14,11 @@ namespace StravaDotNet.Controllers
         public IActionResult GetHeatmap(string activity)
         {
             List<DetailedActivity> activities = activitiesRepo.GetAllActivities();
+            HeatMapData heatMapData = HeatmapManager.ProcessHeatmapData(activities);
 
-            List<string> polylines = activities.Where(a => a.Type == activity).Select(a => a.Polyline).ToList();
+            heatMapData.Input = heatMapData.Input.Where(a => a.ActivityType == activity).ToList();
 
-            return Ok(polylines);
+            return Ok(heatMapData);
         }
     }
 }
