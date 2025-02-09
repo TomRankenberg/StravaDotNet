@@ -21,7 +21,7 @@ namespace DataManagement.BusinessLogic
             {
                 HeatmapInput input = new HeatmapInput();
                 input.ActivityType = activity.Type;
-                input.Polyline = activity.Polyline;
+                input.EncodedPolyline = activity.Polyline;
                 input.StartPoint = activity.StartLatlng;
                 input.EndPoint = activity.EndLatlng;
                 input.StartTime = activity.StartDateLocal;
@@ -63,9 +63,14 @@ namespace DataManagement.BusinessLogic
                     input.StartLocation = "Rooseveltlaan";
                     return input;
                 }
-                else
+                else if (smallestDistance == amaliaDistance)
                 {
                     input.StartLocation = "Amaliastraat";
+                    return input;
+                }
+                else
+                {
+                    input.StartLocation = "Unknown";
                     return input;
                 }
             }

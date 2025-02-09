@@ -14,7 +14,7 @@
         <button type="button" class="btn btn-primary" @onclick="GetHeatmap">Load heatmap</button>
     </form>
 </div>
-<div id="map" style="width: 70%; height: 400px;"></div>
+<div id="map" style="width: 70%; height: 700px;"></div>
 <p>Number of activities plotted: @polylineCount</p>
 @code {
     private List<string> polylines = new List<string>();
@@ -22,13 +22,15 @@
 
     private List<LatLng> latLngs = new List<LatLng>();
 	private HeatMapData heatMapData = new HeatMapData();
+	private string heatMapDataString = "";
     private async Task GetHeatmap()
     {
         try
         {
             heatMapData = await Http.GetFromJsonAsync<HeatMapData>("https://localhost:7237/api/Heatmap/GetHeatmap?activity=Run");
 
-			polylines = heatMapData.Input.Select(i => i.Polyline).ToList();
+			heatMapDataString = JsonSerializer.Serialize(heatMapData);
+            polylines = heatMapData.Input.Select(i => i.EncodedPolyline).ToList();
 
             await InitializeMap();
             polylineCount = polylines.Count;
@@ -48,7 +50,7 @@
 
     private async Task InitializeMap()
     {
-        await JSRuntime.InvokeVoidAsync("initializeHeatMap", heatMapData);
+        await JSRuntime.InvokeVoidAsync("initializeHeatMap", heatMapDataString);
     }
 
     public class JsonResponse

@@ -4,7 +4,7 @@ namespace DataManagement.Models
 {
     public class HeatmapInput
     {
-        public string Polyline { get; set; }
+        public string EncodedPolyline { get; set; }
         public LatLng StartPoint { get; set; }
         public LatLng EndPoint { get; set; }
         public DateTime? StartTime { get; set; }
