@@ -11,12 +11,24 @@ namespace StravaDotNet.Controllers
     {
         [HttpGet]
         [Route("GetHeatmap")]
-        public IActionResult GetHeatmap(string activity)
+        public IActionResult GetHeatmap(bool runs, bool rides)
         {
             List<DetailedActivity> activities = activitiesRepo.GetAllActivities();
-            HeatMapData heatMapData = HeatmapManager.GetHeatmapData(activities);
 
-            heatMapData.Input = heatMapData.Input.Where(a => a.ActivityType == activity).ToList();
+            if (runs && rides)
+            {
+                activities = activities.Where(a => a.Type == "Run" || a.Type == "Ride").ToList();
+            }
+            else if (runs)
+            {
+                activities = activities.Where(a => a.Type == "Run").ToList();
+            }
+            else if (rides)
+            {
+                activities = activities.Where(a => a.Type == "Ride").ToList();
+            }
+            
+            HeatMapData heatMapData = HeatmapManager.GetHeatmapData(activities);
 
             return Ok(heatMapData);
         }

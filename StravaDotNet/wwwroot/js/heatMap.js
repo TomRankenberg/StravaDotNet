@@ -22,9 +22,10 @@ function initializeHeatMap(heatMapData) {
     });
 }
 
-function polylinesToLatLngs(polylines) {
+function polylinesToLatLngs(encodedPolylines) {
+
     var allLatLngs = [];
-    polylines.forEach(function (encodedLine) {
+    encodedPolylines.forEach(function (encodedLine) {
         var latlngs = polyline.decode(encodedLine).map(function (coord) {
             return [coord[0], coord[1]];
         });
