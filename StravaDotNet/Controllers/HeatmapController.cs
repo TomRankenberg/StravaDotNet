@@ -14,7 +14,7 @@ namespace StravaDotNet.Controllers
         public IActionResult GetHeatmap(string activity)
         {
             List<DetailedActivity> activities = activitiesRepo.GetAllActivities();
-            HeatMapData heatMapData = HeatmapManager.ProcessHeatmapData(activities);
+            HeatMapData heatMapData = HeatmapManager.GetHeatmapData(activities);
 
             heatMapData.Input = heatMapData.Input.Where(a => a.ActivityType == activity).ToList();
 

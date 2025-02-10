@@ -13,25 +13,13 @@ function initializeHeatMap(heatMapData) {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    var data = JSON.parse(heatMapData); // Parse the JSON data
+    var data = JSON.parse(heatMapData);
     data.Input.forEach(function (item) {
         var latlngs = polyline.decode(item.EncodedPolyline).map(function (coord) {
             return [coord[0], coord[1]];
         });
-        var color = getColorBasedOnStartLocation(item.StartLocation);
-        L.polyline(latlngs, { smoothFactor: 5, color: color, opacity: 0.2 }).addTo(map);
+        L.polyline(latlngs, { smoothFactor: 5, color: item.LineColor, opacity: item.LineOpacity }).addTo(map);
     });
-}
-
-function getColorBasedOnStartLocation(startLocation) {
-    // Define a color mapping based on start location
-    var colorMapping = {
-        "Amaliastraat": "black",
-        "Rooseveltlaan": "red",
-        "Molukkenstraat": "green",
-        // Add more mappings as needed
-    };
-    return colorMapping[startLocation] || "black"; // Default color if not found
 }
 
 function polylinesToLatLngs(polylines) {

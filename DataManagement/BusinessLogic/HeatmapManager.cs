@@ -5,12 +5,6 @@ namespace DataManagement.BusinessLogic
 {
     public class HeatmapManager
     {
-        public static HeatMapData ProcessHeatmapData(List<DetailedActivity> activities)
-        {
-            HeatMapData data = GetHeatmapData(activities);
-
-            return data;
-        }
 
         public static HeatMapData GetHeatmapData(List<DetailedActivity> activities)
         {
@@ -25,6 +19,7 @@ namespace DataManagement.BusinessLogic
                 input.StartPoint = activity.StartLatlng;
                 input.EndPoint = activity.EndLatlng;
                 input.StartTime = activity.StartDateLocal;
+                input.LineOpacity = Math.Clamp(5.0 / activities.Count, 0.2, 1.0);
                 input = DetermineStartLocation(input);
                 data.Input.Add(input);
             }
@@ -33,9 +28,9 @@ namespace DataManagement.BusinessLogic
 
         public static HeatmapInput DetermineStartLocation(HeatmapInput input)
         {
-            double[] amaliaStraat = { 52.09262715438605, 5.092068072807608 };
+            double[] molukkenStraat = { 52.09262715438605, 5.092068072807608 };
             double[] rooseveltLaan = { 52.071870429353034, 5.08918803820036 };
-            double[] molukkenStraat = { 52.07665919642143, 5.117474360648716};
+            double[] amaliaStraat = { 52.07665919642143, 5.117474360648716};
 
             if (input.StartPoint != null && input.StartPoint.Count > 0 && input.StartPoint[0] != null && input.StartPoint[1] != null)
             {
@@ -47,36 +42,42 @@ namespace DataManagement.BusinessLogic
 
                 double smallestDistance = Math.Min(molukkenDistance, Math.Min(rooseveltDistance, amaliaDistance));
 
-                if ( smallestDistance > 10)
+                if ( smallestDistance > 0.01)
                 {
                     input.StartLocation = "Other";
+                    input.LineColor = "black";
                     return input;
                 }
 
                 if (smallestDistance == molukkenDistance)
                 {
                     input.StartLocation = "Molukkenstraat";
+                    input.LineColor = "green";
                     return input;
                 }
                 else if (smallestDistance == rooseveltDistance)
                 {
                     input.StartLocation = "Rooseveltlaan";
+                    input.LineColor = "red";
                     return input;
                 }
                 else if (smallestDistance == amaliaDistance)
                 {
                     input.StartLocation = "Amaliastraat";
+                    input.LineColor = "blue";
                     return input;
                 }
                 else
                 {
                     input.StartLocation = "Unknown";
+                    input.LineColor = "black";
                     return input;
                 }
             }
             else
             {
                 input.StartLocation = "Unknown";
+                input.LineColor = "black";
                 return input;
             }
         }

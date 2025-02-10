@@ -10,6 +10,8 @@ namespace DataManagement.Models
         public DateTime? StartTime { get; set; }
         public string StartLocation { get; set; }
         public string ActivityType { get; set; }
+        public double LineOpacity { get; set; }
+        public string LineColor { get; set; }
     }
 
     public class HeatMapData
