@@ -73,6 +73,12 @@ namespace StravaDotNet.Controllers
                         }
                     }
                 }
+
+                var detailedActivityResponse = GetActivityById(activities[0].Id);
+                data = detailedActivityResponse.Result.ToString();
+                DetailedActivity detailedActivity = JsonConvert.DeserializeObject<DetailedActivity>(data);
+
+
                 return Ok(activities);
             }
             else
@@ -83,7 +89,32 @@ namespace StravaDotNet.Controllers
             }
         }
 
-        [HttpGet]
+        public async Task<IActionResult> GetActivityById(long? activityId)
+        {
+            if (Token == null)
+            {
+                StravaUser stravaUser = userRepo.GetUserById(1);
+                Token = stravaUser.AccessToken;
+            }
+            string accessToken = $"&access_token={Token}";
+
+            string path = $"https://www.strava.com/api/v3/activities/{activityId}?include_all_efforts=true";
+            string url = path + accessToken;
+            var response = await new HttpClient().GetAsync(url);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string data = response.Content.ReadAsStringAsync().Result;
+                DetailedActivity activity = JsonConvert.DeserializeObject<DetailedActivity>(data);
+                return Ok(activity);
+            }
+            else
+            {
+                string data = response.Content.ReadAsStringAsync().Result;
+                return BadRequest();
+            }
+        }
+
+            [HttpGet]
         [Route("ConnectToStrava")]
         public IActionResult ConnectToStrava()
         {
