@@ -1,6 +1,7 @@
 ﻿using Data.Context;
 using Data.Interfaces;
 using Data.Models.Strava;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.Repos
 {
@@ -11,15 +12,18 @@ namespace Data.Repos
             context.Activities.Add(detailedActivity);
             context.SaveChanges();
         }
+
         public DetailedActivity GetActivityById(int id)
         {
             return context.Activities.FirstOrDefault(x => x.Id == id);
         }
+
         public void UpdateActivity(DetailedActivity detailedActivity)
         {
             context.Activities.Update(detailedActivity);
             context.SaveChanges();
         }
+
         public List<int> GetAllActivityIds()
         {
             List<int> ids = [];
@@ -30,6 +34,12 @@ namespace Data.Repos
             }
             return ids;
         }
+
+        public void DetachActivity(DetailedActivity detailedActivity)
+        {
+            context.Entry(detailedActivity).State = EntityState.Detached;
+        }
+
         public List<DetailedActivity> GetAllActivities()
         {
             return context.Activities.ToList();

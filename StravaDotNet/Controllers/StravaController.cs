@@ -46,13 +46,35 @@ namespace StravaDotNet.Controllers
                 List<DetailedActivity> activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
 
                 List<int> activityIds = activityRepo.GetAllActivityIds();
-                foreach (var activity in activities)
+                foreach (DetailedActivity activity in activities)
                 {
                     if (activity.Id != 0 && !activityIds.Contains((int)activity.Id))
                     {
-                        activity.Polyline = activity.Map.SummaryPolyline ?? "";
-                        activity.Map.ActivityId = activity.Id;
-                        activityRepo.AddActivity(activity);
+                        IActionResult detailedActivityResponse = await GetActivityById(activity.Id);
+
+                        if (detailedActivityResponse is OkObjectResult okResult)
+                        {
+                            if (okResult.Value is DetailedActivity detailedActivity)
+                            {
+                                detailedActivity.Polyline = detailedActivity.Map.SummaryPolyline ?? "";
+                                detailedActivity.Map.ActivityId = detailedActivity.Id;
+                                foreach (DetailedSegmentEffort effort in detailedActivity.SegmentEfforts)
+                                {
+                                    effort.DetailedActivity = detailedActivity;
+                                }
+                                foreach (Split split in detailedActivity.SplitsMetric)
+                                {
+                                    split.DetailedActivity = detailedActivity;
+                                }
+                                foreach (Lap lap in detailedActivity.Laps)
+                                {
+                                    lap.DetailedActivity = detailedActivity;
+                                }
+
+                                activityRepo.DetachActivity(detailedActivity);
+                                activityRepo.AddActivity(detailedActivity);
+                            }
+                        }
                     }
                 }
                 while (activities.Count == 50 && after == null)
@@ -73,11 +95,6 @@ namespace StravaDotNet.Controllers
                         }
                     }
                 }
-
-                var detailedActivityResponse = GetActivityById(activities[0].Id);
-                data = detailedActivityResponse.Result.ToString();
-                DetailedActivity detailedActivity = JsonConvert.DeserializeObject<DetailedActivity>(data);
-
 
                 return Ok(activities);
             }
@@ -114,7 +131,7 @@ namespace StravaDotNet.Controllers
             }
         }
 
-            [HttpGet]
+        [HttpGet]
         [Route("ConnectToStrava")]
         public IActionResult ConnectToStrava()
         {

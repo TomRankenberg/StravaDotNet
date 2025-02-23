@@ -7,6 +7,7 @@ namespace Data.Interfaces
         public void AddActivity(DetailedActivity detailedActivity);
         public DetailedActivity GetActivityById(int id);
         public void UpdateActivity(DetailedActivity detailedActivity);
+        public void DetachActivity(DetailedActivity detailedActivity);
         public List<int> GetAllActivityIds();
         public List<DetailedActivity> GetAllActivities();
     }

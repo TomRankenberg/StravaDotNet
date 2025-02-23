@@ -24,6 +24,10 @@ namespace Data.Context
             modelBuilder.Entity<StravaUser>().HasKey(x => x.UserId);
             
             modelBuilder.Entity<DetailedActivity>().HasKey(x => x.Id);
+            modelBuilder.Entity<DetailedActivity>().HasMany(x => x.SegmentEfforts).
+                WithOne(x => x.DetailedActivity).HasForeignKey(x => x.Id);
+
+
             //modelBuilder.Entity<MetaAthlete>().
             //    HasMany(x => x.Activities).
             //    WithOne(x => x.Athlete).
