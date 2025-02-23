@@ -12,11 +12,18 @@
     private bool isLoading = false;
     private bool isDataLoaded = false;
 
-    private async Task GetActivitiesAsync()
+    private async Task GetActivitiesAsync(bool lastMonthOnly)
     {
         isLoading = true;
         isDataLoaded = false;
-        string requestUri = $"https://localhost:7237/api/Strava/GetActivitiesAsync?includeAllEfforts=true";
+        string requestUri = "https://localhost:7237/api/Strava/GetActivitiesAsync";
+		if (lastMonthOnly)
+		{
+			DateTime oneMonthAgo = DateTime.Now.AddMonths(-1);
+            int secondsAfter = (int)oneMonthAgo.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+
+			requestUri += $"?after={secondsAfter}";
+		}
         try
         {
             var response = await Http.GetAsync(requestUri);
@@ -40,10 +47,7 @@
             isLoading = false;
         }
     }
-    private void TestMethod()
-    {
-        Console.WriteLine("TestMethod called");
-    }
+
     private async Task ConnectToStrava() 
     { 
         try { 
@@ -73,7 +77,9 @@
     <h4>Fetch Activity</h4>
     <form>
         <button type="button" class="btn btn-secondary" margin-right:30px @onclick="ConnectToStrava">Connect</button>
-        <button type="button" class="btn btn-primary" @onclick="GetActivitiesAsync">Fetch Activity</button>
+        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(false)">Fetch all data</button>
+        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(true)">Fetch last month</button>
+
 
     </form>
 

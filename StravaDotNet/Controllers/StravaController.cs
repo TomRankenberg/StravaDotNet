@@ -15,25 +15,27 @@ namespace StravaDotNet.Controllers
 
         [HttpGet]
         [Route("GetActivitiesAsync")]
-        public async Task<IActionResult> GetActivitiesAsync(bool includeAllEfforts)
+        public async Task<IActionResult> GetActivitiesAsync(int? after)
         {
-            string path = "https://www.strava.com/api/v3/athlete/activities/";
-
-            string effort = $"?include_all_efforts={includeAllEfforts.ToString().ToLower()}";
             if (Token == null)
             {
                 StravaUser stravaUser = userRepo.GetUserById(1);
                 Token = stravaUser.AccessToken;
             }
+            string accessToken = $"?access_token={Token}";
 
-            string accessToken = $"&access_token={Token}";
+            string afterString = "";
+            if (after != null)
+            {
+                afterString = $"&after={after}";
+            }
 
             string activitiesToGet = "&per_page=50";
-
             int page = 1;
             string numberOfPages = $"&page={page}";
+            string path = "https://www.strava.com/api/v3/athlete/activities/";
 
-            string url = path + effort + accessToken + activitiesToGet + numberOfPages;
+            string url = path + accessToken + activitiesToGet + numberOfPages + afterString;
 
             var response = await new HttpClient().GetAsync(url);
 
@@ -53,11 +55,11 @@ namespace StravaDotNet.Controllers
                         activityRepo.AddActivity(activity);
                     }
                 }
-                while (activities.Count == 50)
+                while (activities.Count == 50 && after == null)
                 {
                     page++;
                     numberOfPages = $"&page={page}";
-                    url = path + effort + accessToken + activitiesToGet + numberOfPages;
+                    url = path + accessToken + activitiesToGet + numberOfPages;
                     response = await new HttpClient().GetAsync(url);
                     data = response.Content.ReadAsStringAsync().Result;
                     activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
