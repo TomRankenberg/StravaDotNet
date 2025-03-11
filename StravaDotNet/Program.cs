@@ -1,13 +1,15 @@
-using Data.Models;
 using Data.Repos;
 using StravaDotNet.Components;
 using Microsoft.EntityFrameworkCore;
 using Data.Interfaces;
 using Data.Context;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
+builder.Services.AddMudServices();
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"),
         b => b.MigrationsAssembly("Data")));
@@ -15,7 +17,6 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
 builder.Services.AddScoped<IActivitiesRepo, ActivitiesRepo>();
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient();

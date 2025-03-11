@@ -1,0 +1,63 @@
+﻿@page "/history"
+@using Data.Models.Strava
+@using MudBlazor
+@inject DetailedActivityService DetailedActivityService
+@rendermode InteractiveServer
+
+<PageTitle>Activity History</PageTitle>
+
+<form>
+    <button type="button" class="btn btn-secondary" style="margin-right:30px;" @onclick="LoadData">Load Data</button>
+</form>
+
+<MudTable Items="simpleActivities" Hover="true">
+    <HeaderContent>
+        <MudTh>Type</MudTh>
+        <MudTh>Date</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>
+            <MudIcon Icon="@GetIcon(context.Type)" />
+        </MudTd>
+        <MudTd>@context.StartDate.ToString("MM/dd/yyyy")</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private List<DetailedActivity> detailedActivities;
+    private List<SimpleActivity> simpleActivities;
+
+    private async Task LoadData()
+    {
+        detailedActivities = await DetailedActivityService.GetDetailedActivitiesAsync();
+        simpleActivities = new List<SimpleActivity>();
+        foreach (DetailedActivity detailedActivity in detailedActivities)
+        {
+            if (detailedActivity.StartDate.HasValue && detailedActivity.Type != null)
+            {
+                simpleActivities.Add(new SimpleActivity
+                    {
+                        Type = detailedActivity.Type,
+                        StartDate = detailedActivity.StartDate.Value
+                    });
+            }
+        }
+    }
+
+    private string GetIcon(string type)
+    {
+        return type switch
+        {
+            "Run" => Icons.Material.Filled.DirectionsRun,
+            "Ride" => Icons.Material.Filled.DirectionsBike,
+            "Swim" => Icons.Material.Filled.Pool,
+            _ => Icons.Material.Filled.Help
+        };
+    }
+
+    private class SimpleActivity
+    {
+        public string Type { get; set; }
+        public DateTime StartDate { get; set; }
+    }
+}
