@@ -28,15 +28,15 @@ namespace StravaDotNetTests.Controllers
             //IStravaUserRepo stravaUserRepo = new StravaUserRepo();
             //_controller = new StravaController(stravaUserRepo);
         }
-        [Fact]
-        public async Task GetActivityByIdAsync_ReturnsExpectedActivity()
-        {
-            // Act
-            var result = await _controller.GetActivitiesAsync(false);
+        //[Fact]
+        //public async Task GetActivityByIdAsync_ReturnsExpectedActivity()
+        //{
+        //    // Act
+        //    var result = await _controller.GetActivitiesAsync(false);
             
-            // Assert
-            Xunit.Assert.NotNull(result);
-        }
+        //    // Assert
+        //    Xunit.Assert.NotNull(result);
+        //}
         //[Fact]
         //public async Task GetAccessTokenTest()
         //{

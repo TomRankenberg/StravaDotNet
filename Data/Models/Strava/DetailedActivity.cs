@@ -43,9 +43,9 @@ namespace Data.Models.Strava
         /// <summary>
         /// Gets or Sets Athlete
         /// </summary>
-        //[DataMember(Name = "athlete", EmitDefaultValue = false)]
-        //[JsonProperty(PropertyName = "athlete")]
-        //public MetaAthlete Athlete { get; set; }
+        [DataMember(Name = "athlete", EmitDefaultValue = false)]
+        [JsonProperty(PropertyName = "athlete")]
+        public MetaAthlete Athlete { get; set; }
 
         /// <summary>
         /// The name of the activity
@@ -203,6 +203,7 @@ namespace Data.Models.Strava
         [JsonProperty(PropertyName = "map")]
         public PolylineMap Map { get; set; }
         public string? Polyline { get; set; }
+        public string MapId { get; set; }
 
         /// <summary>
         /// Whether this activity was recorded on a training machine

@@ -106,9 +106,6 @@ namespace Data.Migrations
                     b.Property<int?>("MaxWatts")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("MetaAthleteId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int?>("MovingTime")
                         .HasColumnType("INTEGER");
 
@@ -163,11 +160,158 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MapId");
+                    b.HasIndex("AthleteId");
 
-                    b.HasIndex("MetaAthleteId");
+                    b.HasIndex("MapId")
+                        .IsUnique();
 
                     b.ToTable("Activities");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.DetailedSegmentEffort", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("ActivityId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<float?>("AverageCadence")
+                        .HasColumnType("REAL");
+
+                    b.Property<float?>("AverageHeartrate")
+                        .HasColumnType("REAL");
+
+                    b.Property<float?>("AverageWatts")
+                        .HasColumnType("REAL");
+
+                    b.Property<bool?>("DeviceWatts")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<float?>("Distance")
+                        .HasColumnType("REAL");
+
+                    b.Property<int?>("ElapsedTime")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("EndIndex")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool?>("Hidden")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool?>("IsKom")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("KomRank")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<float?>("MaxHeartrate")
+                        .HasColumnType("REAL");
+
+                    b.Property<int?>("MovingTime")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PrRank")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("SegmentId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("StartDateLocal")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StartIndex")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId");
+
+                    b.HasIndex("SegmentId");
+
+                    b.ToTable("SegmentEfforts");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.Lap", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<float?>("AverageCadence")
+                        .HasColumnType("REAL");
+
+                    b.Property<float?>("AverageSpeed")
+                        .HasColumnType("REAL");
+
+                    b.Property<long>("DetailedActivityId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<float?>("Distance")
+                        .HasColumnType("REAL");
+
+                    b.Property<int?>("ElapsedTime")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("EndIndex")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("LapIndex")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<float?>("MaxSpeed")
+                        .HasColumnType("REAL");
+
+                    b.Property<int?>("MovingTime")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PaceZone")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Split")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("StartDateLocal")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StartIndex")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<float?>("TotalElevationGain")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DetailedActivityId");
+
+                    b.ToTable("Lap");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.MetaActivity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MetaActivity");
                 });
 
             modelBuilder.Entity("Data.Models.Strava.MetaAthlete", b =>
@@ -178,7 +322,7 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MetaAthlete");
+                    b.ToTable("MetaAthletes");
                 });
 
             modelBuilder.Entity("Data.Models.Strava.PolylineMap", b =>
@@ -234,25 +378,75 @@ namespace Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Strava.NET.Model.Lap", b =>
+            modelBuilder.Entity("Strava.NET.Model.SummarySegment", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("ActivityId")
+                    b.Property<string>("ActivityType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("AthletePrEffortId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("AthleteId")
+                    b.Property<float?>("AverageGrade")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ClimbCategory")
                         .HasColumnType("INTEGER");
 
-                    b.Property<float?>("AverageCadence")
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<float?>("Distance")
                         .HasColumnType("REAL");
 
-                    b.Property<float?>("AverageSpeed")
+                    b.Property<float?>("ElevationHigh")
                         .HasColumnType("REAL");
 
-                    b.Property<long?>("DetailedActivityId")
+                    b.Property<float?>("ElevationLow")
+                        .HasColumnType("REAL");
+
+                    b.PrimitiveCollection<string>("EndLatlng")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<float?>("MaximumGrade")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.PrimitiveCollection<string>("StartLatlng")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool?>("_Private")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AthletePrEffortId");
+
+                    b.ToTable("SummarySegment");
+                });
+
+            modelBuilder.Entity("Strava.NET.Model.SummarySegmentEffort", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
                     b.Property<float?>("Distance")
@@ -261,26 +455,7 @@ namespace Data.Migrations
                     b.Property<int?>("ElapsedTime")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("EndIndex")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("LapIndex")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<float?>("MaxSpeed")
-                        .HasColumnType("REAL");
-
-                    b.Property<int?>("MovingTime")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("PaceZone")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("Split")
+                    b.Property<bool?>("IsKom")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("StartDate")
@@ -289,78 +464,83 @@ namespace Data.Migrations
                     b.Property<DateTime?>("StartDateLocal")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("StartIndex")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<float?>("TotalElevationGain")
-                        .HasColumnType("REAL");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ActivityId");
-
-                    b.HasIndex("AthleteId");
-
-                    b.HasIndex("DetailedActivityId");
-
-                    b.ToTable("Lap");
-                });
-
-            modelBuilder.Entity("Strava.NET.Model.MetaActivity", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MetaActivity");
+                    b.ToTable("SummarySegmentEffort");
                 });
 
             modelBuilder.Entity("Data.Models.Strava.DetailedActivity", b =>
                 {
-                    b.HasOne("Data.Models.Strava.PolylineMap", "Map")
-                        .WithMany()
-                        .HasForeignKey("MapId");
-
-                    b.HasOne("Data.Models.Strava.MetaAthlete", null)
-                        .WithMany("Activities")
-                        .HasForeignKey("MetaAthleteId");
-
-                    b.Navigation("Map");
-                });
-
-            modelBuilder.Entity("Strava.NET.Model.Lap", b =>
-                {
-                    b.HasOne("Strava.NET.Model.MetaActivity", "Activity")
-                        .WithMany()
-                        .HasForeignKey("ActivityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Data.Models.Strava.MetaAthlete", "Athlete")
-                        .WithMany()
+                        .WithMany("Activities")
                         .HasForeignKey("AthleteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Data.Models.Strava.DetailedActivity", null)
-                        .WithMany("Laps")
-                        .HasForeignKey("DetailedActivityId");
-
-                    b.Navigation("Activity");
+                    b.HasOne("Data.Models.Strava.PolylineMap", "Map")
+                        .WithOne("Activity")
+                        .HasForeignKey("Data.Models.Strava.DetailedActivity", "MapId");
 
                     b.Navigation("Athlete");
+
+                    b.Navigation("Map");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.DetailedSegmentEffort", b =>
+                {
+                    b.HasOne("Data.Models.Strava.DetailedActivity", "DetailedActivity")
+                        .WithMany("SegmentEfforts")
+                        .HasForeignKey("ActivityId");
+
+                    b.HasOne("Strava.NET.Model.SummarySegment", "Segment")
+                        .WithMany()
+                        .HasForeignKey("SegmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DetailedActivity");
+
+                    b.Navigation("Segment");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.Lap", b =>
+                {
+                    b.HasOne("Data.Models.Strava.DetailedActivity", "DetailedActivity")
+                        .WithMany("Laps")
+                        .HasForeignKey("DetailedActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DetailedActivity");
+                });
+
+            modelBuilder.Entity("Strava.NET.Model.SummarySegment", b =>
+                {
+                    b.HasOne("Strava.NET.Model.SummarySegmentEffort", "AthletePrEffort")
+                        .WithMany()
+                        .HasForeignKey("AthletePrEffortId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AthletePrEffort");
                 });
 
             modelBuilder.Entity("Data.Models.Strava.DetailedActivity", b =>
                 {
                     b.Navigation("Laps");
+
+                    b.Navigation("SegmentEfforts");
                 });
 
             modelBuilder.Entity("Data.Models.Strava.MetaAthlete", b =>
                 {
                     b.Navigation("Activities");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.PolylineMap", b =>
+                {
+                    b.Navigation("Activity")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

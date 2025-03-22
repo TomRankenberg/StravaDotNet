@@ -5,7 +5,6 @@ using Strava.NET.Model;
 
 namespace Data.Models.Strava
 {
-
     /// <summary>
     /// 
     /// </summary>
@@ -13,6 +12,7 @@ namespace Data.Models.Strava
     public class DetailedSegmentEffort
     {
         public virtual DetailedActivity DetailedActivity { get; set; }
+
         /// <summary>
         /// The unique identifier of this effort
         /// </summary>
@@ -20,6 +20,14 @@ namespace Data.Models.Strava
         [DataMember(Name = "id", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "id")]
         public long? Id { get; set; }
+
+        /// <summary>
+        /// The unique identifier of the activity this effort belongs to
+        /// </summary>
+        /// <value>The unique identifier of the activity this effort belongs to</value>
+        [DataMember(Name = "activity_id", EmitDefaultValue = false)]
+        [JsonProperty(PropertyName = "activity_id")]
+        public long? ActivityId { get; set; }
 
         /// <summary>
         /// The effort's elapsed time
@@ -68,20 +76,6 @@ namespace Data.Models.Strava
         [DataMember(Name = "name", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
-
-        /// <summary>
-        /// Gets or Sets Activity
-        /// </summary>
-        //[DataMember(Name = "activity", EmitDefaultValue = false)]
-        //[JsonProperty(PropertyName = "activity")]
-        //public MetaActivity Activity { get; set; }
-
-        /// <summary>
-        /// Gets or Sets Athlete
-        /// </summary>
-        //[DataMember(Name = "athlete", EmitDefaultValue = false)]
-        //[JsonProperty(PropertyName = "athlete")]
-        //public MetaAthlete Athlete { get; set; }
 
         /// <summary>
         /// The effort's moving time
@@ -178,7 +172,6 @@ namespace Data.Models.Strava
         [JsonProperty(PropertyName = "hidden")]
         public bool? Hidden { get; set; }
 
-
         /// <summary>
         /// Get the string presentation of the object
         /// </summary>
@@ -188,14 +181,13 @@ namespace Data.Models.Strava
             var sb = new StringBuilder();
             sb.Append("class DetailedSegmentEffort {\n");
             sb.Append("  Id: ").Append(Id).Append("\n");
+            sb.Append("  ActivityId: ").Append(ActivityId).Append("\n");
             sb.Append("  ElapsedTime: ").Append(ElapsedTime).Append("\n");
             sb.Append("  StartDate: ").Append(StartDate).Append("\n");
             sb.Append("  StartDateLocal: ").Append(StartDateLocal).Append("\n");
             sb.Append("  Distance: ").Append(Distance).Append("\n");
             sb.Append("  IsKom: ").Append(IsKom).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
-            //sb.Append("  Activity: ").Append(Activity).Append("\n");
-            //sb.Append("  Athlete: ").Append(Athlete).Append("\n");
             sb.Append("  MovingTime: ").Append(MovingTime).Append("\n");
             sb.Append("  StartIndex: ").Append(StartIndex).Append("\n");
             sb.Append("  EndIndex: ").Append(EndIndex).Append("\n");
@@ -220,6 +212,5 @@ namespace Data.Models.Strava
         {
             return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
-
     }
 }
