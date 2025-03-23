@@ -50,7 +50,7 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SummarySegment",
+                name: "Segments",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
@@ -72,7 +72,7 @@ namespace Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SummarySegment", x => x.Id);
+                    table.PrimaryKey("PK_Segments", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -214,7 +214,7 @@ namespace Data.Migrations
                     DeviceWatts = table.Column<bool>(type: "INTEGER", nullable: true),
                     AverageHeartrate = table.Column<float>(type: "REAL", nullable: true),
                     MaxHeartrate = table.Column<float>(type: "REAL", nullable: true),
-                    SegmentId = table.Column<long>(type: "INTEGER", nullable: false),
+                    SegmentId = table.Column<long>(type: "INTEGER", nullable: true),
                     KomRank = table.Column<int>(type: "INTEGER", nullable: true),
                     PrRank = table.Column<int>(type: "INTEGER", nullable: true),
                     Hidden = table.Column<bool>(type: "INTEGER", nullable: true)
@@ -228,11 +228,10 @@ namespace Data.Migrations
                         principalTable: "Activities",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_SegmentEfforts_SummarySegment_SegmentId",
+                        name: "FK_SegmentEfforts_Segments_SegmentId",
                         column: x => x.SegmentId,
-                        principalTable: "SummarySegment",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalTable: "Segments",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -281,7 +280,7 @@ namespace Data.Migrations
                 name: "Activities");
 
             migrationBuilder.DropTable(
-                name: "SummarySegment");
+                name: "Segments");
 
             migrationBuilder.DropTable(
                 name: "MetaAthletes");

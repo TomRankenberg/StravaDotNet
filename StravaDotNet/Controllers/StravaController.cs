@@ -72,7 +72,14 @@ namespace StravaDotNet.Controllers
                                 }
 
                                 activityRepo.DetachActivity(detailedActivity);
-                                activityRepo.AddActivity(detailedActivity);
+                                try
+                                {
+                                    activityRepo.AddActivity(detailedActivity);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
                             }
                         }
                     }
@@ -91,7 +98,14 @@ namespace StravaDotNet.Controllers
                         {
                             activity.Polyline = activity.Map.SummaryPolyline ?? "";
                             activity.Map.ActivityId = activity.Id;
-                            activityRepo.AddActivity(activity);
+                            try
+                            {
+                                activityRepo.AddActivity(activity);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
                         }
                     }
                 }

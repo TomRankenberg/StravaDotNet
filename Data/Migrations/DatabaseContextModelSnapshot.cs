@@ -220,7 +220,7 @@ namespace Data.Migrations
                     b.Property<int?>("PrRank")
                         .HasColumnType("INTEGER");
 
-                    b.Property<long>("SegmentId")
+                    b.Property<long?>("SegmentId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("StartDate")
@@ -397,7 +397,7 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SummarySegment");
+                    b.ToTable("Segments");
                 });
 
             modelBuilder.Entity("Data.Models.StravaUser", b =>
@@ -459,9 +459,7 @@ namespace Data.Migrations
 
                     b.HasOne("Data.Models.Strava.SummarySegment", "Segment")
                         .WithMany()
-                        .HasForeignKey("SegmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SegmentId");
 
                     b.Navigation("DetailedActivity");
 

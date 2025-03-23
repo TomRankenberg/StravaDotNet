@@ -146,6 +146,7 @@ namespace Data.Models.Strava
         [DataMember(Name = "segment", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "segment")]
         public SummarySegment Segment { get; set; }
+        public long? SegmentId { get; set; }
 
         /// <summary>
         /// The rank of the effort on the global leaderboard if it belongs in the top 10 at the time of upload

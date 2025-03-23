@@ -16,6 +16,8 @@ namespace Data.Context
         public virtual DbSet<DetailedSegmentEffort> SegmentEfforts { get; set; }
         public virtual DbSet<PolylineMap> PolylineMaps { get; set; }
         public virtual DbSet<MetaAthlete> MetaAthletes { get; set; }
+        public virtual DbSet<SummarySegment> Segments { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,6 +38,12 @@ namespace Data.Context
                 .HasOne(x => x.Map)
                 .WithOne(x => x.Activity)
                 .HasForeignKey<DetailedActivity>(x => x.MapId)
+                .IsRequired(false);
+
+            modelBuilder.Entity<DetailedSegmentEffort>()
+                .HasOne(dse => dse.Segment)
+                .WithMany()
+                .HasForeignKey(dse => dse.SegmentId)
                 .IsRequired(false);
 
             modelBuilder.Entity<MetaActivity>().HasKey(x => x.Id);
