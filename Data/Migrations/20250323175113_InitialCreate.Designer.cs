@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250322170616_InitialCreate")]
+    [Migration("20250323175113_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -347,6 +347,62 @@ namespace Data.Migrations
                     b.ToTable("PolylineMaps");
                 });
 
+            modelBuilder.Entity("Data.Models.Strava.SummarySegment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ActivityType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<float?>("AverageGrade")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("City")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ClimbCategory")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("TEXT");
+
+                    b.Property<float?>("Distance")
+                        .HasColumnType("REAL");
+
+                    b.Property<float?>("ElevationHigh")
+                        .HasColumnType("REAL");
+
+                    b.Property<float?>("ElevationLow")
+                        .HasColumnType("REAL");
+
+                    b.PrimitiveCollection<string>("EndLatlng")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<float?>("MaximumGrade")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.PrimitiveCollection<string>("StartLatlng")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("State")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool?>("_Private")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SummarySegment");
+                });
+
             modelBuilder.Entity("Data.Models.StravaUser", b =>
                 {
                     b.Property<int>("UserId")
@@ -381,97 +437,6 @@ namespace Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Strava.NET.Model.SummarySegment", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ActivityType")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("AthletePrEffortId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<float?>("AverageGrade")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int?>("ClimbCategory")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<float?>("Distance")
-                        .HasColumnType("REAL");
-
-                    b.Property<float?>("ElevationHigh")
-                        .HasColumnType("REAL");
-
-                    b.Property<float?>("ElevationLow")
-                        .HasColumnType("REAL");
-
-                    b.PrimitiveCollection<string>("EndLatlng")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<float?>("MaximumGrade")
-                        .HasColumnType("REAL");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.PrimitiveCollection<string>("StartLatlng")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool?>("_Private")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AthletePrEffortId");
-
-                    b.ToTable("SummarySegment");
-                });
-
-            modelBuilder.Entity("Strava.NET.Model.SummarySegmentEffort", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<float?>("Distance")
-                        .HasColumnType("REAL");
-
-                    b.Property<int?>("ElapsedTime")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool?>("IsKom")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("StartDateLocal")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SummarySegmentEffort");
-                });
-
             modelBuilder.Entity("Data.Models.Strava.DetailedActivity", b =>
                 {
                     b.HasOne("Data.Models.Strava.MetaAthlete", "Athlete")
@@ -495,7 +460,7 @@ namespace Data.Migrations
                         .WithMany("SegmentEfforts")
                         .HasForeignKey("ActivityId");
 
-                    b.HasOne("Strava.NET.Model.SummarySegment", "Segment")
+                    b.HasOne("Data.Models.Strava.SummarySegment", "Segment")
                         .WithMany()
                         .HasForeignKey("SegmentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -515,17 +480,6 @@ namespace Data.Migrations
                         .IsRequired();
 
                     b.Navigation("DetailedActivity");
-                });
-
-            modelBuilder.Entity("Strava.NET.Model.SummarySegment", b =>
-                {
-                    b.HasOne("Strava.NET.Model.SummarySegmentEffort", "AthletePrEffort")
-                        .WithMany()
-                        .HasForeignKey("AthletePrEffortId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AthletePrEffort");
                 });
 
             modelBuilder.Entity("Data.Models.Strava.DetailedActivity", b =>

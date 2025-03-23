@@ -1,4 +1,5 @@
-﻿using Data.Context;
+﻿using System.Diagnostics;
+using Data.Context;
 using Data.Interfaces;
 using Data.Models.Strava;
 using Microsoft.EntityFrameworkCore;
@@ -9,119 +10,54 @@ namespace Data.Repos
     {
         public void AddActivity(DetailedActivity detailedActivity)
         {
-            // Retrieve or create the MetaAthlete object
-            var athlete = context.MetaAthletes.Local.FirstOrDefault(a => a.Id == detailedActivity.Athlete.Id) ??
-                          context.MetaAthletes.FirstOrDefault(a => a.Id == detailedActivity.Athlete.Id);
-            if (athlete == null)
-            {
-                athlete = new MetaAthlete
-                {
-                    Id = detailedActivity.Athlete.Id,
-                };
-                context.MetaAthletes.Add(athlete);
-            }
-            else
-            {
-                detailedActivity.Athlete = athlete;
-            }
+            // Athlete
+            detailedActivity.AthleteId = detailedActivity.Athlete.Id;
+            detailedActivity.Athlete = null;
 
-            // Set the AthleteId property
-            detailedActivity.AthleteId = athlete.Id;
-
-            // Set other foreign key properties if needed
+            // Map
             if (detailedActivity.Map != null)
             {
-                var map = context.PolylineMaps.Local.FirstOrDefault(m => m.Id == detailedActivity.Map.Id) ??
-                          context.PolylineMaps.FirstOrDefault(m => m.Id == detailedActivity.Map.Id);
+                detailedActivity.MapId = detailedActivity.Map.Id;
+                detailedActivity.Map.ActivityId = detailedActivity.Id;
+                detailedActivity.Map.Activity = detailedActivity;
+            }
+            
+            // Segments
+            if (detailedActivity.SegmentEfforts != null)
+            {
+                foreach (DetailedSegmentEffort segmentEffort in detailedActivity.SegmentEfforts)
+                {
+                    segmentEffort.DetailedActivity = detailedActivity;
+                    segmentEffort.ActivityId = detailedActivity.Id;
 
-                if (map == null)
-                {
-                    map = new PolylineMap
-                    {
-                        Id = detailedActivity.Map.Id,
-                        Polyline = detailedActivity.Map.Polyline,
-                        SummaryPolyline = detailedActivity.Map.Polyline,
-                        Activity = detailedActivity,
-                        ActivityId = detailedActivity.Id
-                    };
-                    context.PolylineMaps.Add(map);
-                }
-                else
-                {
-                    detailedActivity.MapId = map.Id;
-                    map.Polyline = detailedActivity.Map.Polyline;
-                    map.SummaryPolyline = detailedActivity.Map.Polyline;
-                    map.Activity = detailedActivity;
-                    map.ActivityId = detailedActivity.Id;
-                    detailedActivity.Map = map;
                 }
             }
 
-            if (detailedActivity.SegmentEfforts != null)
+            // Best efforts
+            if (detailedActivity.BestEfforts != null)
             {
-                foreach (var segmentEffort in detailedActivity.SegmentEfforts)
+                foreach (DetailedSegmentEffort effort in detailedActivity.BestEfforts)
                 {
-                    var existingSegmentEffort = context.SegmentEfforts.Local.FirstOrDefault(se => se.Id == segmentEffort.Id) ??
-                                                context.SegmentEfforts.FirstOrDefault(se => se.Id == segmentEffort.Id);
-                    if (existingSegmentEffort == null)
-                    {
-                        segmentEffort.DetailedActivity = detailedActivity;
-                        context.SegmentEfforts.Add(segmentEffort);
-                    }
-                    else
-                    {
-                        segmentEffort.ActivityId = detailedActivity.Id;
-                        segmentEffort.DetailedActivity = detailedActivity;
-                    }
+                    effort.ActivityId = detailedActivity.Id;
+                    effort.DetailedActivity = detailedActivity;
                 }
             }
 
             // Add or update the DetailedActivity object
-            var existingActivity = context.Activities
-                .Include(a => a.SegmentEfforts)
-                .Include(a => a.Laps)
-                .FirstOrDefault(a => a.Id == detailedActivity.Id);
+            context.Activities.Add(detailedActivity);
 
-            if (existingActivity != null)
+            var changes = context.ChangeTracker.Entries().Where(e => e.State == EntityState.Added || e.State == EntityState.Modified).ToList();
+            foreach (var entry in changes)
             {
-                context.Entry(existingActivity).CurrentValues.SetValues(detailedActivity);
-
-                // Update SegmentEfforts
-                foreach (var segmentEffort in detailedActivity.SegmentEfforts)
+                Debug.WriteLine($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}");
+                foreach (var prop in entry.OriginalValues.Properties)
                 {
-                    var existingSegmentEffort = existingActivity.SegmentEfforts
-                        .FirstOrDefault(se => se.Id == segmentEffort.Id);
-                    if (existingSegmentEffort != null)
-                    {
-                        context.Entry(existingSegmentEffort).CurrentValues.SetValues(segmentEffort);
-                    }
-                    else
-                    {
-                        existingActivity.SegmentEfforts.Add(segmentEffort);
-                    }
-                }
-
-                // Update Laps
-                foreach (var lap in detailedActivity.Laps)
-                {
-                    var existingLap = existingActivity.Laps
-                        .FirstOrDefault(l => l.Id == lap.Id);
-                    if (existingLap != null)
-                    {
-                        context.Entry(existingLap).CurrentValues.SetValues(lap);
-                    }
-                    else
-                    {
-                        existingActivity.Laps.Add(lap);
-                    }
+                    Debug.WriteLine($"Property: {prop.Name}, Original: {entry.OriginalValues[prop]}, Current: {entry.CurrentValues[prop]}");
                 }
             }
-            else
-            {
-                context.Activities.Add(detailedActivity);
-            }
-
+            
             context.SaveChanges();
+            DetachActivity(detailedActivity);
         }
 
         public DetailedActivity GetActivityById(int id)

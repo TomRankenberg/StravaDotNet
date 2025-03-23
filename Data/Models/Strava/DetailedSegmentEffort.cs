@@ -1,7 +1,6 @@
 using System.Text;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
-using Strava.NET.Model;
 
 namespace Data.Models.Strava
 {

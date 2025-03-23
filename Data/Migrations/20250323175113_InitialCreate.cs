@@ -50,20 +50,29 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SummarySegmentEffort",
+                name: "SummarySegment",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    ElapsedTime = table.Column<int>(type: "INTEGER", nullable: true),
-                    StartDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    StartDateLocal = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    ActivityType = table.Column<string>(type: "TEXT", nullable: false),
                     Distance = table.Column<float>(type: "REAL", nullable: true),
-                    IsKom = table.Column<bool>(type: "INTEGER", nullable: true)
+                    AverageGrade = table.Column<float>(type: "REAL", nullable: true),
+                    MaximumGrade = table.Column<float>(type: "REAL", nullable: true),
+                    ElevationHigh = table.Column<float>(type: "REAL", nullable: true),
+                    ElevationLow = table.Column<float>(type: "REAL", nullable: true),
+                    StartLatlng = table.Column<string>(type: "TEXT", nullable: false),
+                    EndLatlng = table.Column<string>(type: "TEXT", nullable: false),
+                    ClimbCategory = table.Column<int>(type: "INTEGER", nullable: true),
+                    City = table.Column<string>(type: "TEXT", nullable: true),
+                    State = table.Column<string>(type: "TEXT", nullable: true),
+                    Country = table.Column<string>(type: "TEXT", nullable: true),
+                    _Private = table.Column<bool>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SummarySegmentEffort", x => x.Id);
+                    table.PrimaryKey("PK_SummarySegment", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -148,39 +157,6 @@ namespace Data.Migrations
                         column: x => x.MapId,
                         principalTable: "PolylineMaps",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SummarySegment",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    ActivityType = table.Column<string>(type: "TEXT", nullable: false),
-                    Distance = table.Column<float>(type: "REAL", nullable: true),
-                    AverageGrade = table.Column<float>(type: "REAL", nullable: true),
-                    MaximumGrade = table.Column<float>(type: "REAL", nullable: true),
-                    ElevationHigh = table.Column<float>(type: "REAL", nullable: true),
-                    ElevationLow = table.Column<float>(type: "REAL", nullable: true),
-                    StartLatlng = table.Column<string>(type: "TEXT", nullable: false),
-                    EndLatlng = table.Column<string>(type: "TEXT", nullable: false),
-                    ClimbCategory = table.Column<int>(type: "INTEGER", nullable: true),
-                    City = table.Column<string>(type: "TEXT", nullable: false),
-                    State = table.Column<string>(type: "TEXT", nullable: false),
-                    Country = table.Column<string>(type: "TEXT", nullable: false),
-                    _Private = table.Column<bool>(type: "INTEGER", nullable: true),
-                    AthletePrEffortId = table.Column<long>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SummarySegment", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SummarySegment_SummarySegmentEffort_AthletePrEffortId",
-                        column: x => x.AthletePrEffortId,
-                        principalTable: "SummarySegmentEffort",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -284,11 +260,6 @@ namespace Data.Migrations
                 name: "IX_SegmentEfforts_SegmentId",
                 table: "SegmentEfforts",
                 column: "SegmentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SummarySegment_AthletePrEffortId",
-                table: "SummarySegment",
-                column: "AthletePrEffortId");
         }
 
         /// <inheritdoc />
@@ -317,9 +288,6 @@ namespace Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "PolylineMaps");
-
-            migrationBuilder.DropTable(
-                name: "SummarySegmentEffort");
         }
     }
 }
