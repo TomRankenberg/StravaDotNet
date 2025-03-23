@@ -19,7 +19,6 @@ namespace Data.Repos
                     Id = detailedActivity.Athlete.Id,
                 };
                 context.MetaAthletes.Add(athlete);
-                context.SaveChanges();
             }
             else
             {
@@ -30,7 +29,6 @@ namespace Data.Repos
             detailedActivity.AthleteId = athlete.Id;
 
             // Set other foreign key properties if needed
-            // For example, if you have a foreign key for PolylineMap
             if (detailedActivity.Map != null)
             {
                 var map = context.PolylineMaps.Local.FirstOrDefault(m => m.Id == detailedActivity.Map.Id) ??
@@ -47,7 +45,6 @@ namespace Data.Repos
                         ActivityId = detailedActivity.Id
                     };
                     context.PolylineMaps.Add(map);
-                    context.SaveChanges();
                 }
                 else
                 {
@@ -57,6 +54,25 @@ namespace Data.Repos
                     map.Activity = detailedActivity;
                     map.ActivityId = detailedActivity.Id;
                     detailedActivity.Map = map;
+                }
+            }
+
+            if (detailedActivity.SegmentEfforts != null)
+            {
+                foreach (var segmentEffort in detailedActivity.SegmentEfforts)
+                {
+                    var existingSegmentEffort = context.SegmentEfforts.Local.FirstOrDefault(se => se.Id == segmentEffort.Id) ??
+                                                context.SegmentEfforts.FirstOrDefault(se => se.Id == segmentEffort.Id);
+                    if (existingSegmentEffort == null)
+                    {
+                        segmentEffort.DetailedActivity = detailedActivity;
+                        context.SegmentEfforts.Add(segmentEffort);
+                    }
+                    else
+                    {
+                        segmentEffort.ActivityId = detailedActivity.Id;
+                        segmentEffort.DetailedActivity = detailedActivity;
+                    }
                 }
             }
 
@@ -107,8 +123,6 @@ namespace Data.Repos
 
             context.SaveChanges();
         }
-
-
 
         public DetailedActivity GetActivityById(int id)
         {
