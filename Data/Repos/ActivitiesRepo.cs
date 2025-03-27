@@ -23,6 +23,13 @@ namespace Data.Repos
             }
             detailedActivity.Athlete = athlete;
             detailedActivity.AthleteId = athlete.Id;
+            if (detailedActivity.Laps != null)
+            {
+                foreach (var lap in detailedActivity.Laps)
+                {
+                    lap.DetailedActivity = null;
+                }
+            }
 
             // Ensure the Map is properly attached
             if (detailedActivity.Map != null)
@@ -37,7 +44,7 @@ namespace Data.Repos
                         Id = detailedActivity.Map.Id,
                         Polyline = detailedActivity.Map.Polyline,
                         SummaryPolyline = detailedActivity.Map.SummaryPolyline,
-                        Activity = detailedActivity,
+                        //Activity = detailedActivity,
                         ActivityId = detailedActivity.Id
                     };
                     context.PolylineMaps.Add(map);
@@ -47,26 +54,39 @@ namespace Data.Repos
             }
 
             // Ensure the SummarySegments are properly attached
-            if (detailedActivity.SegmentEfforts != null)
+            if (detailedActivity.SegmentEfforts != null && detailedActivity.SegmentEfforts.Count > 0)
             {
                 foreach (var segmentEffort in detailedActivity.SegmentEfforts)
                 {
-                    var segment = context.Segments.Local.FirstOrDefault(s => s.Id == segmentEffort.Segment.Id) ??
-                                  context.Segments.FirstOrDefault(s => s.Id == segmentEffort.Segment.Id);
-
-                    if (segment == null)
+                    if (segmentEffort.Segment != null)
                     {
-                        segment = new SummarySegment
-                        {
-                            Id = segmentEffort.Segment.Id,
-                            // Set other properties of SummarySegment as needed
-                        };
-                        context.Segments.Add(segment);
-                    }
-                    segmentEffort.Segment = segment;
-                    segmentEffort.SegmentId = segment.Id;
-                    context.Entry(segment).State = EntityState.Detached;
+                        segmentEffort.DetailedActivity = null;
+                        var segment = context.Segments.Local.FirstOrDefault(s => s.Id == segmentEffort.Segment.Id) ??
+                                      context.Segments.FirstOrDefault(s => s.Id == segmentEffort.Segment.Id);
 
+                        if (segment == null)
+                        {
+                            segment = new SummarySegment
+                            {
+                                Id = segmentEffort.Segment.Id,
+                                Name = segmentEffort.Segment.Name,
+                                Distance = segmentEffort.Segment.Distance,
+                                City = segmentEffort.Segment.City,
+                                State = segmentEffort.Segment.State,
+                                Country = segmentEffort.Segment.Country,
+                                _Private = segmentEffort.Segment._Private
+                            };
+                            context.Segments.Add(segment);
+                        }
+                        else if (!context.Segments.Select(s => s.Id).ToArray().Contains(segment.Id))
+                        {
+                            context.Segments.Attach(segment);
+                        }
+
+                        //segmentEffort.Segment = segment;
+                        segmentEffort.SegmentId = segment.Id;
+                    }
+                    segmentEffort.Segment = null;
                     context.SegmentEfforts.Add(segmentEffort);
                 }
             }
@@ -76,7 +96,7 @@ namespace Data.Repos
             {
                 foreach (var effort in detailedActivity.BestEfforts)
                 {
-                    effort.DetailedActivity = detailedActivity;
+                    //effort.DetailedActivity = detailedActivity;
                     effort.ActivityId = detailedActivity.Id;
                     context.SegmentEfforts.Add(effort);
                 }
