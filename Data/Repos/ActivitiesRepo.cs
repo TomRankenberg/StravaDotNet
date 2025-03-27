@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Data.Context;
+﻿using Data.Context;
 using Data.Interfaces;
 using Data.Models.Strava;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Data.Repos
 {
     public class ActivitiesRepo(DatabaseContext context) : IActivitiesRepo
-    {
+    {// todo: put saving of all downstream objects in other methods/repos. Save from the top down.
         public void AddActivity(DetailedActivity detailedActivity)
         {
             // Ensure the MetaAthlete exists or create a new one
@@ -87,8 +86,14 @@ namespace Data.Repos
                         segmentEffort.SegmentId = segment.Id;
                     }
                     segmentEffort.Segment = null;
-                    context.SegmentEfforts.Add(segmentEffort);
                 }
+            }
+
+            context.SaveChanges();// Add segments before segment efforts to prevent FK problems
+
+            foreach (var segmentEffort in detailedActivity.SegmentEfforts)
+            {
+                context.SegmentEfforts.Add(segmentEffort);
             }
 
             // Ensure the BestEfforts are properly attached
@@ -103,17 +108,8 @@ namespace Data.Repos
             }
 
             // Add or update the DetailedActivity object
-            context.Activities.Add(detailedActivity);
 
-            //var changes = context.ChangeTracker.Entries().Where(e => e.State == EntityState.Added || e.State == EntityState.Modified).ToList();
-            //foreach (var entry in changes)
-            //{
-            //    Debug.WriteLine($"Entity: {entry.Entity.GetType().Name}, State: {entry.State}");
-            //    foreach (var prop in entry.OriginalValues.Properties)
-            //    {
-            //        Debug.WriteLine($"Property: {prop.Name}, Original: {entry.OriginalValues[prop]}, Current: {entry.CurrentValues[prop]}");
-            //    }
-            //}
+            var changes = context.ChangeTracker.Entries().Where(e => e.State == EntityState.Added || e.State == EntityState.Modified).ToList();
 
             context.SaveChanges();
             DetachActivity(detailedActivity);

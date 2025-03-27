@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250323210220_InitialCreate")]
+    [Migration("20250327190906_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -354,7 +354,6 @@ namespace Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("ActivityType")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<float?>("AverageGrade")
@@ -379,7 +378,6 @@ namespace Data.Migrations
                         .HasColumnType("REAL");
 
                     b.PrimitiveCollection<string>("EndLatlng")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<float?>("MaximumGrade")
@@ -389,7 +387,6 @@ namespace Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.PrimitiveCollection<string>("StartLatlng")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("State")

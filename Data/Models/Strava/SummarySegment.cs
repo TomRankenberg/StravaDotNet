@@ -35,7 +35,7 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "activity_type", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "activity_type")]
-        public string ActivityType { get; set; }
+        public string? ActivityType { get; set; }
 
         /// <summary>
         /// The segment's distance, in meters
@@ -82,14 +82,14 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "start_latlng", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "start_latlng")]
-        public LatLng StartLatlng { get; set; }
+        public LatLng? StartLatlng { get; set; }
 
         /// <summary>
         /// Gets or Sets EndLatlng
         /// </summary>
         [DataMember(Name = "end_latlng", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "end_latlng")]
-        public LatLng EndLatlng { get; set; }
+        public LatLng? EndLatlng { get; set; }
 
         /// <summary>
         /// The category of the climb
