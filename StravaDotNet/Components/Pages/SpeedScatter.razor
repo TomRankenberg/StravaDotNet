@@ -1,7 +1,8 @@
 ﻿@page "/detailed-activity-plots"
 @using Data.Models.Strava
 @using Newtonsoft.Json
-@inject DetailedActivityService DetailedActivityService
+@using StravaDotNet.Components.Services
+@inject DetailedActivityService detailedActivityService
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
@@ -20,12 +21,10 @@
 
 @code {
     private List<DetailedActivity> detailedActivities;
-    private List<DetailedSegmentEffort> detailedEfforts;
 
     private async Task LoadData()
     {
-        detailedActivities = await DetailedActivityService.GetDetailedActivitiesAsync();
-        //detailedEfforts = await DetailedActivityService.GetDetailedSegmentEffortsAsync();
+        detailedActivities = await detailedActivityService.GetDetailedActivitiesAsync();
         PlotRunSpeed();
         PlotRideSpeed();
         PlotMonthlyActivities();
@@ -52,15 +51,7 @@
         }
     }
 
-    private async void PlotEfforts()
-    {
-        if (detailedEfforts != null)
-        {
-            List<DetailedSegmentEffort> selectedEfforts = detailedEfforts.Where(da => da.Name == "5K").ToList();
-            StateHasChanged();
-            PlotScatterChartEfforts(selectedEfforts);
-        }
-    }
+
 
     private async void PlotMonthlyActivities()
     {
@@ -187,23 +178,6 @@
         var jsonData = JsonConvert.SerializeObject(data);
 
         JSRuntime.InvokeVoidAsync("plotScatterChart", jsonData, type);
-    }
-    private void PlotScatterChartEfforts(List<DetailedSegmentEffort> efforts)
-    {
-        var minDate = efforts.Min(da => da.StartDate);
-        var maxDate = efforts.Max(da => da.StartDate);
-
-        var data = efforts.Select(da => new
-        {
-            x = da.Distance / 1000,
-            y = Math.Round((decimal)((da.Distance / da.MovingTime) * 3.6), 3),
-            date = da.StartDate?.ToString("yyyy-MM-dd"),
-            color = GetColorForDate(da.StartDate, minDate, maxDate)
-        }).ToList();
-
-        var jsonData = JsonConvert.SerializeObject(data);
-
-        JSRuntime.InvokeVoidAsync("plotScatterChart", jsonData, "Run");
     }
 
     private string GetColorForDate(DateTime? date, DateTime? minDate, DateTime? maxDate)

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Data.Interfaces;
 using Data.Context;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using StravaDotNet.Components.Services;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
