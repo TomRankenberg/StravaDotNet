@@ -17,4 +17,8 @@ public class DetailedActivityService
     {
         return await _httpClient.GetFromJsonAsync<List<DetailedActivity>>("api/detailedactivities");
     }
+    public async Task<List<DetailedSegmentEffort>> GetDetailedSegmentEffortsAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<List<DetailedSegmentEffort>>("api/detailedsegmenteffort");
+    }
 }
