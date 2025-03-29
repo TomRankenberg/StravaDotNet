@@ -14,50 +14,55 @@ namespace DataManagement.BusinessLogic
             int savingCounter = 0;
             foreach (DetailedActivity activity in activities)
             {
-                activity.AthleteId = athlete.Id;
-                activity.Athlete = null;
-
-                if (activity.Map != null)
-                {
-                    activity.MapId = mapRepo.AddOrEditMap(activity.Map);
-                    activity.Map = null;
-                }
-
-                if (activity.SegmentEfforts != null)
-                {
-                    foreach (DetailedSegmentEffort segmentEffort in activity.SegmentEfforts)
-                    {
-                        long? segmentId = segmentRepo.AddOrEditSegment(segmentEffort.Segment);
-                        segmentEffort.SegmentId = segmentId;
-                        segmentEffort.Segment = null;
-
-                        segmentEffort.ActivityId = activity.Id;
-                        segmentEffortRepo.AddOrEditSegmentEffort(segmentEffort);
-                    }
-                }
-
-                if (activity.Laps != null)
-                {
-                    foreach (Lap lap in activity.Laps)
-                    {
-                        lap.DetailedActivity = null;
-                    }
-                }
-
-                if (activity.BestEfforts != null)
-                {
-                    foreach (DetailedSegmentEffort bestEffort in activity.BestEfforts)
-                    {
-                        bestEffort.Segment = null;
-                        bestEffort.ActivityId = activity.Id;
-                        segmentEffortRepo.AddOrEditSegmentEffort(bestEffort);
-                    }
-                }
-
-                activityRepo.AddOrEditActivity(activity);
+                SaveActivity(activity, athlete.Id);
                 savingCounter++;
             }
             return $"Saved {savingCounter} activities";
+        }
+
+        public void SaveActivity(DetailedActivity activity, int athleteId)// tod: first overarching, then smaller objects
+        {
+            activity.AthleteId = athleteId;
+            activity.Athlete = null;
+
+            if (activity.Map != null)
+            {
+                activity.MapId = mapRepo.AddOrEditMap(activity.Map);
+                activity.Map = null;
+            }
+
+            if (activity.SegmentEfforts != null)
+            {
+                foreach (DetailedSegmentEffort segmentEffort in activity.SegmentEfforts)
+                {
+                    long? segmentId = segmentRepo.AddOrEditSegment(segmentEffort.Segment);
+                    segmentEffort.SegmentId = segmentId;
+                    segmentEffort.Segment = null;
+
+                    segmentEffort.ActivityId = activity.Id;
+                    segmentEffortRepo.AddOrEditSegmentEffort(segmentEffort);
+                }
+            }
+
+            if (activity.Laps != null)
+            {
+                foreach (Lap lap in activity.Laps)
+                {
+                    lap.DetailedActivity = null;
+                }
+            }
+
+            if (activity.BestEfforts != null)
+            {
+                foreach (DetailedSegmentEffort bestEffort in activity.BestEfforts)
+                {
+                    bestEffort.Segment = null;
+                    bestEffort.ActivityId = activity.Id;
+                    segmentEffortRepo.AddOrEditSegmentEffort(bestEffort);
+                }
+            }
+
+            activityRepo.AddOrEditActivity(activity);
         }
     }
 }

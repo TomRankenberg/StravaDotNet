@@ -47,7 +47,25 @@ namespace StravaDotNet.Controllers
 
                 List<DetailedActivity> activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
                 DataSaver dataSaver = new DataSaver(activityRepo, athleteRepo, mapRepo, segmentRepo, segmentEffortRepo);
-                dataSaver.SaveActivities(activities); 
+                //dataSaver.SaveActivities(activities); 
+                foreach(DetailedActivity activity in activities)
+                {
+                    IActionResult detailedActivityResponse = await GetActivityById(activity.Id);
+                    if (detailedActivityResponse is OkObjectResult okResult)
+                    {
+                        if (okResult.Value is DetailedActivity detailedActivity)
+                        {
+                            try
+                            {
+                                dataSaver.SaveActivity(detailedActivity, detailedActivity.Athlete.Id);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                        }
+                    }
+                }
                 //List<int> activityIds = activityRepo.GetAllActivityIds();
                 //foreach (DetailedActivity activity in activities)
                 //{
@@ -95,8 +113,24 @@ namespace StravaDotNet.Controllers
                     response = await new HttpClient().GetAsync(url);
                     data = response.Content.ReadAsStringAsync().Result;
                     activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
-                    dataSaver.SaveActivities(activities);
-
+                    foreach (DetailedActivity activity in activities)
+                    {
+                        IActionResult detailedActivityResponse = await GetActivityById(activity.Id);
+                        if (detailedActivityResponse is OkObjectResult okResult)
+                        {
+                            if (okResult.Value is DetailedActivity detailedActivity)
+                            {
+                                try
+                                {
+                                    dataSaver.SaveActivity(detailedActivity, detailedActivity.Athlete.Id);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
+                            }
+                        }
+                    }
                     //foreach (var activity in activities)
                     //{
                     //    if (activity.Id != 0 && !activityIds.Contains((int)activity.Id))
