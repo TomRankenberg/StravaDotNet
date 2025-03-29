@@ -114,6 +114,23 @@ namespace Data.Repos
             context.SaveChanges();
             DetachActivity(detailedActivity);
         }
+        public void AddActivitySimple(DetailedActivity detailedActivity)
+        {
+            context.Activities.Add(detailedActivity);
+            context.SaveChanges();
+        }
+
+        public void AddOrEditActivity(DetailedActivity detailedActivity)
+        {
+            if (context.Activities.Any(x => x.Id == detailedActivity.Id))
+            {
+                UpdateActivity(detailedActivity);
+            }
+            else
+            {
+                AddActivitySimple(detailedActivity);
+            }
+        }
 
 
         public DetailedActivity GetActivityById(int id)

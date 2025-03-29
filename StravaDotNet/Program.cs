@@ -16,6 +16,10 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 
 builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
 builder.Services.AddScoped<IActivitiesRepo, ActivitiesRepo>();
+builder.Services.AddScoped<IAthleteRepo, AthleteRepo>();
+builder.Services.AddScoped<IMapRepo, MapRepo>();
+builder.Services.AddScoped<ISegmentRepo, SegmentRepo>();
+builder.Services.AddScoped<ISegmentEffortRepo, SegmentEffortRepo>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

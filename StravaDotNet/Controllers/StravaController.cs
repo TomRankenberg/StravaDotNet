@@ -3,12 +3,14 @@ using Data.Interfaces;
 using Data.Models;
 using Data.Models.Strava;
 using Microsoft.AspNetCore.Mvc;
+using DataManagement.BusinessLogic;
 
 namespace StravaDotNet.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StravaController(IStravaUserRepo userRepo, IActivitiesRepo activityRepo) : ControllerBase
+    public class StravaController(IStravaUserRepo userRepo, IActivitiesRepo activityRepo, IAthleteRepo athleteRepo, IMapRepo mapRepo,
+        ISegmentRepo segmentRepo, ISegmentEffortRepo segmentEffortRepo) : ControllerBase
     {
         private string Token { get; set; }
         private HttpClient HttpClient { get; set; }
@@ -44,46 +46,47 @@ namespace StravaDotNet.Controllers
                 string data = response.Content.ReadAsStringAsync().Result;
 
                 List<DetailedActivity> activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
+                DataSaver dataSaver = new DataSaver(activityRepo, athleteRepo, mapRepo, segmentRepo, segmentEffortRepo);
+                dataSaver.SaveActivities(activities); 
+                //List<int> activityIds = activityRepo.GetAllActivityIds();
+                //foreach (DetailedActivity activity in activities)
+                //{
+                //    if (activity.Id != 0 && !activityIds.Contains((int)activity.Id))
+                //    {
+                //        IActionResult detailedActivityResponse = await GetActivityById(activity.Id);
 
-                List<int> activityIds = activityRepo.GetAllActivityIds();
-                foreach (DetailedActivity activity in activities)
-                {
-                    if (activity.Id != 0 && !activityIds.Contains((int)activity.Id))
-                    {
-                        IActionResult detailedActivityResponse = await GetActivityById(activity.Id);
+                //        if (detailedActivityResponse is OkObjectResult okResult)
+                //        {
+                //            if (okResult.Value is DetailedActivity detailedActivity)
+                //            {
+                //                detailedActivity.Polyline = detailedActivity.Map.SummaryPolyline ?? "";
+                //                detailedActivity.Map.ActivityId = detailedActivity.Id;
+                //                foreach (DetailedSegmentEffort effort in detailedActivity.SegmentEfforts)
+                //                {
+                //                    effort.DetailedActivity = detailedActivity;
+                //                }
+                //                foreach (Split split in detailedActivity.SplitsMetric)
+                //                {
+                //                    split.DetailedActivity = detailedActivity;
+                //                }
+                //                foreach (Lap lap in detailedActivity.Laps)
+                //                {
+                //                    lap.DetailedActivity = detailedActivity;
+                //                }
 
-                        if (detailedActivityResponse is OkObjectResult okResult)
-                        {
-                            if (okResult.Value is DetailedActivity detailedActivity)
-                            {
-                                detailedActivity.Polyline = detailedActivity.Map.SummaryPolyline ?? "";
-                                detailedActivity.Map.ActivityId = detailedActivity.Id;
-                                foreach (DetailedSegmentEffort effort in detailedActivity.SegmentEfforts)
-                                {
-                                    effort.DetailedActivity = detailedActivity;
-                                }
-                                foreach (Split split in detailedActivity.SplitsMetric)
-                                {
-                                    split.DetailedActivity = detailedActivity;
-                                }
-                                foreach (Lap lap in detailedActivity.Laps)
-                                {
-                                    lap.DetailedActivity = detailedActivity;
-                                }
-
-                                activityRepo.DetachActivity(detailedActivity);
-                                try
-                                {
-                                    activityRepo.AddActivity(detailedActivity);
-                                }
-                                catch (Exception e)
-                                {
-                                    Console.WriteLine(e.Message);
-                                }
-                            }
-                        }
-                    }
-                }
+                //                activityRepo.DetachActivity(detailedActivity);
+                //                try
+                //                {
+                //                    activityRepo.AddActivity(detailedActivity);
+                //                }
+                //                catch (Exception e)
+                //                {
+                //                    Console.WriteLine(e.Message);
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
                 while (activities.Count == 50 && after == null)
                 {
                     page++;
@@ -92,22 +95,24 @@ namespace StravaDotNet.Controllers
                     response = await new HttpClient().GetAsync(url);
                     data = response.Content.ReadAsStringAsync().Result;
                     activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
-                    foreach (var activity in activities)
-                    {
-                        if (activity.Id != 0 && !activityIds.Contains((int)activity.Id))
-                        {
-                            activity.Polyline = activity.Map.SummaryPolyline ?? "";
-                            activity.Map.ActivityId = activity.Id;
-                            try
-                            {
-                                activityRepo.AddActivity(activity);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e.Message);
-                            }
-                        }
-                    }
+                    dataSaver.SaveActivities(activities);
+
+                    //foreach (var activity in activities)
+                    //{
+                    //    if (activity.Id != 0 && !activityIds.Contains((int)activity.Id))
+                    //    {
+                    //        activity.Polyline = activity.Map.SummaryPolyline ?? "";
+                    //        activity.Map.ActivityId = activity.Id;
+                    //        try
+                    //        {
+                    //            activityRepo.AddActivity(activity);
+                    //        }
+                    //        catch (Exception e)
+                    //        {
+                    //            Console.WriteLine(e.Message);
+                    //        }
+                    //    }
+                    //}
                 }
 
                 return Ok(activities);

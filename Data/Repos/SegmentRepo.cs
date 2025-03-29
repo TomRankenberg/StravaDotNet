@@ -16,5 +16,18 @@ namespace Data.Repos
             context.Segments.Update(segment);
             context.SaveChangesAsync();
         }
+        public long? AddOrEditSegment(SummarySegment segment)
+        {
+            if (context.Segments.Contains(segment))
+            {
+                UpdateSegment(segment);
+            }
+            else
+            {
+                AddSegment(segment);
+            }
+
+            return segment.Id;
+        }
     }
 }

@@ -17,5 +17,18 @@ namespace Data.Repos
             context.PolylineMaps.Update(map);
             context.SaveChangesAsync();
         }
+
+        public string AddOrEditMap(PolylineMap map)
+        {
+            if (context.PolylineMaps.Contains(map))
+            {
+                UpdateMap(map);
+            }
+            else
+            {
+                AddMap(map);
+            }
+            return map.Id;
+        }
     }
 }

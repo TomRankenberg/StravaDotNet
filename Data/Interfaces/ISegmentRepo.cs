@@ -6,5 +6,6 @@ namespace Data.Interfaces
     {
         void AddSegment(SummarySegment segment);
         void UpdateSegment(SummarySegment segment);
+        long? AddOrEditSegment(SummarySegment segment);
     }
 }

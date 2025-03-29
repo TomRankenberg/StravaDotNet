@@ -7,5 +7,6 @@ namespace Data.Interfaces
     {
         void AddAthlete(MetaAthlete athlete);
         void UpdateAthlete(MetaAthlete athlete);
+        void AddOrEditAthlete(MetaAthlete athlete);
     }
 }

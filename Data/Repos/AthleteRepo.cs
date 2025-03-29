@@ -16,5 +16,16 @@ namespace Data.Repos
             context.MetaAthletes.Update(athlete);
             context.SaveChangesAsync();
         }
+        public void AddOrEditAthlete(MetaAthlete athlete)
+        {
+            if (context.MetaAthletes.Contains(athlete))
+            {
+                //UpdateAthlete(athlete);
+            }
+            else
+            {
+                AddAthlete(athlete);
+            }
+        }
     }
 }

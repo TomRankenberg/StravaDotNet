@@ -17,5 +17,17 @@ namespace Data.Repos
             context.SegmentEfforts.Update(effort);
             context.SaveChangesAsync();
         }
+
+        public void AddOrEditSegmentEffort(DetailedSegmentEffort effort)
+        {
+            if (context.SegmentEfforts.Contains(effort))
+            {
+                UpdateSegmentEffort(effort);
+            }
+            else
+            {
+                AddSegmentEffort(effort);
+            }
+        }
     }
 }

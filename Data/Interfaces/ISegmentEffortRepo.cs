@@ -6,6 +6,7 @@ namespace Data.Interfaces
     {
         public void AddSegmentEffort(DetailedSegmentEffort segmentEffort);
         public void UpdateSegmentEffort(DetailedSegmentEffort segmentEffort);
+        public void AddOrEditSegmentEffort(DetailedSegmentEffort segmentEffort);
 
     }
 }

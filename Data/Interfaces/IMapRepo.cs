@@ -6,5 +6,6 @@ namespace Data.Interfaces
     {
         void AddMap(PolylineMap map);
         void UpdateMap(PolylineMap map);
+        string AddOrEditMap(PolylineMap map);  
     }
 }
