@@ -1,6 +1,8 @@
-﻿using Data.Context;
+﻿using System.Diagnostics;
+using Data.Context;
 using Data.Interfaces;
 using Data.Models.Strava;
+using Newtonsoft.Json;
 
 namespace DataManagement.BusinessLogic
 {
@@ -30,6 +32,15 @@ namespace DataManagement.BusinessLogic
                 activity.MapId = mapRepo.AddOrEditMap(activity.Map);
                 activity.Map = null;
             }
+
+            DetailedActivity activityCopy = JsonConvert.DeserializeObject<DetailedActivity>(JsonConvert.SerializeObject(activity));
+            activityCopy.AthleteId = athleteId;
+            activityCopy.Map = null;
+            activityCopy.SegmentEfforts = null;
+            activityCopy.Laps = null;
+            activityCopy.BestEfforts = null;
+
+            activityRepo.AddOrEditActivity(activityCopy);
 
             if (activity.SegmentEfforts != null)
             {
@@ -62,7 +73,6 @@ namespace DataManagement.BusinessLogic
                 }
             }
 
-            activityRepo.AddOrEditActivity(activity);
         }
     }
 }
