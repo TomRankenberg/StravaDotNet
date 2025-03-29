@@ -1,24 +1,16 @@
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 using Data.Models.Strava;
 
-public class DetailedActivityService
+namespace StravaDotNet.Components.Services
 {
-    private readonly HttpClient _httpClient;
-
-    public DetailedActivityService(HttpClient httpClient)
+    public class DetailedActivityService(HttpClient httpClient)
     {
-        _httpClient = httpClient;
-    }
-
-    public async Task<List<DetailedActivity>> GetDetailedActivitiesAsync()
-    {
-        return await _httpClient.GetFromJsonAsync<List<DetailedActivity>>("api/detailedactivities");
-    }
-    public async Task<List<DetailedSegmentEffort>> GetDetailedSegmentEffortsAsync()
-    {
-        return await _httpClient.GetFromJsonAsync<List<DetailedSegmentEffort>>("api/detailedsegmenteffort");
+        public async Task<List<DetailedActivity>> GetDetailedActivitiesAsync()
+        {
+            return await httpClient.GetFromJsonAsync<List<DetailedActivity>>("api/detailedactivities");
+        }
+        public async Task<List<DetailedSegmentEffort>> GetDetailedSegmentEffortsAsync()
+        {
+            return await httpClient.GetFromJsonAsync<List<DetailedSegmentEffort>>("api/segmenteffort/GetPRs");
+        }
     }
 }
