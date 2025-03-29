@@ -65,46 +65,7 @@ namespace StravaDotNet.Controllers
                             }
                         }
                     }
-                }
-                //List<int> activityIds = activityRepo.GetAllActivityIds();
-                //foreach (DetailedActivity activity in activities)
-                //{
-                //    if (activity.Id != 0 && !activityIds.Contains((int)activity.Id))
-                //    {
-                //        IActionResult detailedActivityResponse = await GetActivityById(activity.Id);
-
-                //        if (detailedActivityResponse is OkObjectResult okResult)
-                //        {
-                //            if (okResult.Value is DetailedActivity detailedActivity)
-                //            {
-                //                detailedActivity.Polyline = detailedActivity.Map.SummaryPolyline ?? "";
-                //                detailedActivity.Map.ActivityId = detailedActivity.Id;
-                //                foreach (DetailedSegmentEffort effort in detailedActivity.SegmentEfforts)
-                //                {
-                //                    effort.DetailedActivity = detailedActivity;
-                //                }
-                //                foreach (Split split in detailedActivity.SplitsMetric)
-                //                {
-                //                    split.DetailedActivity = detailedActivity;
-                //                }
-                //                foreach (Lap lap in detailedActivity.Laps)
-                //                {
-                //                    lap.DetailedActivity = detailedActivity;
-                //                }
-
-                //                activityRepo.DetachActivity(detailedActivity);
-                //                try
-                //                {
-                //                    activityRepo.AddActivity(detailedActivity);
-                //                }
-                //                catch (Exception e)
-                //                {
-                //                    Console.WriteLine(e.Message);
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
+                }                
                 while (activities.Count == 50 && after == null)
                 {
                     page++;
@@ -180,6 +141,17 @@ namespace StravaDotNet.Controllers
             else
             {
                 string data = response.Content.ReadAsStringAsync().Result;
+                while(data.Contains("Rate Limit Exceeded"))
+                {
+                    Thread.Sleep(960000);// wait 16 minutes
+                    response = await new HttpClient().GetAsync(url);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        data = response.Content.ReadAsStringAsync().Result;
+                        DetailedActivity activity = JsonConvert.DeserializeObject<DetailedActivity>(data);
+                        return Ok(activity);
+                    }
+                }
                 return BadRequest();
             }
         }

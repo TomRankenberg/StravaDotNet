@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using Data.Context;
-using Data.Interfaces;
+﻿using Data.Interfaces;
 using Data.Models.Strava;
 using Newtonsoft.Json;
 
@@ -22,7 +20,7 @@ namespace DataManagement.BusinessLogic
             return $"Saved {savingCounter} activities";
         }
 
-        public void SaveActivity(DetailedActivity activity, int athleteId)// tod: first overarching, then smaller objects
+        public void SaveActivity(DetailedActivity activity, int athleteId)
         {
             activity.AthleteId = athleteId;
             activity.Athlete = null;

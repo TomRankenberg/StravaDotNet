@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Data.Repos
 {
     public class ActivitiesRepo(DatabaseContext context) : IActivitiesRepo
-    {// todo: put saving of all downstream objects in other methods/repos. Save from the top down.
+    {
         
         public void AddActivity(DetailedActivity detailedActivity)
         {
