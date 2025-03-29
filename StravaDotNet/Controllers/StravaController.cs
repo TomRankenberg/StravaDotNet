@@ -92,22 +92,6 @@ namespace StravaDotNet.Controllers
                             }
                         }
                     }
-                    //foreach (var activity in activities)
-                    //{
-                    //    if (activity.Id != 0 && !activityIds.Contains((int)activity.Id))
-                    //    {
-                    //        activity.Polyline = activity.Map.SummaryPolyline ?? "";
-                    //        activity.Map.ActivityId = activity.Id;
-                    //        try
-                    //        {
-                    //            activityRepo.AddActivity(activity);
-                    //        }
-                    //        catch (Exception e)
-                    //        {
-                    //            Console.WriteLine(e.Message);
-                    //        }
-                    //    }
-                    //}
                 }
 
                 return Ok(activities);
