@@ -1,5 +1,6 @@
 ﻿@page "/best-efforts"
 @using Data.Models.Strava
+@using System.Globalization
 @using Newtonsoft.Json
 @using StravaDotNet.Components.Services
 @inject DetailedActivityService detailedActivityService
@@ -23,37 +24,37 @@
     private async Task LoadData()
     {
         detailedEfforts = await detailedActivityService.GetDetailedSegmentEffortsAsync();
-        PlotEfforts("5K");
-        PlotEfforts("10K");
-
+        PlotEfforts("5K", "Best5k");
+        PlotEfforts("10K", "Best10k");
     }
 
-    private async void PlotEfforts(string distance)
+    private async void PlotEfforts(string distance, string canvasId)
     {
         if (detailedEfforts != null)
         {
             List<DetailedSegmentEffort> selectedEfforts = detailedEfforts.Where(da => da.Name == distance).ToList();
             StateHasChanged();
-            PlotScatterChartEfforts(selectedEfforts);
+            PlotMonthlyScatterChartEfforts(selectedEfforts, canvasId);
         }
     }
 
-    private void PlotScatterChartEfforts(List<DetailedSegmentEffort> efforts)
+    private void PlotMonthlyScatterChartEfforts(List<DetailedSegmentEffort> efforts, string canvasId)
     {
         var minDate = efforts.Min(da => da.StartDate);
         var maxDate = efforts.Max(da => da.StartDate);
 
-        var data = efforts.Select(da => new
-        {
-            x = da.Distance / 1000,
-            y = Math.Round((decimal)((da.Distance / da.MovingTime) * 3.6), 3),
-            date = da.StartDate?.ToString("yyyy-MM-dd"),
-            color = GetColorForDate(da.StartDate, minDate, maxDate)
-        }).ToList();
+        var data = efforts.GroupBy(da => new { da.StartDate.Value.Year, da.StartDate.Value.Month })
+                          .Select(g => new
+                          {
+                              monthYear = $"{g.Key.Year}-{g.Key.Month:D2}",
+                              y = g.OrderByDescending(da => (da.Distance / da.MovingTime) * 3.6).FirstOrDefault().Distance / g.OrderByDescending(da => (da.Distance / da.MovingTime) * 3.6).FirstOrDefault().MovingTime * 3.6,
+                              date = g.OrderByDescending(da => (da.Distance / da.MovingTime) * 3.6).FirstOrDefault().StartDate?.ToString("yyyy-MM-dd"),
+                              color = GetColorForDate(g.OrderByDescending(da => (da.Distance / da.MovingTime) * 3.6).FirstOrDefault().StartDate, minDate, maxDate)
+                          }).ToList();
 
         var jsonData = JsonConvert.SerializeObject(data);
 
-        JSRuntime.InvokeVoidAsync("plotScatterChart", jsonData, "Run");
+        JSRuntime.InvokeVoidAsync("plotMonthlyScatterChart", jsonData, canvasId);
     }
 
     private string GetColorForDate(DateTime? date, DateTime? minDate, DateTime? maxDate)
@@ -72,5 +73,4 @@
 
         return $"rgba({red}, {green}, {blue}, 0.8)";
     }
-
 }
