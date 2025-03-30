@@ -32,7 +32,7 @@
     {
         if (detailedEfforts != null)
         {
-            List<DetailedSegmentEffort> selectedEfforts = detailedEfforts.Where(da => da.Name == distance).ToList();
+            List<DetailedSegmentEffort> selectedEfforts = detailedEfforts.Where(da => da.Name == distance && da?.PrRank == 1).ToList();
             StateHasChanged();
             PlotMonthlyScatterChartEfforts(selectedEfforts, canvasId);
         }
