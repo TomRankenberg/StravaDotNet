@@ -22,14 +22,10 @@ namespace DataManagement.BusinessLogic
 
         public void SaveActivity(DetailedActivity activity, int athleteId)
         {
+            athleteRepo.AddOrEditAthlete(activity.Athlete);
+
             activity.AthleteId = athleteId;
             activity.Athlete = null;
-
-            if (activity.Map != null)
-            {
-                activity.MapId = mapRepo.AddOrEditMap(activity.Map);
-                activity.Map = null;
-            }
 
             DetailedActivity activityCopy = JsonConvert.DeserializeObject<DetailedActivity>(JsonConvert.SerializeObject(activity));
             activityCopy.AthleteId = athleteId;
@@ -39,6 +35,13 @@ namespace DataManagement.BusinessLogic
             activityCopy.BestEfforts = null;
 
             activityRepo.AddOrEditActivity(activityCopy);
+
+            if (activity.Map != null)
+            {
+                activity.Map.ActivityId = activity.Id;
+                activity.MapId = mapRepo.AddOrEditMap(activity.Map);
+                activity.Map = null;
+            }
 
             if (activity.SegmentEfforts != null)
             {
@@ -70,6 +73,8 @@ namespace DataManagement.BusinessLogic
                     segmentEffortRepo.AddOrEditSegmentEffort(bestEffort);
                 }
             }
+
+            activityRepo.AddOrEditActivity(activity);
 
         }
     }

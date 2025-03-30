@@ -30,5 +30,10 @@ namespace Data.Repos
             }
             return map.Id;
         }
+
+        public PolylineMap GetMapById(string id)
+        {
+            return context.PolylineMaps.Find(id);
+        }
     }
 }

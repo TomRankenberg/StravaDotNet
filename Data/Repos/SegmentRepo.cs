@@ -23,7 +23,7 @@ namespace Data.Repos
         {
             if (context.Segments.Contains(segment))
             {
-                //UpdateSegment(segment);
+                UpdateSegment(segment);
             }
             else
             {
