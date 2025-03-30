@@ -25,7 +25,7 @@ namespace Data.Repos
         {
             if (context.SegmentEfforts.Contains(effort))
             {
-                //UpdateSegmentEffort(effort);
+                UpdateSegmentEffort(effort);
             }
             else
             {

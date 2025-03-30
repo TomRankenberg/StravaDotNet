@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace StravaDotNet.Controllers
 {
     [Route("api/[controller]")]
-    public class HeatmapController(IActivitiesRepo activitiesRepo) : ControllerBase
+    public class HeatmapController(IActivitiesRepo activitiesRepo, IMapRepo mapRepo) : ControllerBase
     {
         [HttpGet]
         [Route("GetHeatmap")]
@@ -27,8 +27,9 @@ namespace StravaDotNet.Controllers
             {
                 activities = activities.Where(a => a.Type == "Ride").ToList();
             }
-            
-            HeatMapData heatMapData = HeatmapManager.GetHeatmapData(activities);
+            List<DetailedActivity> activitiesWithMaps = activities.Where(a => a.MapId != null).ToList();
+
+            HeatMapData heatMapData = HeatmapManager.GetHeatmapData(activitiesWithMaps, mapRepo);
 
             return Ok(heatMapData);
         }

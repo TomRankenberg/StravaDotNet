@@ -13,14 +13,14 @@ namespace Data.Repos
         }
         public void UpdateAthlete(MetaAthlete athlete)
         {
-            context.MetaAthletes.Update(athlete);
+            //context.MetaAthletes.Update(athlete);
             context.SaveChangesAsync();
         }
         public void AddOrEditAthlete(MetaAthlete athlete)
         {
             if (context.MetaAthletes.Contains(athlete))
             {
-                //UpdateAthlete(athlete);
+                UpdateAthlete(athlete);
             }
             else
             {

@@ -1,21 +1,22 @@
-﻿using Data.Models.Strava;
+﻿using Data.Interfaces;
+using Data.Models.Strava;
 using DataManagement.Models;
 
 namespace DataManagement.BusinessLogic
 {
     public class HeatmapManager
     {
-
-        public static HeatMapData GetHeatmapData(List<DetailedActivity> activities)
+        public static HeatMapData GetHeatmapData(List<DetailedActivity> activities, IMapRepo mapRepo)
         {
             HeatMapData data = new HeatMapData();
             data.Input = new List<HeatmapInput>();
             data.Count = activities.Count;
-            foreach (DetailedActivity activity in activities)
+            foreach (DetailedActivity activity in activities.Where(a => a.MapId != null))
             {
+                PolylineMap map = mapRepo.GetMapById(activity.MapId);
                 HeatmapInput input = new HeatmapInput();
                 input.ActivityType = activity.Type;
-                input.EncodedPolyline = activity.Polyline;
+                input.EncodedPolyline = map.SummaryPolyline ?? "";
                 input.StartPoint = activity.StartLatlng;
                 input.EndPoint = activity.EndLatlng;
                 input.StartTime = activity.StartDateLocal;

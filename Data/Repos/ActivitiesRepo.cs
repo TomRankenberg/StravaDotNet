@@ -24,8 +24,8 @@ namespace Data.Repos
             {
                 AddActivity(detailedActivity);
             }
+            //DetachActivity(detailedActivity);
         }
-
 
         public DetailedActivity GetActivityById(int id)
         {
@@ -34,7 +34,14 @@ namespace Data.Repos
 
         public void UpdateActivity(DetailedActivity detailedActivity)
         {
-            context.Activities.Update(detailedActivity);
+            var existingActivity = context.Activities.Local.FirstOrDefault(a => a.Id == detailedActivity.Id);
+            if (existingActivity != null)
+            {
+                context.Entry(existingActivity).State = EntityState.Detached;
+            }
+
+            context.Activities.Attach(detailedActivity);
+            context.Entry(detailedActivity).State = EntityState.Modified;
             context.SaveChanges();
         }
 
