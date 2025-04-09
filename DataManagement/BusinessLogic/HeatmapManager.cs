@@ -53,19 +53,19 @@ namespace DataManagement.BusinessLogic
                 if (smallestDistance == molukkenDistance)
                 {
                     input.StartLocation = "Molukkenstraat";
-                    input.LineColor = "green";
+                    input.LineColor = "#DC3912"; 
                     return input;
                 }
                 else if (smallestDistance == rooseveltDistance)
                 {
                     input.StartLocation = "Rooseveltlaan";
-                    input.LineColor = "red";
+                    input.LineColor = "#990099"; 
                     return input;
                 }
                 else if (smallestDistance == amaliaDistance)
                 {
                     input.StartLocation = "Amaliastraat";
-                    input.LineColor = "blue";
+                    input.LineColor = "#3366CC";
                     return input;
                 }
                 else

@@ -1,21 +1,39 @@
 ﻿@page "/best-efforts"
 @using Data.Models.Strava
-@using System.Globalization
 @using Newtonsoft.Json
 @using StravaDotNet.Components.Services
 @inject DetailedActivityService detailedActivityService
+@inject SegmentEffortService segmentEffortService
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
 <h3>Best Efforts</h3>
 
-<form>
+<form class="load-data-form">
     <button type="button" class="btn btn-secondary" margin-right:30px @onclick="LoadData">Load Data</button>
 </form>
 @if (detailedEfforts != null)
 {
-    <canvas id="Best5k" width="100" height="50"></canvas>
-    <canvas id="Best10k" width="100" height="50"></canvas>
+    <div class="canvas-container">
+        <div class="canvas-wrapper">
+            <canvas id="Best400m"></canvas>
+        </div>
+        <div class="canvas-wrapper">
+            <canvas id="Best1k"></canvas>
+        </div>
+        <div class="canvas-wrapper">
+            <canvas id="Best2Mile"></canvas>
+        </div>
+        <div class="canvas-wrapper">
+            <canvas id="Best5k"></canvas>
+        </div>
+        <div class="canvas-wrapper">
+            <canvas id="Best10k"></canvas>
+        </div>
+        <div class="canvas-wrapper">
+            <canvas id="Best15k"></canvas>
+        </div>
+    </div>
 }
 
 @code {
@@ -24,15 +42,20 @@
     private async Task LoadData()
     {
         detailedEfforts = await detailedActivityService.GetDetailedSegmentEffortsAsync();
+        PlotEfforts("400m", "Best400m");
+        PlotEfforts("1K", "Best1k");
+        PlotEfforts("2 mile", "Best2Mile");
         PlotEfforts("5K", "Best5k");
         PlotEfforts("10K", "Best10k");
+        PlotEfforts("15K", "Best15k");
+
     }
 
     private async void PlotEfforts(string distance, string canvasId)
     {
         if (detailedEfforts != null)
         {
-            List<DetailedSegmentEffort> selectedEfforts = detailedEfforts.Where(da => da.Name == distance).ToList();
+            List<DetailedSegmentEffort> selectedEfforts = detailedEfforts.Where(da => da.Name == distance && da?.PrRank == 1).ToList();
             StateHasChanged();
             PlotMonthlyScatterChartEfforts(selectedEfforts, canvasId);
         }
@@ -40,37 +63,35 @@
 
     private void PlotMonthlyScatterChartEfforts(List<DetailedSegmentEffort> efforts, string canvasId)
     {
-        var minDate = efforts.Min(da => da.StartDate);
-        var maxDate = efforts.Max(da => da.StartDate);
-
-        var data = efforts.GroupBy(da => new { da.StartDate.Value.Year, da.StartDate.Value.Month })
-                          .Select(g => new
-                          {
-                              monthYear = $"{g.Key.Year}-{g.Key.Month:D2}",
-                              y = g.OrderByDescending(da => (da.Distance / da.MovingTime) * 3.6).FirstOrDefault().Distance / g.OrderByDescending(da => (da.Distance / da.MovingTime) * 3.6).FirstOrDefault().MovingTime * 3.6,
-                              date = g.OrderByDescending(da => (da.Distance / da.MovingTime) * 3.6).FirstOrDefault().StartDate?.ToString("yyyy-MM-dd"),
-                              color = GetColorForDate(g.OrderByDescending(da => (da.Distance / da.MovingTime) * 3.6).FirstOrDefault().StartDate, minDate, maxDate)
-                          }).ToList();
-
+        var data = segmentEffortService.GetMonthlyScatterChartData(efforts);
         var jsonData = JsonConvert.SerializeObject(data);
 
         JSRuntime.InvokeVoidAsync("plotMonthlyScatterChart", jsonData, canvasId);
     }
-
-    private string GetColorForDate(DateTime? date, DateTime? minDate, DateTime? maxDate)
-    {
-        if (date == null || minDate == null || maxDate == null)
-            return "rgba(75, 192, 192, 0.2)"; // Default color
-
-        var totalDays = (maxDate.Value - minDate.Value).TotalDays;
-        var daysFromStart = (date.Value - minDate.Value).TotalDays;
-        var ratio = daysFromStart / totalDays;
-
-        // Calculate color based on ratio (0.0 to 1.0)
-        var red = (int)(255 * ratio);
-        var green = (int)(192 * (1 - ratio));
-        var blue = 192;
-
-        return $"rgba({red}, {green}, {blue}, 0.8)";
-    }
 }
+
+
+<style>
+    .load-data-form {
+        margin-bottom: 20px;
+    }
+
+    .canvas-container {
+        display: flex;
+		flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .canvas-wrapper {
+        flex: 1 1 calc(50% - 20px);
+        max-width: calc(50% - 20px);
+    }
+
+    canvas {
+        width: 100% !important;
+        height: auto !important;
+        border: 1px solid #ccc;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+</style>
