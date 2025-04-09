@@ -22,6 +22,8 @@ builder.Services.AddScoped<IMapRepo, MapRepo>();
 builder.Services.AddScoped<ISegmentRepo, SegmentRepo>();
 builder.Services.AddScoped<ISegmentEffortRepo, SegmentEffortRepo>();
 
+builder.Services.AddScoped<SegmentEffortService, SegmentEffortService>();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient();

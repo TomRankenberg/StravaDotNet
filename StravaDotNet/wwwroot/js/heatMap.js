@@ -7,7 +7,7 @@
 }
 
 function initializeHeatMap(heatMapData) {
-    var map = L.map('map').setView([52.09064, 5.12130], 13);
+    var map = L.map('map').setView([52.08064, 5.12130], 13);
     L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.{ext}', {
         minZoom: 0,
         maxZoom: 20,
