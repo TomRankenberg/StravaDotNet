@@ -139,6 +139,44 @@ namespace StravaDotNet.Controllers
             }
         }
 
+        public async Task<IActionResult> GetStreamsForActivity(long? activityId)
+        {
+            if (Token == null)
+            {
+                StravaUser stravaUser = userRepo.GetUserById(1);
+                Token = stravaUser.AccessToken;
+            }
+            string accessToken = $"&access_token={Token}";
+
+            //string path = $"https://www.strava.com/api/v3/activities/{activityId}?include_all_efforts=true";
+            string path = $"https://www.strava.com/api/v3/activities/{activityId}/streams?keys=&key_by_type=";
+            string url = path + accessToken;
+            var response = await new HttpClient().GetAsync(url);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string data = response.Content.ReadAsStringAsync().Result;
+                StreamSet activity = JsonConvert.DeserializeObject<StreamSet>(data);
+                return Ok(activity);
+            }
+            else
+            {
+                string data = response.Content.ReadAsStringAsync().Result;
+                while (data.Contains("Rate Limit Exceeded"))
+                {
+                    Thread.Sleep(960000);// wait 16 minutes
+                    response = await new HttpClient().GetAsync(url);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        data = response.Content.ReadAsStringAsync().Result;
+                        StreamSet activity = JsonConvert.DeserializeObject<StreamSet>(data);
+                        return Ok(activity);
+                    }
+                }
+                return BadRequest();
+            }
+
+        }
+
         [HttpGet]
         [Route("ConnectToStrava")]
         public IActionResult ConnectToStrava()
