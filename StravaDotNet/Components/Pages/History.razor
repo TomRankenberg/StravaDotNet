@@ -20,7 +20,7 @@
         <MudTd>
             <MudIcon Icon="@GetIcon(context.Type)" />
         </MudTd>
-        <MudTd>@context.StartDate.ToString("MM/dd/yyyy")</MudTd>
+        <MudTd>@context.StartDate.ToString("dd/MM/yyyy")</MudTd>
     </RowTemplate>
 </MudTable>
 
@@ -43,6 +43,7 @@
                     });
             }
         }
+		simpleActivities = simpleActivities.OrderByDescending(x => x.StartDate).ToList();
     }
 
     private string GetIcon(string type)
