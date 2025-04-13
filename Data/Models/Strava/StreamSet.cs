@@ -1,10 +1,6 @@
-using System;
 using System.Text;
-using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
-using Strava.NET.Model;
 
 namespace Data.Models.Strava
 {
@@ -15,6 +11,8 @@ namespace Data.Models.Strava
     [DataContract]
     public class StreamSet
     {
+        public int? StreamSetId { get; set; }
+        public long? ActivityId { get; set; }
         /// <summary>
         /// Gets or Sets Time
         /// </summary>
