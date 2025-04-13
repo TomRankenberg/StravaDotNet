@@ -13,25 +13,32 @@ namespace StravaDotNet.Controllers
         [Route("GetHeatmap")]
         public IActionResult GetHeatmap(bool runs, bool rides)
         {
-            List<DetailedActivity> activities = activitiesRepo.GetAllActivities();
+            IQueryable<DetailedActivity> activities = activitiesRepo.GetAllActivities();
 
             if (runs && rides)
             {
-                activities = activities.Where(a => a.Type == "Run" || a.Type == "Ride").ToList();
+                activities = activities.Where(a => a.Type == "Run" || a.Type == "Ride");
             }
             else if (runs)
             {
-                activities = activities.Where(a => a.Type == "Run").ToList();
+                activities = activities.Where(a => a.Type == "Run");
             }
             else if (rides)
             {
-                activities = activities.Where(a => a.Type == "Ride").ToList();
+                activities = activities.Where(a => a.Type == "Ride");
             }
-            List<DetailedActivity> activitiesWithMaps = activities.Where(a => a.MapId != null).ToList();
+            IQueryable<DetailedActivity> activitiesWithMaps = activities.Where(a => a.MapId != null);
 
-            HeatMapData heatMapData = HeatmapManager.GetHeatmapData(activitiesWithMaps, mapRepo);
+            if (!activitiesWithMaps.Any())
+            {
+                return NotFound("No activities with maps found.");
+            }
+            else
+            {
+                HeatMapData heatMapData = HeatmapManager.GetHeatmapData(activitiesWithMaps, mapRepo);
 
-            return Ok(heatMapData);
+                return Ok(heatMapData);
+            }
         }
     }
 }

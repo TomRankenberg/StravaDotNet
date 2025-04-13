@@ -10,6 +10,6 @@ namespace Data.Interfaces
         public void UpdateActivity(DetailedActivity detailedActivity);
         public void DetachActivity(DetailedActivity detailedActivity);
         public List<int> GetAllActivityIds();
-        public List<DetailedActivity> GetAllActivities();
+        public IQueryable<DetailedActivity> GetAllActivities();
     }
 }

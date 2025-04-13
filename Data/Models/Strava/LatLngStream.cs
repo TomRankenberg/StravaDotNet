@@ -44,7 +44,7 @@ namespace Data.Models.Strava
         /// <value>The sequence of lat/long values for this stream</value>
         [DataMember(Name = "data", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "data")]
-        public List<LatLng> Data { get; set; }
+        public string Data { get; set; }
 
 
         /// <summary>
