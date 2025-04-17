@@ -6,20 +6,6 @@ namespace DataManagement.BusinessLogic
 {
     public class DataSaver(IActivitiesRepo activityRepo, IAthleteRepo athleteRepo, IMapRepo mapRepo, ISegmentRepo segmentRepo, ISegmentEffortRepo segmentEffortRepo)
     {
-        public string SaveActivities(List<DetailedActivity> activities)
-        {
-            MetaAthlete athlete = activities.FirstOrDefault().Athlete;
-            athleteRepo.AddOrEditAthlete(athlete);
-
-            int savingCounter = 0;
-            foreach (DetailedActivity activity in activities)
-            {
-                SaveActivity(activity, athlete.Id);
-                savingCounter++;
-            }
-            return $"Saved {savingCounter} activities";
-        }
-
         public void SaveActivity(DetailedActivity activity, int athleteId)
         {
             athleteRepo.AddOrEditAthlete(activity.Athlete);

@@ -1,4 +1,3 @@
-using Data.Repos;
 using StravaDotNet.Components;
 using Microsoft.EntityFrameworkCore;
 using Data.Interfaces;
@@ -15,12 +14,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"),
         b => b.MigrationsAssembly("Data")));
 
-builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
-builder.Services.AddScoped<IActivitiesRepo, ActivitiesRepo>();
-builder.Services.AddScoped<IAthleteRepo, AthleteRepo>();
-builder.Services.AddScoped<IMapRepo, MapRepo>();
-builder.Services.AddScoped<ISegmentRepo, SegmentRepo>();
-builder.Services.AddScoped<ISegmentEffortRepo, SegmentEffortRepo>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<SegmentEffortService, SegmentEffortService>();
 

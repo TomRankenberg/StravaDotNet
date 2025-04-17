@@ -25,8 +25,11 @@ namespace Data.Context
         public virtual DbSet<SmoothVelocityStream> SmoothVelocityStreams { get; set; }
         public virtual DbSet<HeartrateStream> HeartrateStreams { get; set; }
         public virtual DbSet<CadenceStream> CadenceStreams { get; set; }
+        public virtual DbSet<SmoothGradeStream> SmoothGradeStreams { get; set; }
+        public virtual DbSet<MovingStream> MovingStreams { get; set; }
+        public virtual DbSet<TemperatureStream> TemperatureStreams { get; set; }
         public virtual DbSet<PowerStream> PowerStreams { get; set; }
-
+        
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
