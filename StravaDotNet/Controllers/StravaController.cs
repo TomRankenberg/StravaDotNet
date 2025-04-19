@@ -139,8 +139,8 @@ namespace StravaDotNet.Controllers
         }
 
         [HttpGet]
-        [Route("GetStreams")]
-        public async Task<IActionResult> GetStreams()
+        [Route("GetStreamsAsync")]
+        public async Task<IActionResult> GetStreamsAsync()
         {
             DataSaver dataSaver = new DataSaver(unitOfWork);
             List<long?> activityIds = unitOfWork.Activities.GetAllActivityIds();
