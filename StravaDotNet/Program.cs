@@ -5,6 +5,8 @@ using Data.Context;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StravaDotNet.Components.Services;
 using MudBlazor.Services;
+using Data.Repos;
+using Data.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,26 @@ builder.Services.AddMudServices();
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"),
         b => b.MigrationsAssembly("Data")));
+
+builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
+builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
+builder.Services.AddScoped<IActivitiesRepo, ActivitiesRepo>();
+builder.Services.AddScoped<IAthleteRepo, AthleteRepo>();
+builder.Services.AddScoped<IMapRepo, MapRepo>();
+builder.Services.AddScoped<ISegmentRepo, SegmentRepo>();
+builder.Services.AddScoped<ISegmentEffortRepo, SegmentEffortRepo>();
+builder.Services.AddScoped<IStreamSetRepo, StreamSetRepo>();
+builder.Services.AddScoped<ITimeStreamRepo, TimeStreamRepo>();
+builder.Services.AddScoped<IDistanceStreamRepo, DistanceStreamRepo>();
+builder.Services.AddScoped<ILatLngStreamRepo, LatLngStreamRepo>();
+builder.Services.AddScoped<ISmoothGradeStreamRepo, SmoothGradeStreamRepo>();
+builder.Services.AddScoped<IMovingStreamRepo, MovingStreamRepo>();
+builder.Services.AddScoped<ITemperatureStreamRepo, TemperatureStreamRepo>();
+builder.Services.AddScoped<IPowerStreamRepo, PowerStreamRepo>();
+builder.Services.AddScoped<ICadenceStreamRepo, CadenceStreamRepo>();
+builder.Services.AddScoped<IHeartrateStreamRepo, HeartrateStreamRepo>();
+builder.Services.AddScoped<ISmoothVelocityStreamRepo, SmoothVelocityStreamRepo>();
+builder.Services.AddScoped<IAltitudeStreamRepo, AltitudeStreamRepo>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

@@ -1,7 +1,7 @@
 using Data.Context;
 using Data.Interfaces;
-using Data.Repos;
 
+namespace Data.Models;
 public class UnitOfWork : IUnitOfWork
 {
     private readonly DatabaseContext _context;

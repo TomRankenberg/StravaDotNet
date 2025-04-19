@@ -4,11 +4,11 @@ using Newtonsoft.Json;
 
 namespace DataManagement.BusinessLogic
 {
-    public class DataSaver(IActivitiesRepo activityRepo, IAthleteRepo athleteRepo, IMapRepo mapRepo, ISegmentRepo segmentRepo, ISegmentEffortRepo segmentEffortRepo)
+    public class DataSaver(IUnitOfWork unitOfWork)
     {
         public void SaveActivity(DetailedActivity activity, int athleteId)
         {
-            athleteRepo.AddOrEditAthlete(activity.Athlete);
+            unitOfWork.Athletes.AddOrEditAthlete(activity.Athlete);
 
             activity.AthleteId = athleteId;
             activity.Athlete = null;
@@ -20,12 +20,12 @@ namespace DataManagement.BusinessLogic
             activityCopy.Laps = null;
             activityCopy.BestEfforts = null;
 
-            activityRepo.AddOrEditActivity(activityCopy);
+            unitOfWork.Activities.AddOrEditActivity(activityCopy);
 
             if (activity.Map != null)
             {
                 activity.Map.ActivityId = activity.Id;
-                activity.MapId = mapRepo.AddOrEditMap(activity.Map);
+                activity.MapId = unitOfWork.Maps.AddOrEditMap(activity.Map);
                 activity.Map = null;
             }
 
@@ -33,12 +33,12 @@ namespace DataManagement.BusinessLogic
             {
                 foreach (DetailedSegmentEffort segmentEffort in activity.SegmentEfforts)
                 {
-                    long? segmentId = segmentRepo.AddOrEditSegment(segmentEffort.Segment);
+                    long? segmentId = unitOfWork.Segments.AddOrEditSegment(segmentEffort.Segment);
                     segmentEffort.SegmentId = segmentId;
                     segmentEffort.Segment = null;
 
                     segmentEffort.ActivityId = activity.Id;
-                    segmentEffortRepo.AddOrEditSegmentEffort(segmentEffort);
+                    unitOfWork.SegmentEfforts.AddOrEditSegmentEffort(segmentEffort);
                 }
             }
 
@@ -56,11 +56,11 @@ namespace DataManagement.BusinessLogic
                 {
                     bestEffort.Segment = null;
                     bestEffort.ActivityId = activity.Id;
-                    segmentEffortRepo.AddOrEditSegmentEffort(bestEffort);
+                    unitOfWork.SegmentEfforts.AddOrEditSegmentEffort(bestEffort);
                 }
             }
 
-            activityRepo.AddOrEditActivity(activity);
+            unitOfWork.Activities.AddOrEditActivity(activity);
 
         }
     }

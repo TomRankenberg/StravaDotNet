@@ -9,8 +9,7 @@ namespace StravaDotNet.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StravaController(IStravaUserRepo userRepo, IActivitiesRepo activityRepo, IAthleteRepo athleteRepo, IMapRepo mapRepo,
-        ISegmentRepo segmentRepo, ISegmentEffortRepo segmentEffortRepo) : ControllerBase
+    public class StravaController(IStravaUserRepo userRepo, IUnitOfWork unitOfWork) : ControllerBase
     {
         private string Token { get; set; }
         private HttpClient HttpClient { get; set; }
@@ -46,7 +45,7 @@ namespace StravaDotNet.Controllers
                 string data = response.Content.ReadAsStringAsync().Result;
 
                 List<DetailedActivity> activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
-                DataSaver dataSaver = new DataSaver(activityRepo, athleteRepo, mapRepo, segmentRepo, segmentEffortRepo);
+                DataSaver dataSaver = new DataSaver(unitOfWork);
                 foreach(DetailedActivity activity in activities)
                 {
                     IActionResult detailedActivityResponse = await GetActivityById(activity.Id);
