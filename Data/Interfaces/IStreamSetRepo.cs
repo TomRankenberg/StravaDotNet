@@ -11,6 +11,8 @@ namespace Data.Interfaces
         void UpdateStreamSet(StreamSet streamSet);
 
         void DeleteStreamSet(int id);
+        List<long?> GetAllActivityIdsFromStreamSets();
+
     }
 
     public interface ITimeStreamRepo

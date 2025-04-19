@@ -61,6 +61,78 @@ namespace DataManagement.BusinessLogic
             }
 
             unitOfWork.Activities.AddOrEditActivity(activity);
+        }
+
+        public void SaveStreams(StreamSet streamSet, long? activityId)
+        {
+            StreamSet streamSetCopy = JsonConvert.DeserializeObject<StreamSet>(JsonConvert.SerializeObject(streamSet));
+
+            streamSetCopy.ActivityId = activityId;
+            streamSetCopy.Altitude = null;
+            streamSetCopy.Distance = null;
+            streamSetCopy.Latlng = null;
+            streamSetCopy.Time = null;
+            streamSetCopy.VelocitySmooth = null;
+            streamSetCopy.Heartrate = null;
+            streamSetCopy.Cadence = null;
+            streamSetCopy.Watts = null;
+            streamSetCopy.GradeSmooth = null;
+            streamSetCopy.Moving = null;
+            streamSetCopy.Temp = null;
+
+            unitOfWork.StreamSets.AddStreamSet(streamSetCopy);
+
+            if (streamSet.Altitude != null)
+            {
+                streamSet.Altitude.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.AltitudeStreams.AddAltitudeStream(streamSet.Altitude);
+            }
+            if (streamSet.Distance != null)
+            {
+                streamSet.Distance.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.DistanceStreams.AddDistanceStream(streamSet.Distance);
+            }
+            if (streamSet.Latlng != null)
+            {
+                streamSet.Latlng.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.LatLngStreams.AddLatLngStream(streamSet.Latlng);
+            }
+            if (streamSet.Time != null)
+            {
+                streamSet.Time.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.TimeStreams.AddTimeStream(streamSet.Time);
+            }
+            if (streamSet.VelocitySmooth != null)
+            {
+                streamSet.VelocitySmooth.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.SmoothVelocityStreams.AddSmoothVelocityStream(streamSet.VelocitySmooth);
+            }
+            if (streamSet.Heartrate != null)
+            {
+                streamSet.Heartrate.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.HeartrateStreams.AddHeartrateStream(streamSet.Heartrate);
+            }
+            if (streamSet.Cadence != null)
+            {
+                streamSet.Cadence.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.CadenceStreams.AddCadenceStream(streamSet.Cadence);
+            }
+            if (streamSet.Watts != null)
+            {
+                streamSet.Watts.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.PowerStreams.AddPowerStream(streamSet.Watts);
+            }
+            if (streamSet.GradeSmooth != null)
+            {
+                streamSet.GradeSmooth.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.SmoothGradeStreams.AddSmoothGradeStream(streamSet.GradeSmooth);
+            }
+            if (streamSet.Moving != null)
+            {
+                streamSet.Moving.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.MovingStreams.AddMovingStream(streamSet.Moving);
+            }
+
 
         }
     }

@@ -39,6 +39,11 @@ namespace Data.Repos
                 _context.SaveChanges();
             }
         }
+
+        public List<long?> GetAllActivityIdsFromStreamSets()
+        {
+            return _context.Streams.Select(s => s.ActivityId).ToList();
+        }
     }
 
     public class TimeStreamRepo : ITimeStreamRepo

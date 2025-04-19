@@ -45,15 +45,10 @@ namespace Data.Repos
             context.SaveChanges();
         }
 
-        public List<int> GetAllActivityIds()
+        public List<long?> GetAllActivityIds()
         {
-            List<int> ids = [];
-            foreach (var activity in context.Activities)
-            {
-                int id = (int)activity.Id;
-                ids.Add(id);
-            }
-            return ids;
+            return context.Activities.Select(s => s.Id).ToList();
+
         }
 
         public void DetachActivity(DetailedActivity detailedActivity)
