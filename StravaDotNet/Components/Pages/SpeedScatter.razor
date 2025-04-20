@@ -26,19 +26,43 @@
         <div class="canvas-wrapper">
             <canvas id="stackedBarsHours"></canvas>
         </div>
+        <div class="canvas-wrapper">
+            <canvas id="heartRatePlot"></canvas>
+        </div>
     </div>
 }
 
 @code {
     private List<DetailedActivity> detailedActivities;
+	private List<HeartrateStream> streamSets;
 
     private async Task LoadData()
     {
         detailedActivities = await detailedActivityService.GetDetailedActivitiesAsync();
+		List<long?> activityIds = detailedActivities.Select(da => da.Id).ToList();
+        streamSets = await detailedActivityService.GetStreamSets(activityIds);
         PlotRunSpeed();
         PlotRideSpeed();
         PlotMonthlyActivities();
         PlotHourlyActivities();
+        PlotHeartRate();
+    }
+
+    private async void PlotHeartRate()
+    {
+        if (detailedActivities != null && streamSets != null)
+        {
+			var heartRateData = streamSets
+				.Select(s => s.Data)
+				.ToList();
+			var data = detailedActivities.Select(da => new
+			{
+				x = da.StartDate?.ToString("yyyy-MM-dd"),
+				y = 0
+			}).ToList();
+			var jsonData = JsonConvert.SerializeObject(data);
+			JSRuntime.InvokeVoidAsync("plotScatterChart", jsonData, "heartRatePlot");
+        }
     }
 
     private async void PlotRunSpeed()
