@@ -178,7 +178,7 @@ namespace StravaDotNet.Controllers
             }
             string accessToken = $"&access_token={Token}";
 
-            string path = $"https://www.strava.com/api/v3/activities/{activityId}/streams?keys=&key_by_type=";
+            string path = $"https://www.strava.com/api/v3/activities/{activityId}/streams?keys=time,heartrate,distance,altitude,temp&key_by_type=true";
             string url = path + accessToken;
             var response = await new HttpClient().GetAsync(url);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
