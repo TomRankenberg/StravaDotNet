@@ -17,6 +17,82 @@ namespace Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
 
+            modelBuilder.Entity("Data.Models.Strava.AltitudeStream", b =>
+                {
+                    b.Property<int>("AltitudeStreamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("AltitudeStreamId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("AltitudeStreams");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.CadenceStream", b =>
+                {
+                    b.Property<int>("CadenceStreamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("CadenceStreamId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("CadenceStreams");
+                });
+
             modelBuilder.Entity("Data.Models.Strava.DetailedActivity", b =>
                 {
                     b.Property<long>("Id")
@@ -241,6 +317,82 @@ namespace Data.Migrations
                     b.ToTable("SegmentEfforts");
                 });
 
+            modelBuilder.Entity("Data.Models.Strava.DistanceStream", b =>
+                {
+                    b.Property<int>("DistanceStreamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("DistanceStreamId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("DistanceStreams");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.HeartrateStream", b =>
+                {
+                    b.Property<int>("HeartrateStreamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("HeartrateStreamId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("HeartrateStreams");
+                });
+
             modelBuilder.Entity("Data.Models.Strava.Lap", b =>
                 {
                     b.Property<long>("Id")
@@ -303,6 +455,44 @@ namespace Data.Migrations
                     b.ToTable("Lap");
                 });
 
+            modelBuilder.Entity("Data.Models.Strava.LatLngStream", b =>
+                {
+                    b.Property<int>("LatLngStreamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("LatLngStreamId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("LatLngStreams");
+                });
+
             modelBuilder.Entity("Data.Models.Strava.MetaActivity", b =>
                 {
                     b.Property<long>("Id")
@@ -325,6 +515,44 @@ namespace Data.Migrations
                     b.ToTable("MetaAthletes");
                 });
 
+            modelBuilder.Entity("Data.Models.Strava.MovingStream", b =>
+                {
+                    b.Property<int>("MovingStreamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("MovingStreamId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("MovingStreams");
+                });
+
             modelBuilder.Entity("Data.Models.Strava.PolylineMap", b =>
                 {
                     b.Property<string>("Id")
@@ -342,6 +570,137 @@ namespace Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PolylineMaps");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.PowerStream", b =>
+                {
+                    b.Property<int>("PowerStreamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("PowerStreamId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("PowerStreams");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.SmoothGradeStream", b =>
+                {
+                    b.Property<int>("SmoothGradeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("SmoothGradeId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("SmoothGradeStreams");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.SmoothVelocityStream", b =>
+                {
+                    b.Property<int>("SmoothVelocityStreamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("SmoothVelocityStreamId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("SmoothVelocityStreams");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.StreamSet", b =>
+                {
+                    b.Property<int>("StreamSetId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long?>("ActivityId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("StreamSetId");
+
+                    b.HasIndex("ActivityId")
+                        .IsUnique();
+
+                    b.ToTable("Streams");
                 });
 
             modelBuilder.Entity("Data.Models.Strava.SummarySegment", b =>
@@ -397,6 +756,82 @@ namespace Data.Migrations
                     b.ToTable("Segments");
                 });
 
+            modelBuilder.Entity("Data.Models.Strava.TemperatureStream", b =>
+                {
+                    b.Property<int>("TemperatureStreamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TemperatureStreamId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("TemperatureStreams");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.TimeStream", b =>
+                {
+                    b.Property<int>("TimeStreamId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("OriginalSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Resolution")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SeriesType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("StreamSetId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("StreamSetId1")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("TimeStreamId");
+
+                    b.HasIndex("StreamSetId")
+                        .IsUnique();
+
+                    b.HasIndex("StreamSetId1")
+                        .IsUnique();
+
+                    b.ToTable("TimeStreams");
+                });
+
             modelBuilder.Entity("Data.Models.StravaUser", b =>
                 {
                     b.Property<int>("UserId")
@@ -431,6 +866,28 @@ namespace Data.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Data.Models.Strava.AltitudeStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.AltitudeStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("Altitude")
+                        .HasForeignKey("Data.Models.Strava.AltitudeStream", "StreamSetId1");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.CadenceStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.CadenceStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("Cadence")
+                        .HasForeignKey("Data.Models.Strava.CadenceStream", "StreamSetId1");
+                });
+
             modelBuilder.Entity("Data.Models.Strava.DetailedActivity", b =>
                 {
                     b.HasOne("Data.Models.Strava.MetaAthlete", "Athlete")
@@ -463,6 +920,28 @@ namespace Data.Migrations
                     b.Navigation("Segment");
                 });
 
+            modelBuilder.Entity("Data.Models.Strava.DistanceStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.DistanceStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("Distance")
+                        .HasForeignKey("Data.Models.Strava.DistanceStream", "StreamSetId1");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.HeartrateStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.HeartrateStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("Heartrate")
+                        .HasForeignKey("Data.Models.Strava.HeartrateStream", "StreamSetId1");
+                });
+
             modelBuilder.Entity("Data.Models.Strava.Lap", b =>
                 {
                     b.HasOne("Data.Models.Strava.DetailedActivity", "DetailedActivity")
@@ -472,6 +951,90 @@ namespace Data.Migrations
                         .IsRequired();
 
                     b.Navigation("DetailedActivity");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.LatLngStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.LatLngStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("Latlng")
+                        .HasForeignKey("Data.Models.Strava.LatLngStream", "StreamSetId1");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.MovingStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.MovingStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("Moving")
+                        .HasForeignKey("Data.Models.Strava.MovingStream", "StreamSetId1");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.PowerStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.PowerStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("Watts")
+                        .HasForeignKey("Data.Models.Strava.PowerStream", "StreamSetId1");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.SmoothGradeStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.SmoothGradeStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("GradeSmooth")
+                        .HasForeignKey("Data.Models.Strava.SmoothGradeStream", "StreamSetId1");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.SmoothVelocityStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.SmoothVelocityStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("VelocitySmooth")
+                        .HasForeignKey("Data.Models.Strava.SmoothVelocityStream", "StreamSetId1");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.StreamSet", b =>
+                {
+                    b.HasOne("Data.Models.Strava.DetailedActivity", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.StreamSet", "ActivityId");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.TemperatureStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.TemperatureStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("Temp")
+                        .HasForeignKey("Data.Models.Strava.TemperatureStream", "StreamSetId1");
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.TimeStream", b =>
+                {
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne()
+                        .HasForeignKey("Data.Models.Strava.TimeStream", "StreamSetId");
+
+                    b.HasOne("Data.Models.Strava.StreamSet", null)
+                        .WithOne("Time")
+                        .HasForeignKey("Data.Models.Strava.TimeStream", "StreamSetId1");
                 });
 
             modelBuilder.Entity("Data.Models.Strava.DetailedActivity", b =>
@@ -489,6 +1052,42 @@ namespace Data.Migrations
             modelBuilder.Entity("Data.Models.Strava.PolylineMap", b =>
                 {
                     b.Navigation("Activity")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Data.Models.Strava.StreamSet", b =>
+                {
+                    b.Navigation("Altitude")
+                        .IsRequired();
+
+                    b.Navigation("Cadence")
+                        .IsRequired();
+
+                    b.Navigation("Distance")
+                        .IsRequired();
+
+                    b.Navigation("GradeSmooth")
+                        .IsRequired();
+
+                    b.Navigation("Heartrate")
+                        .IsRequired();
+
+                    b.Navigation("Latlng")
+                        .IsRequired();
+
+                    b.Navigation("Moving")
+                        .IsRequired();
+
+                    b.Navigation("Temp")
+                        .IsRequired();
+
+                    b.Navigation("Time")
+                        .IsRequired();
+
+                    b.Navigation("VelocitySmooth")
+                        .IsRequired();
+
+                    b.Navigation("Watts")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

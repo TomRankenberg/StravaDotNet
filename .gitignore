@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Data/Data/StravaDatabase.db-shm
+/Data/Data/StravaDatabase.db-wal

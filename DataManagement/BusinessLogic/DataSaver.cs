@@ -4,25 +4,11 @@ using Newtonsoft.Json;
 
 namespace DataManagement.BusinessLogic
 {
-    public class DataSaver(IActivitiesRepo activityRepo, IAthleteRepo athleteRepo, IMapRepo mapRepo, ISegmentRepo segmentRepo, ISegmentEffortRepo segmentEffortRepo)
+    public class DataSaver(IUnitOfWork unitOfWork)
     {
-        public string SaveActivities(List<DetailedActivity> activities)
-        {
-            MetaAthlete athlete = activities.FirstOrDefault().Athlete;
-            athleteRepo.AddOrEditAthlete(athlete);
-
-            int savingCounter = 0;
-            foreach (DetailedActivity activity in activities)
-            {
-                SaveActivity(activity, athlete.Id);
-                savingCounter++;
-            }
-            return $"Saved {savingCounter} activities";
-        }
-
         public void SaveActivity(DetailedActivity activity, int athleteId)
         {
-            athleteRepo.AddOrEditAthlete(activity.Athlete);
+            unitOfWork.Athletes.AddOrEditAthlete(activity.Athlete);
 
             activity.AthleteId = athleteId;
             activity.Athlete = null;
@@ -34,12 +20,12 @@ namespace DataManagement.BusinessLogic
             activityCopy.Laps = null;
             activityCopy.BestEfforts = null;
 
-            activityRepo.AddOrEditActivity(activityCopy);
+            unitOfWork.Activities.AddOrEditActivity(activityCopy);
 
             if (activity.Map != null)
             {
                 activity.Map.ActivityId = activity.Id;
-                activity.MapId = mapRepo.AddOrEditMap(activity.Map);
+                activity.MapId = unitOfWork.Maps.AddOrEditMap(activity.Map);
                 activity.Map = null;
             }
 
@@ -47,12 +33,12 @@ namespace DataManagement.BusinessLogic
             {
                 foreach (DetailedSegmentEffort segmentEffort in activity.SegmentEfforts)
                 {
-                    long? segmentId = segmentRepo.AddOrEditSegment(segmentEffort.Segment);
+                    long? segmentId = unitOfWork.Segments.AddOrEditSegment(segmentEffort.Segment);
                     segmentEffort.SegmentId = segmentId;
                     segmentEffort.Segment = null;
 
                     segmentEffort.ActivityId = activity.Id;
-                    segmentEffortRepo.AddOrEditSegmentEffort(segmentEffort);
+                    unitOfWork.SegmentEfforts.AddOrEditSegmentEffort(segmentEffort);
                 }
             }
 
@@ -70,11 +56,83 @@ namespace DataManagement.BusinessLogic
                 {
                     bestEffort.Segment = null;
                     bestEffort.ActivityId = activity.Id;
-                    segmentEffortRepo.AddOrEditSegmentEffort(bestEffort);
+                    unitOfWork.SegmentEfforts.AddOrEditSegmentEffort(bestEffort);
                 }
             }
 
-            activityRepo.AddOrEditActivity(activity);
+            unitOfWork.Activities.AddOrEditActivity(activity);
+        }
+
+        public void SaveStreams(StreamSet streamSet, long? activityId)
+        {
+            StreamSet streamSetCopy = JsonConvert.DeserializeObject<StreamSet>(JsonConvert.SerializeObject(streamSet));
+
+            streamSetCopy.ActivityId = activityId;
+            streamSetCopy.Altitude = null;
+            streamSetCopy.Distance = null;
+            streamSetCopy.Latlng = null;
+            streamSetCopy.Time = null;
+            streamSetCopy.VelocitySmooth = null;
+            streamSetCopy.Heartrate = null;
+            streamSetCopy.Cadence = null;
+            streamSetCopy.Watts = null;
+            streamSetCopy.GradeSmooth = null;
+            streamSetCopy.Moving = null;
+            streamSetCopy.Temp = null;
+
+            unitOfWork.StreamSets.AddStreamSet(streamSetCopy);
+
+            if (streamSet.Altitude != null)
+            {
+                streamSet.Altitude.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.AltitudeStreams.AddAltitudeStream(streamSet.Altitude);
+            }
+            if (streamSet.Distance != null)
+            {
+                streamSet.Distance.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.DistanceStreams.AddDistanceStream(streamSet.Distance);
+            }
+            if (streamSet.Latlng != null)
+            {
+                streamSet.Latlng.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.LatLngStreams.AddLatLngStream(streamSet.Latlng);
+            }
+            if (streamSet.Time != null)
+            {
+                streamSet.Time.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.TimeStreams.AddTimeStream(streamSet.Time);
+            }
+            if (streamSet.VelocitySmooth != null)
+            {
+                streamSet.VelocitySmooth.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.SmoothVelocityStreams.AddSmoothVelocityStream(streamSet.VelocitySmooth);
+            }
+            if (streamSet.Heartrate != null)
+            {
+                streamSet.Heartrate.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.HeartrateStreams.AddHeartrateStream(streamSet.Heartrate);
+            }
+            if (streamSet.Cadence != null)
+            {
+                streamSet.Cadence.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.CadenceStreams.AddCadenceStream(streamSet.Cadence);
+            }
+            if (streamSet.Watts != null)
+            {
+                streamSet.Watts.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.PowerStreams.AddPowerStream(streamSet.Watts);
+            }
+            if (streamSet.GradeSmooth != null)
+            {
+                streamSet.GradeSmooth.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.SmoothGradeStreams.AddSmoothGradeStream(streamSet.GradeSmooth);
+            }
+            if (streamSet.Moving != null)
+            {
+                streamSet.Moving.StreamSetId = streamSetCopy.StreamSetId;
+                unitOfWork.MovingStreams.AddMovingStream(streamSet.Moving);
+            }
+
 
         }
     }

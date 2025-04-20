@@ -6,12 +6,13 @@ namespace DataManagement.BusinessLogic
 {
     public class HeatmapManager
     {
-        public static HeatMapData GetHeatmapData(List<DetailedActivity> activities, IMapRepo mapRepo)
+        public static HeatMapData GetHeatmapData(IQueryable<DetailedActivity> activities, IMapRepo mapRepo)
         {
             HeatMapData data = new HeatMapData();
             data.Input = new List<HeatmapInput>();
-            data.Count = activities.Count;
-            foreach (DetailedActivity activity in activities.Where(a => a.MapId != null))
+            data.Count = activities.Count();
+            List<DetailedActivity> activitiesList = activities.Where(a => a.MapId != null).ToList();
+            foreach (DetailedActivity activity in activitiesList)
             {
                 PolylineMap map = mapRepo.GetMapById(activity.MapId);
                 HeatmapInput input = new HeatmapInput();
@@ -20,7 +21,7 @@ namespace DataManagement.BusinessLogic
                 input.StartPoint = activity.StartLatlng;
                 input.EndPoint = activity.EndLatlng;
                 input.StartTime = activity.StartDateLocal;
-                input.LineOpacity = Math.Clamp(5.0 / activities.Count, 0.2, 1.0);
+                input.LineOpacity = Math.Clamp(5.0 / activities.Count(), 0.2, 1.0);
                 input = DetermineStartLocation(input);
                 data.Input.Add(input);
             }

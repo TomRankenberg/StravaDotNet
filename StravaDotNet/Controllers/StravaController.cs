@@ -9,8 +9,7 @@ namespace StravaDotNet.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StravaController(IStravaUserRepo userRepo, IActivitiesRepo activityRepo, IAthleteRepo athleteRepo, IMapRepo mapRepo,
-        ISegmentRepo segmentRepo, ISegmentEffortRepo segmentEffortRepo) : ControllerBase
+    public class StravaController(IStravaUserRepo userRepo, IUnitOfWork unitOfWork) : ControllerBase
     {
         private string Token { get; set; }
         private HttpClient HttpClient { get; set; }
@@ -46,7 +45,7 @@ namespace StravaDotNet.Controllers
                 string data = response.Content.ReadAsStringAsync().Result;
 
                 List<DetailedActivity> activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
-                DataSaver dataSaver = new DataSaver(activityRepo, athleteRepo, mapRepo, segmentRepo, segmentEffortRepo);
+                DataSaver dataSaver = new DataSaver(unitOfWork);
                 foreach(DetailedActivity activity in activities)
                 {
                     IActionResult detailedActivityResponse = await GetActivityById(activity.Id);
@@ -132,6 +131,73 @@ namespace StravaDotNet.Controllers
                     {
                         data = response.Content.ReadAsStringAsync().Result;
                         DetailedActivity activity = JsonConvert.DeserializeObject<DetailedActivity>(data);
+                        return Ok(activity);
+                    }
+                }
+                return BadRequest();
+            }
+        }
+
+        [HttpGet]
+        [Route("GetStreamsAsync")]
+        public async Task<IActionResult> GetStreamsAsync()
+        {
+            DataSaver dataSaver = new DataSaver(unitOfWork);
+            List<long?> activityIds = unitOfWork.Activities.GetAllActivityIds();
+            List<long?> activityIdsFromStreams = unitOfWork.StreamSets.GetAllActivityIdsFromStreamSets();
+            foreach(long? activityId in activityIds)
+            {
+                if (!activityIdsFromStreams.Contains(activityId))
+                {
+                    IActionResult streamResult = await GetStreamsForActivity(activityId);
+                    if (streamResult is OkObjectResult okResult)
+                    {
+                        if (okResult.Value is StreamSet streamSet)
+                        {
+                            try
+                            {
+                                dataSaver.SaveStreams(streamSet, activityId);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                        }
+                    }
+                }
+            }
+            return Ok();
+        }
+
+        public async Task<IActionResult> GetStreamsForActivity(long? activityId)
+        {
+            if (Token == null)
+            {
+                StravaUser stravaUser = userRepo.GetUserById(1);
+                Token = stravaUser.AccessToken;
+            }
+            string accessToken = $"&access_token={Token}";
+
+            string path = $"https://www.strava.com/api/v3/activities/{activityId}/streams?keys=time,heartrate,distance,altitude,temp&key_by_type=true";
+            string url = path + accessToken;
+            var response = await new HttpClient().GetAsync(url);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string data = response.Content.ReadAsStringAsync().Result;
+                StreamSet activity = JsonConvert.DeserializeObject<StreamSet>(data);
+                return Ok(activity);
+            }
+            else
+            {
+                string data = response.Content.ReadAsStringAsync().Result;
+                while (data.Contains("Rate Limit Exceeded"))
+                {
+                    Thread.Sleep(960000);// wait 16 minutes
+                    response = await new HttpClient().GetAsync(url);
+                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        data = response.Content.ReadAsStringAsync().Result;
+                        StreamSet activity = JsonConvert.DeserializeObject<StreamSet>(data);
                         return Ok(activity);
                     }
                 }
