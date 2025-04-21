@@ -1,5 +1,6 @@
 ﻿@page "/detailed-activity-plots"
 @using Data.Models.Strava
+@using StravaDotNet.ViewModels
 @using Newtonsoft.Json
 @using StravaDotNet.Components.Services
 @inject DetailedActivityService detailedActivityService
@@ -11,7 +12,7 @@
 <form class="load-data-form">
     <button type="button" class="btn btn-secondary" margin-right:30px @onclick="LoadData">Load Data</button>
 </form>
-@if (detailedActivities != null)
+@if (activityVms != null)
 {
     <div class="canvas-container">
         <div class="canvas-wrapper">
@@ -26,50 +27,66 @@
         <div class="canvas-wrapper">
             <canvas id="stackedBarsHours"></canvas>
         </div>
+        <div class="canvas-wrapper">
+            <canvas id="heartRatePlot"></canvas>
+        </div>
     </div>
 }
 
 @code {
-    private List<DetailedActivity> detailedActivities;
+    private List<ActivityVm> activityVms;
 
     private async Task LoadData()
     {
-        detailedActivities = await detailedActivityService.GetDetailedActivitiesAsync();
+        activityVms = await detailedActivityService.GetDetailedActivitiesAsync();
+        List<long?> activityIds = activityVms.Select(da => da.Activity.Id).ToList();
         PlotRunSpeed();
         PlotRideSpeed();
         PlotMonthlyActivities();
         PlotHourlyActivities();
+        PlotHeartRate();
+    }
+
+    private async void PlotHeartRate()
+    {
+        if (activityVms != null)
+        {
+			List<ActivityVm> selectedActivities = activityVms.Where(da => da.AverageHeartRate != 0 && da.Activity.Type == "Run").ToList();
+            string data = PrepareDataForHRPlot(selectedActivities);
+			StateHasChanged();
+            JSRuntime.InvokeVoidAsync("plotScatterChart", data, "heartRatePlot");
+        }
     }
 
     private async void PlotRunSpeed()
     {
-        if (detailedActivities != null)
+        if (activityVms != null)
         {
-            List<DetailedActivity> selectedActivities = detailedActivities.Where(da => da.Type == "Run").ToList();
+            List<ActivityVm> selectedActivities = activityVms.Where(da => da.Activity.Type == "Run").ToList();
             StateHasChanged();
-            PlotScatterChart(selectedActivities, "scatterPlotRide");
+			string data = PrepareDataForSpeedPlot(selectedActivities);
+            JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRide");
         }
     }
 
     private async void PlotRideSpeed()
     {
-        if (detailedActivities != null)
+        if (activityVms != null)
         {
-            List<DetailedActivity> selectedActivities = detailedActivities.Where(da => da.Type == "Ride").ToList();
+            List<ActivityVm> selectedActivities = activityVms.Where(da => da.Activity.Type == "Ride").ToList();
             StateHasChanged();
-            PlotScatterChart(selectedActivities, "scatterPlotRun");
+			string data = PrepareDataForSpeedPlot(selectedActivities);
+            JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRun");
         }
     }
 
-
-
     private async void PlotMonthlyActivities()
     {
-		if (detailedActivities != null)
+        if (activityVms != null)
         {
-            var filtereByActivity = detailedActivities.Where(da => da.Type == "Run" || da.Type == "Ride" || da.Type == "Swim").ToList();
+            var filtereByActivity = activityVms.Where(da => da.Activity.Type == "Run" || da.Activity.Type == "Ride" || da.Activity.Type == "Swim").ToList();
             var groupedActivities = filtereByActivity
-                           .GroupBy(da => new { da.StartDate.Value.Year, da.StartDate.Value.Month, da.Type })
+                           .GroupBy(da => new { da.Activity.StartDate.Value.Year, da.Activity.StartDate.Value.Month, da.Activity.Type })
                            .Select(g => new
                            {
                                Year = g.Key.Year,
@@ -119,11 +136,11 @@
 
     private async void PlotHourlyActivities()
     {
-        if (detailedActivities != null)
+        if (activityVms != null)
         {
-            var filtereByActivity = detailedActivities.Where(da => da.Type == "Run" || da.Type == "Ride" || da.Type == "Swim").ToList();
+            var filtereByActivity = activityVms.Where(da => da.Activity.Type == "Run" || da.Activity.Type == "Ride" || da.Activity.Type == "Swim").ToList();
             var groupedActivities = filtereByActivity
-                           .GroupBy(da => new {da.StartDateLocal.Value.Hour, da.Type })
+                           .GroupBy(da => new { da.Activity.StartDateLocal.Value.Hour, da.Activity.Type })
                            .Select(g => new
                            {
                                Hour = g.Key.Hour,
@@ -169,22 +186,37 @@
         }
     }
 
-    private void PlotScatterChart(List<DetailedActivity> activities, string type)
+
+	private string PrepareDataForSpeedPlot(List<ActivityVm> activities)
+	{
+        var minDate = activities.Min(da => da.Activity.StartDate);
+        var maxDate = activities.Max(da => da.Activity.StartDate);
+
+		var data = activities.Select(da => new
+		{
+			x = da.Activity.Distance / 1000,
+			y = Math.Round((decimal)((da.Activity.Distance / da.Activity.MovingTime) * 3.6), 3),
+			date = da.Activity.StartDate?.ToString("yyyy-MM-dd"),
+            color = GetColorForDate(da.Activity.StartDate, minDate, maxDate)
+
+		}).ToList();
+		return JsonConvert.SerializeObject(data);
+	}
+
+    private string PrepareDataForHRPlot(List<ActivityVm> activities)
     {
-        var minDate = activities.Min(da => da.StartDate);
-        var maxDate = activities.Max(da => da.StartDate);
+        var minDate = activities.Min(da => da.Activity.StartDate);
+        var maxDate = activities.Max(da => da.Activity.StartDate);
 
         var data = activities.Select(da => new
         {
-            x = da.Distance / 1000,
-            y = Math.Round((decimal)((da.Distance / da.MovingTime) * 3.6), 3),
-            date = da.StartDate?.ToString("yyyy-MM-dd"),
-            color = GetColorForDate(da.StartDate, minDate, maxDate)
+            x = da.Activity.Distance / 1000,
+            y = da.AverageHeartRate,
+            date = da.Activity.StartDate?.ToString("yyyy-MM-dd"),
+            color = GetColorForDate(da.Activity.StartDate, minDate, maxDate)
+
         }).ToList();
-
-        var jsonData = JsonConvert.SerializeObject(data);
-
-        JSRuntime.InvokeVoidAsync("plotScatterChart", jsonData, type);
+        return JsonConvert.SerializeObject(data);
     }
 
     private string GetColorForDate(DateTime? date, DateTime? minDate, DateTime? maxDate)

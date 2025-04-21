@@ -1,5 +1,6 @@
 ﻿@page "/history"
 @using Data.Models.Strava
+@using StravaDotNet.ViewModels
 @using StravaDotNet.Components.Services
 @using MudBlazor
 @inject DetailedActivityService DetailedActivityService
@@ -25,21 +26,21 @@
 </MudTable>
 
 @code {
-    private List<DetailedActivity> detailedActivities;
+    private List<ActivityVm> detailedActivities;
     private List<SimpleActivity> simpleActivities;
 
     private async Task LoadData()
     {
         detailedActivities = await DetailedActivityService.GetDetailedActivitiesAsync();
         simpleActivities = new List<SimpleActivity>();
-        foreach (DetailedActivity detailedActivity in detailedActivities)
+        foreach (ActivityVm activity in detailedActivities)
         {
-            if (detailedActivity.StartDate.HasValue && detailedActivity.Type != null)
+            if (activity.Activity.StartDate.HasValue && activity.Activity.Type != null)
             {
                 simpleActivities.Add(new SimpleActivity
                     {
-                        Type = detailedActivity.Type,
-                        StartDate = detailedActivity.StartDate.Value
+                        Type = activity.Activity.Type,
+                        StartDate = activity.Activity.StartDate.Value
                     });
             }
         }
