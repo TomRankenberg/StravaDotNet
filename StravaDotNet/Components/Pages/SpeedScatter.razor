@@ -1,5 +1,6 @@
 ﻿@page "/detailed-activity-plots"
 @using Data.Models.Strava
+@using StravaDotNet.ViewModels
 @using Newtonsoft.Json
 @using StravaDotNet.Components.Services
 @inject DetailedActivityService detailedActivityService
@@ -33,8 +34,7 @@
 }
 
 @code {
-    private List<DetailedActivity> detailedActivities;
-	private List<HeartrateStream> streamSets;
+    private List<ActivityVm> detailedActivities;
 
     private async Task LoadData()
     {
