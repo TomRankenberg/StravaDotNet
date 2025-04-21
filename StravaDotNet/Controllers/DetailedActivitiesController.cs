@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Data.Models.Strava;
 using Data.Context;
+using StravaDotNet.ViewModels;
+using Data.Models.Strava;
 
 namespace StravaDotNet.Controllers
 {
@@ -9,9 +10,19 @@ namespace StravaDotNet.Controllers
     public class DetailedActivitiesController(DatabaseContext context) : ControllerBase
     {
         [HttpGet]
-        public ActionResult<List<DetailedActivity>> Get()
+        public ActionResult<List<ActivityVm>> Get()
         {
-            return context.Activities.ToList();
+            List<ActivityVm> activityVms = new List<ActivityVm>();
+            foreach (DetailedActivity activity in context.Activities)
+            {
+                ActivityVm activityVm = new()
+                {
+                    Activity = activity,
+                    AverageHeartRate = 0 // Placeholder for average heart rate calculation
+                };
+                activityVms.Add(activityVm);
+            }
+            return activityVms;
         }
     }
 }

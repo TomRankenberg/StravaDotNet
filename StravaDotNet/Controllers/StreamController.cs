@@ -22,11 +22,11 @@ namespace StravaDotNet.Controllers
 
             if (heartrateStream != null)
             {
-                return heartrateStream;
+                return Ok(heartrateStream);
             }
             else
             {
-                return NotFound();
+                return Ok(new HeartrateStream());
             }
         }
     }
