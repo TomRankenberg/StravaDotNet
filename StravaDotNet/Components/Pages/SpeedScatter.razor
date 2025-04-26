@@ -15,101 +15,129 @@
 </form>
 @if (activityVms != null)
 {
-    <div class="canvas-container">
-        <div class="canvas-wrapper">
-            <canvas id="scatterPlotRun"></canvas>
+        <div class="canvas-container">
+        @foreach (var canvasId in canvasIds)
+        {
+                    <div class="canvas-wrapper">
+                        <canvas id="@canvasId"></canvas>
+                    </div>
+        }
         </div>
-        <div class="canvas-wrapper">
-            <canvas id="scatterPlotRide"></canvas>
-        </div>
-        <div class="canvas-wrapper">
-            <canvas id="stackedBarsMonths"></canvas>
-        </div>
-        <div class="canvas-wrapper">
-            <canvas id="stackedBarsHours"></canvas>
-        </div>
-        <div class="canvas-wrapper">
-            <canvas id="heartRatePlot"></canvas>
-        </div>
-    </div>
 }
 
 @code {
     private List<ActivityVm> activityVms;
+    private readonly List<string> canvasIds = new()
+    {
+        "scatterPlotRun",
+        "scatterPlotRide",
+        "stackedBarsMonths",
+        "stackedBarsHours",
+        "heartRatePlot"
+    };
+    private HashSet<string> initializedCanvasIds = new();
 
     private async Task LoadData()
     {
         activityVms = await dataRetrievalService.GetAllActivitiesAsync();
-        await PlotRunSpeed();
-        await PlotRideSpeed();
-        await PlotMonthlyActivities();
-        await PlotHourlyActivities();
-        await PlotHeartRate();
+        StateHasChanged(); // Trigger re-render to ensure the canvas elements are added to the DOM
+        await PlotAllCharts();
+    }
+
+    private async Task PlotAllCharts()
+    {
+        if (activityVms != null)
+        {
+            await PlotChartIfNotInitialized("scatterPlotRun", PlotRunSpeed);
+            await PlotChartIfNotInitialized("scatterPlotRide", PlotRideSpeed);
+            await PlotChartIfNotInitialized("stackedBarsMonths", PlotMonthlyActivities);
+            await PlotChartIfNotInitialized("stackedBarsHours", PlotHourlyActivities);
+            await PlotChartIfNotInitialized("heartRatePlot", PlotHeartRate);
+        }
+    }
+
+    private async Task PlotChartIfNotInitialized(string canvasId, Func<Task> plotFunction)
+    {
+        if (!initializedCanvasIds.Contains(canvasId))
+        {
+            await plotFunction();
+            initializedCanvasIds.Add(canvasId);
+        }
     }
 
     private async Task PlotRunSpeed()
     {
-        if (activityVms != null)
-        {
-            var selectedActivities = activityVms.Where(a => a.Activity.Type == "Run").ToList();
-            var data = plottingHelperService.PrepareScatterPlotData(
-                selectedActivities,
-                a => a.Activity.Distance / 1000, // X-axis: Distance in km
-                a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6, // Y-axis: Speed in km/h
-                a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
-            );
+        var selectedActivities = activityVms.Where(a => a.Activity.Type == "Run").ToList();
+        var data = plottingHelperService.PrepareScatterPlotData(
+            selectedActivities,
+            a => a.Activity.Distance / 1000, // X-axis: Distance in km
+            a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6, // Y-axis: Speed in km/h
+            a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
+        );
 
-            JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRun");
-        }
+        await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRun");
     }
 
     private async Task PlotRideSpeed()
     {
-        if (activityVms != null)
-        {
-            var selectedActivities = activityVms.Where(a => a.Activity.Type == "Ride").ToList();
-            var data = plottingHelperService.PrepareScatterPlotData(
-                selectedActivities,
-                a => a.Activity.Distance / 1000, // X-axis: Distance in km
-                a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6, // Y-axis: Speed in km/h
-                a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
-            );
+        var selectedActivities = activityVms.Where(a => a.Activity.Type == "Ride").ToList();
+        var data = plottingHelperService.PrepareScatterPlotData(
+            selectedActivities,
+            a => a.Activity.Distance / 1000, // X-axis: Distance in km
+            a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6, // Y-axis: Speed in km/h
+            a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
+        );
 
-            await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRide");
-        }
+        await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRide");
     }
 
     private async Task PlotHeartRate()
     {
-        if (activityVms != null)
-        {
-            var selectedActivities = activityVms.Where(a => a.AverageHeartRate != 0 && a.Activity.Type == "Run").ToList();
-            var data = plottingHelperService.PrepareScatterPlotData(
-                selectedActivities,
-                a => a.Activity.Distance / 1000, // X-axis: Distance in km
-                a => a.AverageHeartRate, // Y-axis: Heart rate
-                a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
-            );
+        var selectedActivities = activityVms.Where(a => a.AverageHeartRate != 0 && a.Activity.Type == "Run").ToList();
+        var data = plottingHelperService.PrepareScatterPlotData(
+            selectedActivities,
+            a => a.Activity.Distance / 1000, // X-axis: Distance in km
+            a => a.AverageHeartRate, // Y-axis: Heart rate
+            a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
+        );
 
-            await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "heartRatePlot");
-        }
+        await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "heartRatePlot");
     }
 
     private async Task PlotMonthlyActivities()
     {
-        if (activityVms != null)
-        {
-            var data = plottingHelperService.PrepareMonthlyBarChartData(activityVms);
-            await JSRuntime.InvokeVoidAsync("plotStackedBarChart", data, "stackedBarsMonths", "Year-Month");
-        }
+        var data = plottingHelperService.PrepareMonthlyBarChartData(activityVms);
+        await JSRuntime.InvokeVoidAsync("plotStackedBarChart", data, "stackedBarsMonths", "Year-Month");
     }
 
     private async Task PlotHourlyActivities()
     {
-        if (activityVms != null)
-        {
-            var data = plottingHelperService.PrepareHourlyBarChartData(activityVms);
-            await JSRuntime.InvokeVoidAsync("plotStackedBarChart", data, "stackedBarsHours", "Hour of day");
-        }
+        var data = plottingHelperService.PrepareHourlyBarChartData(activityVms);
+        await JSRuntime.InvokeVoidAsync("plotStackedBarChart", data, "stackedBarsHours", "Hour of day");
     }
 }
+
+<style>
+    .load-data-form {
+        margin-bottom: 20px;
+    }
+
+    .canvas-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .canvas-wrapper {
+        flex: 1 1 calc(50% - 20px);
+        max-width: calc(50% - 20px);
+    }
+
+    canvas {
+        width: 100% !important;
+        height: auto !important;
+        border: 1px solid #ccc;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+</style>
