@@ -40,47 +40,47 @@
     {
         activityVms = await detailedActivityService.GetDetailedActivitiesAsync();
         List<long?> activityIds = activityVms.Select(da => da.Activity.Id).ToList();
-        PlotRunSpeed();
-        PlotRideSpeed();
-        PlotMonthlyActivities();
-        PlotHourlyActivities();
-        PlotHeartRate();
+        await PlotRunSpeed();
+        await PlotRideSpeed();
+        await PlotMonthlyActivities();
+        await PlotHourlyActivities();
+        await PlotHeartRate();
     }
 
-    private async void PlotHeartRate()
+    private async Task PlotHeartRate()
     {
         if (activityVms != null)
         {
 			List<ActivityVm> selectedActivities = activityVms.Where(da => da.AverageHeartRate != 0 && da.Activity.Type == "Run").ToList();
             string data = PrepareDataForHRPlot(selectedActivities);
 			StateHasChanged();
-            JSRuntime.InvokeVoidAsync("plotScatterChart", data, "heartRatePlot");
+            await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "heartRatePlot");
         }
     }
 
-    private async void PlotRunSpeed()
+    private async Task PlotRunSpeed()
     {
         if (activityVms != null)
         {
             List<ActivityVm> selectedActivities = activityVms.Where(da => da.Activity.Type == "Run").ToList();
             StateHasChanged();
 			string data = PrepareDataForSpeedPlot(selectedActivities);
-            JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRide");
+            await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRide");
         }
     }
 
-    private async void PlotRideSpeed()
+    private async Task PlotRideSpeed()
     {
         if (activityVms != null)
         {
             List<ActivityVm> selectedActivities = activityVms.Where(da => da.Activity.Type == "Ride").ToList();
             StateHasChanged();
 			string data = PrepareDataForSpeedPlot(selectedActivities);
-            JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRun");
+            await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRun");
         }
     }
 
-    private async void PlotMonthlyActivities()
+    private async Task PlotMonthlyActivities()
     {
         if (activityVms != null)
         {
@@ -130,11 +130,11 @@
             var jsonData = JsonConvert.SerializeObject(chartData);
 
 			string stackedBarsMonths = "stackedBarsMonths";
-            JSRuntime.InvokeVoidAsync("plotStackedBarChart", jsonData, stackedBarsMonths, "Year-Month");
+            await JSRuntime.InvokeVoidAsync("plotStackedBarChart", jsonData, stackedBarsMonths, "Year-Month");
         }
     }
 
-    private async void PlotHourlyActivities()
+    private async Task PlotHourlyActivities()
     {
         if (activityVms != null)
         {
@@ -182,7 +182,7 @@
 
             string stackedBarsHours = "stackedBarsHours";
 
-            JSRuntime.InvokeVoidAsync("plotStackedBarChart", jsonData, stackedBarsHours, "Hour of day");
+            await JSRuntime.InvokeVoidAsync("plotStackedBarChart", jsonData, stackedBarsHours, "Hour of day");
         }
     }
 
