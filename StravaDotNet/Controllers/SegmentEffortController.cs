@@ -16,11 +16,12 @@ namespace StravaDotNet.Controllers
 
         [HttpGet]
         [Route("GetPRs")]
-        public ActionResult<List<DetailedSegmentEffort>> GetPRs()
+        public ActionResult<IEnumerable<DetailedSegmentEffort>> GetPRs()
         {
             string[] prNames = new string[] { "1 mile", "1/2 mile", "10K", "15K", "1K", "2 mile", "400m", "5K", "Half-Marathon" };
+            IQueryable<DetailedSegmentEffort> segmentEfforts = context.SegmentEfforts.Where(se => prNames.Contains(se.Name));
 
-            return context.SegmentEfforts.Where(se => prNames.Contains(se.Name)).ToList();
+            return Ok(segmentEfforts.ToList());
         }
     }
 }
