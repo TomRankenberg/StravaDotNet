@@ -101,7 +101,9 @@
 <div>
     <h4>Fetch Activity</h4>
     <form>
-        <button type="button" class="btn btn-secondary" margin-right:30px @onclick="ConnectToStrava">Connect</button>
+        <button type="button" style="border: none; background: none; padding: 0;" @onclick="ConnectToStrava">
+            <img src="images/btn_strava_connect_with_white.png" alt="Connect to Strava" style="height: 48px; cursor: pointer;" />
+        </button>
         <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(false)">Fetch all data</button>
         <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(true)">Fetch last month</button>
         <button type="button" class="btn btn-primary" @onclick="() => GetStreamsAsync()">Fetch data streams</button>
