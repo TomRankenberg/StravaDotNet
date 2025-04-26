@@ -2,7 +2,7 @@
 @using Data.Models.Strava
 @using System.Text.Json
 @inject HttpClient Http
-@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 @code {
     private int userId;
@@ -80,7 +80,8 @@
             { 
                 var jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>(); 
                 var stravaAuthUrl = jsonResponse.Url; // Perform the redirection 
-                NavigationManager.NavigateTo(stravaAuthUrl, forceLoad: false);
+                await JSRuntime.InvokeVoidAsync("eval", $"let _discard_ = open(`{stravaAuthUrl}`, `_blank`)");
+
             } else { 
                 Console.WriteLine("Error calling ConnectToStrava"); 
             } 
