@@ -3,7 +3,8 @@
 @using StravaDotNet.ViewModels
 @using Newtonsoft.Json
 @using StravaDotNet.Components.Services
-@inject DetailedActivityService detailedActivityService
+@inject DataRetrievalService dataRetrievalService
+@inject PlottingHelperService plottingHelperService
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
@@ -38,8 +39,7 @@
 
     private async Task LoadData()
     {
-        activityVms = await detailedActivityService.GetDetailedActivitiesAsync();
-        List<long?> activityIds = activityVms.Select(da => da.Activity.Id).ToList();
+        activityVms = await dataRetrievalService.GetAllActivitiesAsync();
         await PlotRunSpeed();
         await PlotRideSpeed();
         await PlotMonthlyActivities();
@@ -47,25 +47,19 @@
         await PlotHeartRate();
     }
 
-    private async Task PlotHeartRate()
-    {
-        if (activityVms != null)
-        {
-			List<ActivityVm> selectedActivities = activityVms.Where(da => da.AverageHeartRate != 0 && da.Activity.Type == "Run").ToList();
-            string data = PrepareDataForHRPlot(selectedActivities);
-			StateHasChanged();
-            await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "heartRatePlot");
-        }
-    }
-
     private async Task PlotRunSpeed()
     {
         if (activityVms != null)
         {
-            List<ActivityVm> selectedActivities = activityVms.Where(da => da.Activity.Type == "Run").ToList();
-            StateHasChanged();
-			string data = PrepareDataForSpeedPlot(selectedActivities);
-            await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRide");
+            var selectedActivities = activityVms.Where(a => a.Activity.Type == "Run").ToList();
+            var data = plottingHelperService.PrepareScatterPlotData(
+                selectedActivities,
+                a => a.Activity.Distance / 1000, // X-axis: Distance in km
+                a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6, // Y-axis: Speed in km/h
+                a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
+            );
+
+            JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRun");
         }
     }
 
@@ -73,10 +67,31 @@
     {
         if (activityVms != null)
         {
-            List<ActivityVm> selectedActivities = activityVms.Where(da => da.Activity.Type == "Ride").ToList();
-            StateHasChanged();
-			string data = PrepareDataForSpeedPlot(selectedActivities);
-            await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRun");
+            var selectedActivities = activityVms.Where(a => a.Activity.Type == "Ride").ToList();
+            var data = plottingHelperService.PrepareScatterPlotData(
+                selectedActivities,
+                a => a.Activity.Distance / 1000, // X-axis: Distance in km
+                a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6, // Y-axis: Speed in km/h
+                a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
+            );
+
+            await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRide");
+        }
+    }
+
+    private async Task PlotHeartRate()
+    {
+        if (activityVms != null)
+        {
+            var selectedActivities = activityVms.Where(a => a.AverageHeartRate != 0 && a.Activity.Type == "Run").ToList();
+            var data = plottingHelperService.PrepareScatterPlotData(
+                selectedActivities,
+                a => a.Activity.Distance / 1000, // X-axis: Distance in km
+                a => a.AverageHeartRate, // Y-axis: Heart rate
+                a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
+            );
+
+            await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "heartRatePlot");
         }
     }
 
@@ -84,53 +99,8 @@
     {
         if (activityVms != null)
         {
-            var filtereByActivity = activityVms.Where(da => da.Activity.Type == "Run" || da.Activity.Type == "Ride" || da.Activity.Type == "Swim").ToList();
-            var groupedActivities = filtereByActivity
-                           .GroupBy(da => new { da.Activity.StartDate.Value.Year, da.Activity.StartDate.Value.Month, da.Activity.Type })
-                           .Select(g => new
-                           {
-                               Year = g.Key.Year,
-                               Month = g.Key.Month,
-                               Type = g.Key.Type,
-                               Count = g.Count()
-                           })
-                           .ToList();
-
-            var labels = groupedActivities
-                .Select(g => $"{g.Year}-{g.Month:00}")
-                .Distinct()
-                .OrderBy(label => label)
-                .ToList();
-
-            var types = groupedActivities
-                .Select(g => g.Type)
-                .Distinct()
-                .ToList();
-
-            var datasets = types.Select(type => new
-            {
-                label = type,
-                data = labels.Select(label =>
-                {
-                    var yearMonth = label.Split('-');
-                    var year = int.Parse(yearMonth[0]);
-                    var month = int.Parse(yearMonth[1]);
-                    return groupedActivities
-                        .Where(g => g.Year == year && g.Month == month && g.Type == type)
-                        .Sum(g => g.Count);
-                }).ToList()
-            }).ToList();
-
-            var chartData = new
-            {
-                labels,
-                datasets
-            };
-
-            var jsonData = JsonConvert.SerializeObject(chartData);
-
-			string stackedBarsMonths = "stackedBarsMonths";
-            await JSRuntime.InvokeVoidAsync("plotStackedBarChart", jsonData, stackedBarsMonths, "Year-Month");
+            var data = plottingHelperService.PrepareMonthlyBarChartData(activityVms);
+            await JSRuntime.InvokeVoidAsync("plotStackedBarChart", data, "stackedBarsMonths", "Year-Month");
         }
     }
 
@@ -138,127 +108,8 @@
     {
         if (activityVms != null)
         {
-            var filtereByActivity = activityVms.Where(da => da.Activity.Type == "Run" || da.Activity.Type == "Ride" || da.Activity.Type == "Swim").ToList();
-            var groupedActivities = filtereByActivity
-                           .GroupBy(da => new { da.Activity.StartDateLocal.Value.Hour, da.Activity.Type })
-                           .Select(g => new
-                           {
-                               Hour = g.Key.Hour,
-                               Type = g.Key.Type,
-                               Count = g.Count()
-                           })
-                           .ToList();
-
-            var labels = groupedActivities
-                .Select(g => $"{g.Hour:00}")
-                .Distinct()
-                .OrderBy(label => label)
-                .ToList();
-
-            var types = groupedActivities
-                .Select(g => g.Type)
-                .Distinct()
-                .ToList();
-
-            var datasets = types.Select(type => new
-            {
-                label = type,
-                data = labels.Select(label =>
-                {
-                    var hour = int.Parse(label);
-                    return groupedActivities
-                        .Where(g => g.Hour == hour && g.Type == type)
-                        .Sum(g => g.Count);
-                }).ToList()
-            }).ToList();
-
-            var chartData = new
-            {
-                labels,
-                datasets
-            };
-
-            var jsonData = JsonConvert.SerializeObject(chartData);
-
-            string stackedBarsHours = "stackedBarsHours";
-
-            await JSRuntime.InvokeVoidAsync("plotStackedBarChart", jsonData, stackedBarsHours, "Hour of day");
+            var data = plottingHelperService.PrepareHourlyBarChartData(activityVms);
+            await JSRuntime.InvokeVoidAsync("plotStackedBarChart", data, "stackedBarsHours", "Hour of day");
         }
     }
-
-
-	private string PrepareDataForSpeedPlot(List<ActivityVm> activities)
-	{
-        var minDate = activities.Min(da => da.Activity.StartDate);
-        var maxDate = activities.Max(da => da.Activity.StartDate);
-
-		var data = activities.Select(da => new
-		{
-			x = da.Activity.Distance / 1000,
-			y = Math.Round((decimal)((da.Activity.Distance / da.Activity.MovingTime) * 3.6), 3),
-			date = da.Activity.StartDate?.ToString("yyyy-MM-dd"),
-            color = GetColorForDate(da.Activity.StartDate, minDate, maxDate)
-
-		}).ToList();
-		return JsonConvert.SerializeObject(data);
-	}
-
-    private string PrepareDataForHRPlot(List<ActivityVm> activities)
-    {
-        var minDate = activities.Min(da => da.Activity.StartDate);
-        var maxDate = activities.Max(da => da.Activity.StartDate);
-
-        var data = activities.Select(da => new
-        {
-            x = da.Activity.Distance / 1000,
-            y = da.AverageHeartRate,
-            date = da.Activity.StartDate?.ToString("yyyy-MM-dd"),
-            color = GetColorForDate(da.Activity.StartDate, minDate, maxDate)
-
-        }).ToList();
-        return JsonConvert.SerializeObject(data);
-    }
-
-    private string GetColorForDate(DateTime? date, DateTime? minDate, DateTime? maxDate)
-    {
-        if (date == null || minDate == null || maxDate == null)
-            return "rgba(75, 192, 192, 0.2)"; // Default color
-
-        var totalDays = (maxDate.Value - minDate.Value).TotalDays;
-        var daysFromStart = (date.Value - minDate.Value).TotalDays;
-        var ratio = daysFromStart / totalDays;
-
-        // Calculate color based on ratio (0.0 to 1.0)
-        var red = (int)(255 * ratio);
-        var green = (int)(192 * (1 - ratio));
-        var blue = 192;
-
-        return $"rgba({red}, {green}, {blue}, 0.8)";
-    }
 }
-
-<style>
-    .load-data-form {
-        margin-bottom: 20px;
-    }
-
-    .canvas-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 20px;
-    }
-
-    .canvas-wrapper {
-        flex: 1 1 calc(50% - 20px);
-        max-width: calc(50% - 20px);
-    }
-
-    canvas {
-        width: 100% !important;
-        height: auto !important;
-        border: 1px solid #ccc;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    }
-</style>
-

@@ -2,8 +2,8 @@
 @using Data.Models.Strava
 @using Newtonsoft.Json
 @using StravaDotNet.Components.Services
-@inject DetailedActivityService detailedActivityService
-@inject SegmentEffortService segmentEffortService
+@inject DataRetrievalService dataRetrievalService
+@inject PlottingHelperService plottingHelperService
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
@@ -14,41 +14,44 @@
 </form>
 @if (detailedEfforts != null)
 {
-    <div class="canvas-container">
-        <div class="canvas-wrapper">
-            <canvas id="Best400m"></canvas>
+        <div class="canvas-container">
+        @foreach (var distance in distances)
+        {
+                    <div class="canvas-wrapper">
+                        <canvas id="@GetCanvasId(distance)"></canvas>
+                    </div>
+        }
         </div>
-        <div class="canvas-wrapper">
-            <canvas id="Best1k"></canvas>
-        </div>
-        <div class="canvas-wrapper">
-            <canvas id="Best2Mile"></canvas>
-        </div>
-        <div class="canvas-wrapper">
-            <canvas id="Best5k"></canvas>
-        </div>
-        <div class="canvas-wrapper">
-            <canvas id="Best10k"></canvas>
-        </div>
-        <div class="canvas-wrapper">
-            <canvas id="Best15k"></canvas>
-        </div>
-    </div>
 }
 
 @code {
-    private List<DetailedSegmentEffort> detailedEfforts;
+    private List<DetailedSegmentEffort>? detailedEfforts;
+    private bool isDataLoaded = false;
+    private readonly List<string> distances = new() { "400m", "1K", "2 mile", "5K", "10K", "15K" };
+    private HashSet<string> initializedCanvasIds = new();
 
     private async Task LoadData()
     {
-        detailedEfforts = await detailedActivityService.GetDetailedSegmentEffortsAsync();
-        await PlotEfforts("400m", "Best400m");
-        await PlotEfforts("1K", "Best1k");
-        await PlotEfforts("2 mile", "Best2Mile");
-        await PlotEfforts("5K", "Best5k");
-        await PlotEfforts("10K", "Best10k");
-        await PlotEfforts("15K", "Best15k");
+        detailedEfforts = await dataRetrievalService.GetAllSegmentEffortsAsync();
+        isDataLoaded = true;
+        StateHasChanged(); // Trigger re-render to ensure the canvas elements are added to the DOM
+    }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (isDataLoaded)
+        {
+            foreach (var distance in distances)
+            {
+                var canvasId = GetCanvasId(distance);
+                if (!initializedCanvasIds.Contains(canvasId))
+                {
+                    await PlotEfforts(distance, canvasId);
+                    initializedCanvasIds.Add(canvasId);
+                }
+            }
+            isDataLoaded = false; // Reset the flag to prevent repeated calls
+        }
     }
 
     private async Task PlotEfforts(string distance, string canvasId)
@@ -56,19 +59,21 @@
         if (detailedEfforts != null)
         {
             List<DetailedSegmentEffort> selectedEfforts = detailedEfforts.Where(da => da.Name == distance && da?.PrRank == 1).ToList();
-            StateHasChanged();
             await PlotMonthlyScatterChartEfforts(selectedEfforts, canvasId);
         }
     }
 
     private async Task PlotMonthlyScatterChartEfforts(List<DetailedSegmentEffort> efforts, string canvasId)
     {
-        var data = segmentEffortService.GetMonthlyScatterChartData(efforts);
+        var data = dataRetrievalService.GetScatterChartDataForEfforts(efforts);
         var jsonData = JsonConvert.SerializeObject(data);
 
         await JSRuntime.InvokeVoidAsync("plotMonthlyScatterChart", jsonData, canvasId);
     }
+
+    private string GetCanvasId(string distance) => $"canvas-{distance.Replace(" ", "-")}";
 }
+
 
 
 <style>

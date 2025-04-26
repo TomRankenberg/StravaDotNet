@@ -28,30 +28,20 @@ namespace StravaDotNet.Components.Services
 
             return activityVms;
         }
-        public async Task<List<DetailedSegmentEffort>> GetDetailedSegmentEffortsAsync()
-        {
-            return await httpClient.GetFromJsonAsync<List<DetailedSegmentEffort>>("api/segmenteffort/GetPRs");
-        }
 
-        public async Task<List<HeartrateStream>> GetStreamSets(List<long?> activityIds)
+        public async Task<double> CalculateAverageHeartRateAsync(long activityId)
         {
-            List<HeartrateStream> heartrateStreams = new List<HeartrateStream>();
-
-            foreach (long? activityId in activityIds)
+            var response = await httpClient.GetAsync($"api/stream/GetHeartStreamFromActivityId?id={activityId}");
+            if (response.IsSuccessStatusCode && response.StatusCode != System.Net.HttpStatusCode.NoContent)
             {
-                var response = await httpClient.GetAsync($"api/stream/GetHeartStreamFromActivityId?id={activityId}");
-                if (response.IsSuccessStatusCode && response.StatusCode!= System.Net.HttpStatusCode.NoContent)
+                var heartrateStream = await response.Content.ReadFromJsonAsync<HeartrateStream>();
+                if (heartrateStream?.Data != null)
                 {
-                    HeartrateStream? heartrateStream = await response.Content.ReadFromJsonAsync<HeartrateStream>();
-                    if (heartrateStream != null)
-                    {
-                        heartrateStreams.Add(heartrateStream);
-                    }
+                    return heartrateStream.Data.Where(x => x != null).Average(x => x ?? 0);
                 }
             }
-
-            return heartrateStreams;
+            return 0;
         }
-
     }
+
 }

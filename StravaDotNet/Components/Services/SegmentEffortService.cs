@@ -1,18 +1,24 @@
 using Data.Models.Strava;
-using System.Globalization;
 
 namespace StravaDotNet.Components.Services
 {
-    public class SegmentEffortService
+    public class SegmentEffortService(HttpClient httpClient)
     {
+        public List<DetailedSegmentEffort> GetDetailedSegmentEffortsAsync()
+        {
+            List<DetailedSegmentEffort> segmentEfforts = httpClient.GetFromJsonAsync<List<DetailedSegmentEffort>>("api/segmenteffort/GetPRs").Result;
+
+            return segmentEfforts;
+        }
+
         public List<object> GetMonthlyScatterChartData(List<DetailedSegmentEffort> efforts)
         {
             var minDate = efforts.Min(da => da.StartDate);
             var maxDate = efforts.Max(da => da.StartDate);
 
             var data = efforts.GroupBy(da => new { da.StartDate.Value.Year, da.StartDate.Value.Month })
-                              .Select(g => new
-                              {
+                .Select(g => new
+                {
                                   monthYear = $"{g.Key.Year}-{g.Key.Month:D2}",
                                   y = g.OrderByDescending(da => (da.Distance / da.ElapsedTime) * 3.6).FirstOrDefault().Distance / g.OrderByDescending(da => (da.Distance / da.ElapsedTime) * 3.6).FirstOrDefault().MovingTime * 3.6,
                                   date = g.OrderByDescending(da => (da.Distance / da.ElapsedTime) * 3.6).FirstOrDefault().StartDate?.ToString("yyyy-MM-dd"),

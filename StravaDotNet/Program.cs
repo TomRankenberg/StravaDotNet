@@ -38,7 +38,16 @@ builder.Services.AddScoped<IAltitudeStreamRepo, AltitudeStreamRepo>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddScoped<SegmentEffortService, SegmentEffortService>();
+builder.Services.AddHttpClient<DetailedActivityService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["BaseAddress"]);
+});
+builder.Services.AddHttpClient<SegmentEffortService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["BaseAddress"]);
+});
+builder.Services.AddScoped<DataRetrievalService>();
+builder.Services.AddScoped<PlottingHelperService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -47,10 +56,7 @@ builder.Services.AddControllers();
 builder.Services.AddRazorPages();
 builder.Services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/Components/Pages");
 
-builder.Services.AddHttpClient<DetailedActivityService>(client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["BaseAddress"]);
-});
+
 
 var app = builder.Build();
 
