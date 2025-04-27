@@ -14,14 +14,14 @@
 </form>
 @if (detailedEfforts != null)
 {
-        <div class="canvas-container">
-        @foreach (var distance in distances)
-        {
-                    <div class="canvas-wrapper">
-                        <canvas id="@GetCanvasId(distance)"></canvas>
-                    </div>
-        }
+    <div class="canvas-container">
+    @foreach (var distance in distances)
+    {
+        <div class="canvas-wrapper">
+            <canvas id="@GetCanvasId(distance)"></canvas>
         </div>
+    }
+    </div>
 }
 
 @code {
@@ -65,7 +65,7 @@
 
     private async Task PlotMonthlyScatterChartEfforts(List<DetailedSegmentEffort> efforts, string canvasId)
     {
-        var data = dataRetrievalService.GetScatterChartDataForEfforts(efforts);
+        var data = plottingHelperService.GetMonthlyScatterChartData(efforts);
         var jsonData = JsonConvert.SerializeObject(data);
 
         await JSRuntime.InvokeVoidAsync("plotMonthlyScatterChart", jsonData, canvasId);

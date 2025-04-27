@@ -15,14 +15,14 @@
 </form>
 @if (activityVms != null)
 {
-        <div class="canvas-container">
-        @foreach (var canvasId in canvasIds)
-        {
-                    <div class="canvas-wrapper">
-                        <canvas id="@canvasId"></canvas>
-                    </div>
-        }
+    <div class="canvas-container">
+    @foreach (var canvasId in canvasIds)
+    {
+        <div class="canvas-wrapper">
+            <canvas id="@canvasId"></canvas>
         </div>
+    }
+    </div>
 }
 
 @code {
@@ -72,7 +72,8 @@
             selectedActivities,
             a => a.Activity.Distance / 1000, // X-axis: Distance in km
             a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6, // Y-axis: Speed in km/h
-            a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
+            a => PlottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate)),
+			a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
         );
 
         await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRun");
@@ -85,7 +86,8 @@
             selectedActivities,
             a => a.Activity.Distance / 1000, // X-axis: Distance in km
             a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6, // Y-axis: Speed in km/h
-            a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
+            a => PlottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate)),
+            a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
         );
 
         await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRide");
@@ -98,7 +100,8 @@
             selectedActivities,
             a => a.Activity.Distance / 1000, // X-axis: Distance in km
             a => a.AverageHeartRate, // Y-axis: Heart rate
-            a => plottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate))
+            a => PlottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate)),
+            a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
         );
 
         await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "heartRatePlot");
@@ -106,13 +109,19 @@
 
     private async Task PlotMonthlyActivities()
     {
-        var data = plottingHelperService.PrepareMonthlyBarChartData(activityVms);
+		List<ActivityVm> selectedActivities = activityVms
+            .Where(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim")
+			.ToList();
+        var data = plottingHelperService.PrepareMonthlyBarChartData(selectedActivities);
         await JSRuntime.InvokeVoidAsync("plotStackedBarChart", data, "stackedBarsMonths", "Year-Month");
     }
 
     private async Task PlotHourlyActivities()
     {
-        var data = plottingHelperService.PrepareHourlyBarChartData(activityVms);
+        List<ActivityVm> selectedActivities = activityVms
+            .Where(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim")
+            .ToList();
+        var data = plottingHelperService.PrepareHourlyBarChartData(selectedActivities);
         await JSRuntime.InvokeVoidAsync("plotStackedBarChart", data, "stackedBarsHours", "Hour of day");
     }
 }

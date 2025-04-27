@@ -23,11 +23,5 @@ namespace StravaDotNet.Components.Services
         {
             return _segmentEffortService.GetDetailedSegmentEffortsAsync();
         }
-
-        public object GetScatterChartDataForEfforts(List<DetailedSegmentEffort> efforts)
-        {
-            return _segmentEffortService.GetMonthlyScatterChartData(efforts);
-        }
     }
-
 }
