@@ -174,10 +174,10 @@ namespace StravaDotNet.Components.Services
                         .OrderBy(a => a.Activity.StartDate.Value)
                         .Select(a => new
                         {
-                            Date = a.Activity.StartDate.Value.ToString("MM-dd"),
-                            CumulativeDistance = g
+                            x = a.Activity.StartDate.Value.ToString("MM-dd"), // Use only day/month for x-axis
+                            y = g
                                 .Where(x => x.Activity.StartDate.Value <= a.Activity.StartDate.Value)
-                                .Sum(x => x.Activity.Distance / 1000), // Convert to km
+                                .Sum(x => x.Activity.Distance / 1000) // Convert to km
                         })
                         .ToList()
                 })
@@ -189,22 +189,19 @@ namespace StravaDotNet.Components.Services
             var datasets = groupedByYear.Select(g => new
             {
                 label = g.Year.ToString(),
-                data = g.Data.Select(d => new
-                {
-                    x = d.Date,
-                    y = Math.Round((double)d.CumulativeDistance, 2)
-                }),
-                backgroundColor = GetColorForDate(new DateTime(g.Year, 1, 1), new DateTime(minYear, 1, 1), new DateTime(maxYear, 12, 31))
+                data = g.Data, // Pass the data directly
+                backgroundColor = GetColorForDate(new DateTime(g.Year, 1, 1), new DateTime(minYear, 1, 1), new DateTime(maxYear, 12, 31)),
             });
 
             var chartData = new
             {
-                labels = groupedByYear.SelectMany(g => g.Data.Select(d => d.Date)).Distinct().OrderBy(d => d),
+                labels = Enumerable.Range(1, 12)
+                    .SelectMany(month => Enumerable.Range(1, DateTime.DaysInMonth(2023, month))
+                    .Select(day => new DateTime(2023, month, day).ToString("MM-dd"))), // Generate all possible day/month combinations
                 datasets
             };
 
             return JsonConvert.SerializeObject(chartData);
         }
-
     }
 }

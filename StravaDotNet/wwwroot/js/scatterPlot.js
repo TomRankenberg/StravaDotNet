@@ -104,7 +104,7 @@ function plotMonthlyScatterChart(data, type) {
     });
 }
 
-                        function plotLineChart(data, canvasId, xLabel, yLabel) {
+function plotLineChart(data, canvasId, xLabel, yLabel) {
     const ctx = document.getElementById(canvasId).getContext('2d');
     new Chart(ctx, {
         type: 'line',
@@ -126,9 +126,15 @@ function plotMonthlyScatterChart(data, type) {
             },
             scales: {
                 x: {
+                    type: 'category', // Use a category scale for day/month
                     title: {
                         display: true,
                         text: xLabel
+                    },
+                    ticks: {
+                        autoSkip: true, // Skip some ticks if there are too many
+                        maxRotation: 0,
+                        minRotation: 0
                     }
                 },
                 y: {
@@ -141,3 +147,5 @@ function plotMonthlyScatterChart(data, type) {
         }
     });
 }
+
+
