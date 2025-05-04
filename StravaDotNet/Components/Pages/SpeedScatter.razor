@@ -31,9 +31,10 @@
     {
         "scatterPlotRun",
         "scatterPlotRide",
+        "heartRatePlotRun",
+		"heartRatePlotRide",
         "stackedBarsMonths",
         "stackedBarsHours",
-        "heartRatePlot",
         "cumulativeRunDistance",
         "cumulativeRideDistance",
 		"cumulativeSwimDistance"
@@ -53,15 +54,15 @@
         {
             await PlotChartIfNotInitialized("scatterPlotRun", PlotRunSpeed);
             await PlotChartIfNotInitialized("scatterPlotRide", PlotRideSpeed);
+            await PlotChartIfNotInitialized("heartRatePlotRun", () => PlotHeartRate("Run"));
+            await PlotChartIfNotInitialized("heartRatePlotRide", () => PlotHeartRate("Ride"));
             await PlotChartIfNotInitialized("stackedBarsMonths", PlotMonthlyActivities);
             await PlotChartIfNotInitialized("stackedBarsHours", PlotHourlyActivities);
-            await PlotChartIfNotInitialized("heartRatePlot", PlotHeartRate);
             await PlotChartIfNotInitialized("cumulativeRunDistance", PlotCumulativeRunDistance);
             await PlotChartIfNotInitialized("cumulativeRideDistance", PlotCumulativeRideDistance);
             await PlotChartIfNotInitialized("cumulativeSwimDistance", PlotCumulativeSwimDistance);
         }
     }
-
 
     private async Task PlotChartIfNotInitialized(string canvasId, Func<Task> plotFunction)
     {
@@ -100,9 +101,9 @@
         await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "scatterPlotRide");
     }
 
-    private async Task PlotHeartRate()
+    private async Task PlotHeartRate(string type)
     {
-        var selectedActivities = activityVms.Where(a => a.AverageHeartRate != 0 && a.Activity.Type == "Run").ToList();
+        var selectedActivities = activityVms.Where(a => a.AverageHeartRate != 0 && a.Activity.Type == type).ToList();
         var data = plottingHelperService.PrepareScatterPlotData(
             selectedActivities,
             a => a.Activity.Distance / 1000, // X-axis: Distance in km
@@ -111,8 +112,9 @@
             a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
         );
 
-        await JSRuntime.InvokeVoidAsync("plotScatterChart", data, "heartRatePlot");
-    }
+        await JSRuntime.InvokeVoidAsync("plotScatterChart", data, $"heartRatePlot{type}");
+
+	}
 
     private async Task PlotMonthlyActivities()
     {
