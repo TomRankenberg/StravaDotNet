@@ -157,5 +157,54 @@ namespace StravaDotNet.Components.Services
 
             return data.Cast<object>().ToList();
         }
+
+        public string PrepareCumulativeDistanceData(List<ActivityVm> activities, string activityType)
+        {
+            var filteredActivities = activities
+                .Where(a => a.Activity.Type == activityType && a.Activity.StartDate.HasValue)
+                .OrderBy(a => a.Activity.StartDate.Value)
+                .ToList();
+
+            var groupedByYear = filteredActivities
+                .GroupBy(a => a.Activity.StartDate.Value.Year)
+                .Select(g => new
+                {
+                    Year = g.Key,
+                    Data = g
+                        .OrderBy(a => a.Activity.StartDate.Value)
+                        .Select(a => new
+                        {
+                            Date = a.Activity.StartDate.Value.ToString("MM-dd"),
+                            CumulativeDistance = g
+                                .Where(x => x.Activity.StartDate.Value <= a.Activity.StartDate.Value)
+                                .Sum(x => x.Activity.Distance / 1000), // Convert to km
+                        })
+                        .ToList()
+                })
+                .ToList();
+
+            var minYear = groupedByYear.Min(g => g.Year);
+            var maxYear = groupedByYear.Max(g => g.Year);
+
+            var datasets = groupedByYear.Select(g => new
+            {
+                label = g.Year.ToString(),
+                data = g.Data.Select(d => new
+                {
+                    x = d.Date,
+                    y = Math.Round((double)d.CumulativeDistance, 2)
+                }),
+                backgroundColor = GetColorForDate(new DateTime(g.Year, 1, 1), new DateTime(minYear, 1, 1), new DateTime(maxYear, 12, 31))
+            });
+
+            var chartData = new
+            {
+                labels = groupedByYear.SelectMany(g => g.Data.Select(d => d.Date)).Distinct().OrderBy(d => d),
+                datasets
+            };
+
+            return JsonConvert.SerializeObject(chartData);
+        }
+
     }
 }

@@ -33,7 +33,10 @@
         "scatterPlotRide",
         "stackedBarsMonths",
         "stackedBarsHours",
-        "heartRatePlot"
+        "heartRatePlot",
+        "cumulativeRunDistance",
+        "cumulativeRideDistance",
+		"cumulativeSwimDistance"
     };
     private HashSet<string> initializedCanvasIds = new();
 
@@ -53,8 +56,12 @@
             await PlotChartIfNotInitialized("stackedBarsMonths", PlotMonthlyActivities);
             await PlotChartIfNotInitialized("stackedBarsHours", PlotHourlyActivities);
             await PlotChartIfNotInitialized("heartRatePlot", PlotHeartRate);
+            await PlotChartIfNotInitialized("cumulativeRunDistance", PlotCumulativeRunDistance);
+            await PlotChartIfNotInitialized("cumulativeRideDistance", PlotCumulativeRideDistance);
+            await PlotChartIfNotInitialized("cumulativeSwimDistance", PlotCumulativeSwimDistance);
         }
     }
+
 
     private async Task PlotChartIfNotInitialized(string canvasId, Func<Task> plotFunction)
     {
@@ -124,6 +131,28 @@
         var data = plottingHelperService.PrepareHourlyBarChartData(selectedActivities);
         await JSRuntime.InvokeVoidAsync("plotStackedBarChart", data, "stackedBarsHours", "Hour of day");
     }
+
+    private async Task PlotCumulativeRunDistance()
+    {
+        var selectedActivities = activityVms.Where(a => a.Activity.Type == "Run").ToList();
+        var data = plottingHelperService.PrepareCumulativeDistanceData(selectedActivities, "Run");
+        await JSRuntime.InvokeVoidAsync("plotLineChart", data, "cumulativeRunDistance", "Day/Month", "Cumulative Distance (km)");
+    }
+
+    private async Task PlotCumulativeRideDistance()
+    {
+        var selectedActivities = activityVms.Where(a => a.Activity.Type == "Ride").ToList();
+        var data = plottingHelperService.PrepareCumulativeDistanceData(selectedActivities, "Ride");
+        await JSRuntime.InvokeVoidAsync("plotLineChart", data, "cumulativeRideDistance", "Day/Month", "Cumulative Distance (km)");
+    }
+
+    private async Task PlotCumulativeSwimDistance()
+    {
+        var selectedActivities = activityVms.Where(a => a.Activity.Type == "Swim").ToList();
+        var data = plottingHelperService.PrepareCumulativeDistanceData(selectedActivities, "Swim");
+        await JSRuntime.InvokeVoidAsync("plotLineChart", data, "cumulativeSwimDistance", "Day/Month", "Cumulative Distance (km)");
+    }
+
 }
 
 <style>

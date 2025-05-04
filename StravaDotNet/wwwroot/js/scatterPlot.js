@@ -103,3 +103,41 @@ function plotMonthlyScatterChart(data, type) {
         }
     });
 }
+
+                        function plotLineChart(data, canvasId, xLabel, yLabel) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: JSON.parse(data),
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.dataset.label}: ${context.raw.y} km`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: xLabel
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: yLabel
+                    }
+                }
+            }
+        }
+    });
+}
