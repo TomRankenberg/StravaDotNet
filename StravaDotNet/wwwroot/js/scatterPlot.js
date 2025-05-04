@@ -105,10 +105,12 @@ function plotMonthlyScatterChart(data, type) {
 }
 
 function plotLineChart(data, canvasId, xLabel, yLabel) {
+    const parsedData = JSON.parse(data);
     const ctx = document.getElementById(canvasId).getContext('2d');
+
     new Chart(ctx, {
         type: 'line',
-        data: JSON.parse(data),
+        data: parsedData,
         options: {
             responsive: true,
             plugins: {
@@ -132,8 +134,13 @@ function plotLineChart(data, canvasId, xLabel, yLabel) {
                         text: xLabel
                     },
                     ticks: {
-                        autoSkip: true, // Skip some ticks if there are too many
-                        maxRotation: 0,
+                        callback: function (value, index, ticks) {
+                            // Only show ticks for the first day of each month
+                            const label = this.getLabelForValue(value);
+                            return label.startsWith('01-') ? label : null;
+                        },
+                        autoSkip: true, // Do not skip ticks
+                        maxRotation: 0, // Prevent label rotation
                         minRotation: 0
                     }
                 },

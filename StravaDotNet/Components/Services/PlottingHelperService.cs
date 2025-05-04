@@ -174,7 +174,7 @@ namespace StravaDotNet.Components.Services
                         .OrderBy(a => a.Activity.StartDate.Value)
                         .Select(a => new
                         {
-                            x = a.Activity.StartDate.Value.ToString("MM-dd"), // Use only day/month for x-axis
+                            x = a.Activity.StartDate.Value.ToString("dd-MM"), // Use only day/month for x-axis
                             y = g
                                 .Where(x => x.Activity.StartDate.Value <= a.Activity.StartDate.Value)
                                 .Sum(x => x.Activity.Distance / 1000) // Convert to km
@@ -197,7 +197,7 @@ namespace StravaDotNet.Components.Services
             {
                 labels = Enumerable.Range(1, 12)
                     .SelectMany(month => Enumerable.Range(1, DateTime.DaysInMonth(2023, month))
-                    .Select(day => new DateTime(2023, month, day).ToString("MM-dd"))), // Generate all possible day/month combinations
+                    .Select(day => new DateTime(2023, month, day).ToString("dd-MM"))), // Generate all possible day/month combinations
                 datasets
             };
 
