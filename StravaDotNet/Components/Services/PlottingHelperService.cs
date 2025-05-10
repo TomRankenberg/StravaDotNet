@@ -1,4 +1,5 @@
 using Data.Models.Strava;
+using DataManagement.Models;
 using Newtonsoft.Json;
 using StravaDotNet.ViewModels;
 
@@ -40,6 +41,19 @@ namespace StravaDotNet.Components.Services
             var blue = 192;
 
             return $"rgba({red}, {green}, {blue}, 0.8)";
+        }
+
+        public static List<HeatmapInput> AddColorToHeatmap(List<HeatmapInput> heatmapInputs)
+        {
+            heatmapInputs = heatmapInputs.OrderBy(h => h.StartTime).ToList();
+            DateTime earliest = heatmapInputs.First().StartTime ?? DateTime.MinValue;
+            DateTime latest = heatmapInputs.Last().StartTime ?? DateTime.MaxValue;
+            foreach (HeatmapInput input in heatmapInputs)
+            {
+                input.LineColor = GetColorForDate(input.StartTime, earliest, latest);
+            }
+
+            return heatmapInputs;
         }
 
         /// <summary>

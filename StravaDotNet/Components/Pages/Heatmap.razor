@@ -1,5 +1,7 @@
 ﻿@page "/heatmap"
 @inject HttpClient Http
+@using StravaDotNet.Components.Services
+@inject PlottingHelperService plottingHelperService
 @using DataManagement.Models
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
@@ -45,7 +47,7 @@
         {
             string arguments = $"?runs={includeRuns}&rides={includeRides}";
             heatMapData = await Http.GetFromJsonAsync<HeatMapData>($"https://localhost:7237/api/Heatmap/GetHeatmap{arguments}");
-
+            heatMapData.Input = PlottingHelperService.AddColorToHeatmap(heatMapData.Input);
             heatMapDataString = JsonSerializer.Serialize(heatMapData);
             encodedLines = heatMapData.Input.Select(i => i.EncodedPolyline).ToList();
 
@@ -57,12 +59,6 @@
             Console.WriteLine($"Exception: {ex.Message}");
         }
 
-        //await PolyLinesToLatLngs();
-    }
-
-    private async Task PolyLinesToLatLngs()
-    {
-        latLngs = await JSRuntime.InvokeAsync<List<LatLng>>("polylinesToLatLngs", encodedLines);
     }
 
     private async Task InitializeMap()

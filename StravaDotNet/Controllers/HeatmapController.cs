@@ -1,20 +1,22 @@
 ﻿using Data.Interfaces;
 using Data.Models.Strava;
-using DataManagement.BusinessLogic;
 using DataManagement.Models;
 using Microsoft.AspNetCore.Mvc;
+using StravaDotNet.Components.Services;
 
 namespace StravaDotNet.Controllers
 {
     [Route("api/[controller]")]
-    public class HeatmapController(IActivitiesRepo activitiesRepo, IMapRepo mapRepo) : ControllerBase
+    public class HeatmapController(IActivitiesRepo activitiesRepo, HeatmapService heatmapService) : ControllerBase
     {
         [HttpGet]
         [Route("GetHeatmap")]
         public IActionResult GetHeatmap(bool runs, bool rides)
         {
+            // Retrieve all activities
             IQueryable<DetailedActivity> activities = activitiesRepo.GetAllActivities();
 
+            // Filter activities based on the type (Run, Ride, or both)
             if (runs && rides)
             {
                 activities = activities.Where(a => a.Type == "Run" || a.Type == "Ride");
@@ -27,18 +29,18 @@ namespace StravaDotNet.Controllers
             {
                 activities = activities.Where(a => a.Type == "Ride");
             }
-            IQueryable<DetailedActivity> activitiesWithMaps = activities.Where(a => a.MapId != null);
 
+            // Ensure there are activities with maps
+            IQueryable<DetailedActivity> activitiesWithMaps = activities.Where(a => a.MapId != null);
             if (!activitiesWithMaps.Any())
             {
                 return NotFound("No activities with maps found.");
             }
-            else
-            {
-                HeatMapData heatMapData = HeatmapManager.GetHeatmapData(activitiesWithMaps, mapRepo);
 
-                return Ok(heatMapData);
-            }
+            // Use HeatmapService to generate heatmap data
+            HeatMapData heatMapData = heatmapService.GetHeatmapData(activitiesWithMaps);
+
+            return Ok(heatMapData);
         }
     }
 }

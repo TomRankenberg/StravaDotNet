@@ -8,7 +8,6 @@ namespace DataManagement.Models
         public LatLng StartPoint { get; set; }
         public LatLng EndPoint { get; set; }
         public DateTime? StartTime { get; set; }
-        public string StartLocation { get; set; }
         public string ActivityType { get; set; }
         public double LineOpacity { get; set; }
         public string LineColor { get; set; }

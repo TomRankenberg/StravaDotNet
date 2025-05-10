@@ -46,6 +46,7 @@ builder.Services.AddHttpClient<SegmentEffortService>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["BaseAddress"]);
 });
+builder.Services.AddScoped<HeatmapService>();
 builder.Services.AddScoped<DataRetrievalService>();
 builder.Services.AddScoped<PlottingHelperService>();
 
