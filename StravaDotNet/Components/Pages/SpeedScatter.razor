@@ -84,7 +84,7 @@
 			a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
         );
 
-        await JSRuntime.InvokeVoidAsync("plotScatterChart", data, $"scatterPlot{activityType}");
+        await JSRuntime.InvokeVoidAsync("plotScatterChart", data, $"scatterPlot{activityType}", $"Average {activityType.ToLower()} speed (km/h)");
     }
 
     private async Task PlotHeartRate(string type)
@@ -98,7 +98,7 @@
             a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
         );
 
-        await JSRuntime.InvokeVoidAsync("plotScatterChart", data, $"heartRatePlot{type}");
+        await JSRuntime.InvokeVoidAsync("plotScatterChart", data, $"heartRatePlot{type}", $"Average {type.ToLower()} heart rate");
 
 	}
 
@@ -124,7 +124,7 @@
     {
         var selectedActivities = activityVms.Where(a => a.Activity.Type == activityType).ToList();
         var data = plottingHelperService.PrepareCumulativeDistanceData(selectedActivities, activityType);
-        await JSRuntime.InvokeVoidAsync("plotLineChart", data, $"cumulative{activityType}Distance", "Day/Month", "Cumulative Distance (km)");
+        await JSRuntime.InvokeVoidAsync("plotLineChart", data, $"cumulative{activityType}Distance", "Day/Month", $"Cumulative {activityType.ToLower()} distance (km)");
     }
 }
 

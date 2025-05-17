@@ -1,4 +1,4 @@
-﻿function plotScatterChart(data, type) {
+﻿function plotScatterChart(data, type, yAxisTile) {
     var parsedData = JSON.parse(data); // Parse the JSON data
     var ctx = document.getElementById(type).getContext('2d');
     var scatterChart = new Chart(ctx, {
@@ -25,7 +25,7 @@
                 y: {
                     title: {
                         display: true,
-                        text: 'Average speed (km/h)'
+                        text: yAxisTile
                     }
                 }
             },
@@ -51,7 +51,7 @@
     });
 }
 
-function plotMonthlyScatterChart(data, type) {
+function plotMonthlyScatterChart(data, type, yAxisTitle) {
     var parsedData = JSON.parse(data); // Parse the JSON data
     var ctx = document.getElementById(type).getContext('2d');
     var scatterChart = new Chart(ctx, {
@@ -78,7 +78,7 @@ function plotMonthlyScatterChart(data, type) {
                 y: {
                     title: {
                         display: true,
-                        text: 'Fastest run per month (km/h)'
+                        text: yAxisTitle
                     }
                 }
             },

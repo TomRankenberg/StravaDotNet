@@ -68,7 +68,7 @@
         var data = plottingHelperService.GetMonthlyScatterChartData(efforts);
         var jsonData = JsonConvert.SerializeObject(data);
 
-        await JSRuntime.InvokeVoidAsync("plotMonthlyScatterChart", jsonData, canvasId);
+        await JSRuntime.InvokeVoidAsync("plotMonthlyScatterChart", jsonData, canvasId, $"{canvasId.Replace("canvas-", "")} PR speed (km/h)");
     }
 
     private string GetCanvasId(string distance) => $"canvas-{distance.Replace(" ", "-")}";
