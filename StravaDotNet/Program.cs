@@ -49,6 +49,7 @@ builder.Services.AddHttpClient<SegmentEffortService>(client =>
 builder.Services.AddScoped<HeatmapService>();
 builder.Services.AddScoped<DataRetrievalService>();
 builder.Services.AddScoped<PlottingHelperService>();
+builder.Services.AddScoped<PythonService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
