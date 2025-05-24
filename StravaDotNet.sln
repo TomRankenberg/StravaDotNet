@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManagement", "DataManagement\DataManagement.csproj", "{0A5C5E2B-2D55-481E-A324-5026110DF20B}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "regression", "..\python-sklearn-regression-cookiecutter\regression.pyproj", "{2BAB41FF-427D-4977-9094-74FEAFE915FC}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "regression", "..\python-sklearn-regression-cookiecutter\regression.pyproj", "{3F15FBFA-5EF8-4B3C-B8B1-A074E80699D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,8 +35,8 @@ Global
 		{0A5C5E2B-2D55-481E-A324-5026110DF20B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A5C5E2B-2D55-481E-A324-5026110DF20B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A5C5E2B-2D55-481E-A324-5026110DF20B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2BAB41FF-427D-4977-9094-74FEAFE915FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2BAB41FF-427D-4977-9094-74FEAFE915FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F15FBFA-5EF8-4B3C-B8B1-A074E80699D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F15FBFA-5EF8-4B3C-B8B1-A074E80699D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
