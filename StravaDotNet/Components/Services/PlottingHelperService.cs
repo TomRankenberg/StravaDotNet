@@ -172,10 +172,10 @@ namespace StravaDotNet.Components.Services
             return data.Cast<object>().ToList();
         }
 
-        public string PrepareCumulativeDistanceData(List<ActivityVm> activities, string activityType)
+        public string PrepareCumulativeDistanceData(List<ActivityVm> activities)
         {
-            var filteredActivities = activities
-                .Where(a => a.Activity.Type == activityType && a.Activity.StartDate.HasValue)
+            IEnumerable<ActivityVm> filteredActivities = activities
+                .Where(a => a.Activity.StartDate.HasValue)
                 .OrderBy(a => a.Activity.StartDate.Value)
                 .ToList();
 
@@ -192,6 +192,51 @@ namespace StravaDotNet.Components.Services
                             y = g
                                 .Where(x => x.Activity.StartDate.Value <= a.Activity.StartDate.Value)
                                 .Sum(x => x.Activity.Distance / 1000) // Convert to km
+                        })
+                        .ToList()
+                })
+                .ToList();
+
+            var minYear = groupedByYear.Min(g => g.Year);
+            var maxYear = groupedByYear.Max(g => g.Year);
+
+            var datasets = groupedByYear.Select(g => new
+            {
+                label = g.Year.ToString(),
+                data = g.Data, // Pass the data directly
+                backgroundColor = GetColorForDate(new DateTime(g.Year, 1, 1), new DateTime(minYear, 1, 1), new DateTime(maxYear, 12, 31)),
+            });
+
+            var chartData = new
+            {
+                labels = Enumerable.Range(1, 12)
+                    .SelectMany(month => Enumerable.Range(1, DateTime.DaysInMonth(2023, month))
+                    .Select(day => new DateTime(2023, month, day).ToString("dd-MM"))), // Generate all possible day/month combinations
+                datasets
+            };
+
+            return JsonConvert.SerializeObject(chartData);
+        }
+
+        public string PrepareCumulativeTimeData(List<ActivityVm> activities)
+        {
+            IEnumerable<ActivityVm> filteredActivities = activities
+                .Where(a => a.Activity.StartDate.HasValue)
+                .OrderBy(a => a.Activity.StartDate.Value);
+
+            var groupedByYear = filteredActivities
+                .GroupBy(a => a.Activity.StartDate.Value.Year)
+                .Select(g => new
+                {
+                    Year = g.Key,
+                    Data = g
+                        .OrderBy(a => a.Activity.StartDate.Value)
+                        .Select(a => new
+                        {
+                            x = a.Activity.StartDate.Value.ToString("dd-MM"), // Use only day/month for x-axis
+                            y = g
+                                .Where(x => x.Activity.StartDate.Value <= a.Activity.StartDate.Value)
+                                .Sum(x => x.Activity.MovingTime / 3600.0) // Seconds to hours
                         })
                         .ToList()
                 })

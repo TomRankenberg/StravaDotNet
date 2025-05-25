@@ -121,7 +121,7 @@ function plotLineChart(data, canvasId, xLabel, yLabel) {
                 tooltip: {
                     callbacks: {
                         label: function (context) {
-                            return `${context.dataset.label}: ${context.raw.y} km`;
+                            return `${context.dataset.label}: ${context.raw.y}`;
                         }
                     }
                 }

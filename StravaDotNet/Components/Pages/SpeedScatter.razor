@@ -16,12 +16,12 @@
 @if (activityVms != null)
 {
     <div class="canvas-container">
-    @foreach (var canvasId in canvasIds)
-    {
-        <div class="canvas-wrapper">
-            <canvas id="@canvasId"></canvas>
-        </div>
-    }
+        @foreach (var canvasId in canvasIds)
+        {
+            <div class="canvas-wrapper">
+                <canvas id="@canvasId"></canvas>
+            </div>
+        }
     </div>
 }
 
@@ -37,7 +37,8 @@
         "stackedBarsHours",
         "cumulativeRunDistance",
         "cumulativeRideDistance",
-		"cumulativeSwimDistance"
+		"cumulativeSwimDistance",
+		"cumulativeHoursTotal"
     };
     private HashSet<string> initializedCanvasIds = new();
 
@@ -61,6 +62,7 @@
             await PlotChartIfNotInitialized("cumulativeRunDistance", () => PlotCumulativeActivities("Run"));
             await PlotChartIfNotInitialized("cumulativeRideDistance", () => PlotCumulativeActivities("Ride"));
             await PlotChartIfNotInitialized("cumulativeSwimDistance", () => PlotCumulativeActivities("Swim"));
+            await PlotChartIfNotInitialized("cumulativeHoursTotal", () => PlotCumulativeActivities("All"));
         }
     }
 
@@ -75,13 +77,17 @@
 
     private async Task PlotSpeed(string activityType)
     {
+        if (activityVms == null || !activityVms.Any(a => a.Activity.Type == activityType))
+        {
+            return; // No activities of the specified type to plot
+        }
         var selectedActivities = activityVms.Where(a => a.Activity.Type == activityType).ToList();
         var data = plottingHelperService.PrepareScatterPlotData(
             selectedActivities,
             a => a.Activity.Distance / 1000, // X-axis: Distance in km
             a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6, // Y-axis: Speed in km/h
             a => PlottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate)),
-			a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
+            a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
         );
 
         await JSRuntime.InvokeVoidAsync("plotScatterChart", data, $"scatterPlot{activityType}", $"Average {activityType.ToLower()} speed (km/h)");
@@ -89,6 +95,10 @@
 
     private async Task PlotHeartRate(string type)
     {
+        if (activityVms == null || !activityVms.Any(a => a.Activity.Type == type))
+        {
+            return; // No activities of the specified type to plot
+        }
         var selectedActivities = activityVms.Where(a => a.AverageHeartRate != 0 && a.Activity.Type == type).ToList();
         var data = plottingHelperService.PrepareScatterPlotData(
             selectedActivities,
@@ -100,19 +110,27 @@
 
         await JSRuntime.InvokeVoidAsync("plotScatterChart", data, $"heartRatePlot{type}", $"Average {type.ToLower()} heart rate");
 
-	}
+    }
 
     private async Task PlotMonthlyActivities()
     {
-		List<ActivityVm> selectedActivities = activityVms
+		if (activityVms == null || !activityVms.Any(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim"))
+		{
+			return; // No activities of the specified types to plot
+		}
+        List<ActivityVm> selectedActivities = activityVms
             .Where(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim")
-			.ToList();
+            .ToList();
         var data = plottingHelperService.PrepareMonthlyBarChartData(selectedActivities);
         await JSRuntime.InvokeVoidAsync("plotStackedBarChart", data, "stackedBarsMonths", "Year-Month");
     }
 
     private async Task PlotHourlyActivities()
-    {
+    {  
+		if (activityVms == null || !activityVms.Any(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim"))
+		{
+			return; // No activities of the specified types to plot
+		}
         List<ActivityVm> selectedActivities = activityVms
             .Where(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim")
             .ToList();
@@ -122,9 +140,25 @@
 
     private async Task PlotCumulativeActivities(string activityType)
     {
-        var selectedActivities = activityVms.Where(a => a.Activity.Type == activityType).ToList();
-        var data = plottingHelperService.PrepareCumulativeDistanceData(selectedActivities, activityType);
-        await JSRuntime.InvokeVoidAsync("plotLineChart", data, $"cumulative{activityType}Distance", "Day/Month", $"Cumulative {activityType.ToLower()} distance (km)");
+        List<ActivityVm> selectedActivities = new();
+        var data = "";
+        string plotId = "";
+        string yAxisTitle = "";
+        if (activityType == "All" && activityVms != null)
+        {
+            selectedActivities = activityVms;
+            data = plottingHelperService.PrepareCumulativeTimeData(selectedActivities);
+            plotId = "cumulativeHoursTotal";
+			yAxisTitle = "Cumulative time (hours)";
+        }
+        else if (activityVms != null)
+        {
+            selectedActivities = activityVms.Where(a => a.Activity.Type == activityType).ToList();
+            data = plottingHelperService.PrepareCumulativeDistanceData(selectedActivities);
+            plotId = $"cumulative{activityType}Distance";
+            yAxisTitle = $"Cumulative {activityType.ToLower()} distance (km)";
+        }
+        await JSRuntime.InvokeVoidAsync("plotLineChart", data, plotId, "Day/Month", yAxisTitle);
     }
 }
 
