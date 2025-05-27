@@ -18,7 +18,7 @@ namespace StravaDotNet.Controllers
         [Route("GetPRs")]
         public ActionResult<IEnumerable<DetailedSegmentEffort>> GetPRs()
         {
-            string[] prNames = new string[] { "1 mile", "1/2 mile", "10K", "15K", "1K", "2 mile", "400m", "5K", "Half-Marathon" };
+            string[] prNames = ["1 mile", "1/2 mile", "10K", "15K", "1K", "2 mile", "400m", "5K", "Half-Marathon"];
             IQueryable<DetailedSegmentEffort> segmentEfforts = context.SegmentEfforts.Where(se => prNames.Contains(se.Name));
 
             return Ok(segmentEfforts.ToList());

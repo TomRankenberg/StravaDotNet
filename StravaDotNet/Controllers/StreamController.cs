@@ -16,7 +16,7 @@ namespace StravaDotNet.Controllers
                 .Where(s => s.ActivityId == id)
                 .Select(s => s.StreamSetId)
                 .FirstOrDefault();
-            HeartrateStream heartrateStream = context.HeartrateStreams
+            HeartrateStream? heartrateStream = context.HeartrateStreams
                 .Where(h => h.StreamSetId == streamSetId)
                 .FirstOrDefault();
 

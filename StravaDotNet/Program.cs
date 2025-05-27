@@ -80,8 +80,6 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 app.MapControllers();
-//app.MapBlazorHub();
 app.MapRazorPages(); // Ensure Razor Pages are mapped
-//app.MapFallbackToPage("/_Host");
 
 app.Run();

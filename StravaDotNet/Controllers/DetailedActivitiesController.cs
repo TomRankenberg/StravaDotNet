@@ -12,7 +12,7 @@ namespace StravaDotNet.Controllers
         [HttpGet]
         public ActionResult<List<ActivityVm>> Get()
         {
-            List<ActivityVm> activityVms = new List<ActivityVm>();
+            List<ActivityVm> activityVms = [];
             foreach (DetailedActivity activity in context.Activities)
             {
                 ActivityVm activityVm = new()
