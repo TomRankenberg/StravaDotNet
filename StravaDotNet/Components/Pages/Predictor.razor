@@ -1,4 +1,4 @@
-﻿@page "/trainmodel"
+﻿@page "/predictor"
 @using StravaDotNet.Components.Services
 @using StravaDotNet.ViewModels
 @using Data.Models.Strava
@@ -8,10 +8,6 @@
 @inject DetailedActivityService activityService
 @rendermode InteractiveServer
 @inject IJSRuntime JSRuntime
-
-
-<h3>TrainModel</h3>
-
 @inject PythonService PythonService
 
 <form class="load-data-form">
