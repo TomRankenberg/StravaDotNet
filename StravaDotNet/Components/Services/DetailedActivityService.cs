@@ -18,7 +18,7 @@ namespace StravaDotNet.Components.Services
             {
                 if (activityVm.Activity != null && activityVm.Activity.Id != null)
                 {
-                    activityVm.AverageHeartRate = CalculateAverageHeartRateAsync(activityVm.Activity.Id.Value).Result;
+                    activityVm.AverageHeartRate = await CalculateAverageHeartRateAsync(activityVm.Activity.Id.Value);
                 }
             }
 

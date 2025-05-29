@@ -51,9 +51,15 @@
     });
 }
 
+window.chartInstances = window.chartInstances || {};
+
 function plotMonthlyScatterChart(data, type, yAxisTitle) {
     var parsedData = JSON.parse(data); // Parse the JSON data
     var ctx = document.getElementById(type).getContext('2d');
+    // Destroy existing chart instance if it exists
+    if (window.chartInstances[type]) {
+        window.chartInstances[type].destroy();
+    }
     var scatterChart = new Chart(ctx, {
         type: 'scatter',
         data: {
@@ -102,6 +108,7 @@ function plotMonthlyScatterChart(data, type, yAxisTitle) {
             }
         }
     });
+    window.chartInstances[type] = scatterChart;
 }
 
 function plotLineChart(data, canvasId, xLabel, yLabel) {
