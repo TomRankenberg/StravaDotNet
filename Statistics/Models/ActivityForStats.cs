@@ -12,5 +12,6 @@
         public double? ActiveRecentTimeAll { get; set; }// Seconds in the past 30d
         public double? ActiveRecentTimeThisType { get; set; }// Seconds in the past 30d
         public double? AverageHeartRate { get; set; }
+        public double? PredictedHR { get; set; } // Predicted heart rate based on the model
     }
 }

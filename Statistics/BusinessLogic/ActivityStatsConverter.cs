@@ -64,5 +64,45 @@ namespace Statistics.BusinessLogic
 
             return activities;
         }
+
+        public static List<ActivityForStats> AddPredictedHeartRate(List<ActivityForStats> activities)
+        {
+            foreach(ActivityForStats activity in activities)
+            {
+                activity.PredictedHR = CalcPredictedHR(activity.ActiveRecentTimeAll, activity.AverageSpeed, activity.Distance, activity.Type);
+
+            }
+
+            return activities;
+        }
+
+        private static double? CalcPredictedHR(double? activeRecentAll, double? avgSpeed, double? distance, string type)
+        {
+            const double intercept = 4.480192e+01;
+            const double speedCoefficient = 1.326652e+01;
+            const double distanceCoefficient = 1.929494e-04;
+            const double recentTimeCoefficient = -3.813923e-05;
+            const double typeRunCoefficient = 7.925252e+01;
+            const double typeSwimCoefficient = 9.391313e+01;
+
+            if (activeRecentAll == null || avgSpeed == null || distance == null)
+            {
+                return null;
+            }
+
+            var typeCoefficient = type.ToLower() switch
+            {
+                "run" => typeRunCoefficient,
+                "swim" => typeSwimCoefficient,
+                _ => 1.0,// Default coefficient for rides
+            };
+            double predictedHR = intercept +
+                          speedCoefficient * (avgSpeed ?? 0) +
+                          distanceCoefficient * (distance ?? 0) +
+                          recentTimeCoefficient * (activeRecentAll ?? 0) +
+                          typeCoefficient;
+
+            return predictedHR;
+        }
     }
 }
