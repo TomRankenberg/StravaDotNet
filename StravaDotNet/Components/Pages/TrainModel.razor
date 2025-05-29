@@ -1,20 +1,45 @@
 ﻿@page "/trainmodel"
 @using StravaDotNet.Components.Services
+@using StravaDotNet.ViewModels
 @using Data.Models.Strava
+@using Statistics.Models
 @inject DataRetrievalService dataRetrievalService
+@inject PlottingHelperService plottingHelperService
+@inject DetailedActivityService activityService
 @rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+
 
 <h3>TrainModel</h3>
 
 @inject PythonService PythonService
 
-<button @onclick="CallPython">Predict</button>
+<form class="load-data-form">
+    <button type="button" class="btn btn-secondary" margin-right:30px @onclick="CallStatic">Load Data</button>
+</form>
+@if (activityVms != null)
+{
+    <div class="canvas-container">
+        @foreach (var canvasId in canvasIds)
+        {
+            <div class="canvas-wrapper">
+                <canvas id="@canvasId"></canvas>
+            </div>
+        }
+    </div>
+}
 
 @code {
     private List<DetailedActivity>? myActivities;
+    private List<ActivityVm>? activityVms;
+    private readonly List<string> canvasIds = new()
+    {
+        "scatterPlotHR"
+    };
 
     private async Task CallPython()
     {
+        // Not implemented yet
         if (myActivities == null)
         {
             myActivities = await dataRetrievalService.GetAllActivitiesAsync();
@@ -23,8 +48,50 @@
         // handle result
     }
 
-    private async Task LoadData()
+    private async Task CallStatic()
     {
-        myActivities = await dataRetrievalService.GetAllActivitiesAsync();
+
+        if (myActivities == null)
+        {
+            myActivities = await dataRetrievalService.GetAllActivitiesAsync();
+        }
+        List<ActivityForStats> statsActivities = await PythonService.PredictStaticAsync(myActivities);
+        activityVms = activityService.ConvertStatsToVm(statsActivities);
+        await InvokeAsync(StateHasChanged);
+        // Load plot
+        var data = plottingHelperService.PrepareScatterPlotData(
+                    activityVms,
+					a => (float?)a.PredictedHR, // X-axis: Predicted heart rate
+                    a => a.AverageHeartRate, // Y-axis: Actual heart rate
+                    a => PlottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate)),
+                    a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
+                    );
+
+        await JSRuntime.InvokeVoidAsync("plotScatterChartWithLine", data, "scatterPlotHR", "Predicted heart rate" ,"Measured heart rate");
     }
 }
+
+<style>
+    .load-data-form {
+        margin-bottom: 20px;
+    }
+
+    .canvas-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .canvas-wrapper {
+        flex: 1 1 calc(80% - 20px);
+        max-width: calc(80% - 20px);
+    }
+
+    canvas {
+        width: 100% !important;
+        height: auto !important;
+        border: 1px solid #ccc;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+</style>

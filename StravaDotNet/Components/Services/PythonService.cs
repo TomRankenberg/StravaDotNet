@@ -48,6 +48,11 @@ namespace StravaDotNet.Components.Services
             }
             activityStatsList = ActivityStatsConverter.AddRecentTimeSpent(activityStatsList, 60);
             activityStatsList = ActivityStatsConverter.AddPredictedHeartRate(activityStatsList);
+            activityStatsList = activityStatsList
+                .Where(activityStatsList => 
+                activityStatsList.PredictedHR.HasValue && activityStatsList.PredictedHR.Value > 100 &&
+                activityStatsList.AverageHeartRate.HasValue && activityStatsList.AverageHeartRate.Value > 0)
+                .ToList();
 
             return activityStatsList;
         }

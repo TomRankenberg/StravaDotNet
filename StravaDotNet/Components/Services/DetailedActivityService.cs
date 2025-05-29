@@ -1,4 +1,5 @@
 using Data.Models.Strava;
+using Statistics.Models;
 using StravaDotNet.ViewModels;
 
 namespace StravaDotNet.Components.Services
@@ -44,6 +45,30 @@ namespace StravaDotNet.Components.Services
             }
             return 0;
         }
-    }
 
+        public List<ActivityVm> ConvertStatsToVm(List<ActivityForStats> activityForStats)
+        {
+            List<ActivityVm> vms = [];
+            foreach (ActivityForStats activity in activityForStats)
+            {
+                ActivityVm vm = new()
+                {
+                    Activity = new DetailedActivity
+                    {
+                        Id = activity.Id,
+                        Type = activity.Type,
+                        Distance = activity.Distance,
+                        ElapsedTime = activity.ElapsedTime,
+                        TotalElevationGain = activity.ElevationGain,
+                        StartDate = activity.StartDate,
+                        AverageSpeed = activity.AverageSpeed
+                    },
+                    AverageHeartRate = activity.AverageHeartRate ?? 0,
+                    PredictedHR = activity.PredictedHR ?? 0
+                };
+                vms.Add(vm);
+            }
+            return vms;
+        }
+    }
 }

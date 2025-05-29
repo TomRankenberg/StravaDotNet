@@ -155,4 +155,76 @@ function plotLineChart(data, canvasId, xLabel, yLabel) {
     });
 }
 
+function plotScatterChartWithLine(data, type, xAxisTitle, yAxisTile) {
+    var parsedData = JSON.parse(data); // Parse the JSON data
+    var ctx = document.getElementById(type).getContext('2d');
+    const scatterDataset = {
+        label: 'Detailed Activities',
+        data: parsedData.map(point => ({ x: point.x, y: point.y, date: point.date })),
+        backgroundColor: parsedData.map(point => point.color),
+        borderColor: parsedData.map(point => point.color),
+        borderWidth: 1
+    };
+    const min = Math.min(...parsedData.map(p => p.x), ...parsedData.map(p => p.y));
+    const max = Math.max(...parsedData.map(p => p.x), ...parsedData.map(p => p.y));
+    const diagonalLine = {
+        label: 'y = x',
+        data: [
+            { x: min, y: min },
+            { x: max, y: max }
+        ],
+        type: 'line',
+        fill: false,
+        borderColor: 'rgba(0,0,0,0.7)',
+        borderWidth: 2,
+        pointRadius: 0,
+        borderDash: [5, 5], // Optional: dashed line
+        order: 0 // Draw below points
+    };
+    const datasets = [scatterDataset, diagonalLine];
+
+
+    var scatterChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {datasets: datasets},
+        options: {
+            scales: {
+                x: {
+                    type: 'linear',
+                    position: 'bottom',
+                    title: {
+                        display: true,
+                        text: xAxisTitle
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: yAxisTile
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            var label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            label += '(' + context.raw.x + ', ' + context.raw.y + ')';
+                            label += ' Date: ' + context.raw.date;
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+
 
