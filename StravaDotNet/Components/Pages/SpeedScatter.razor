@@ -44,7 +44,7 @@
 
     private async Task LoadData()
     {
-        activityVms = await dataRetrievalService.GetAllActivitiesAsync();
+        activityVms = await dataRetrievalService.GetAllActivityVmsAsync();
         StateHasChanged(); // Trigger re-render to ensure the canvas elements are added to the DOM
         await PlotAllCharts();
     }

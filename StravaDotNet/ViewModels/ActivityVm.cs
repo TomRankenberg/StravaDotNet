@@ -4,7 +4,8 @@ namespace StravaDotNet.ViewModels
 {
     public class ActivityVm
     {
-        public DetailedActivity Activity { get; set; }
+        public DetailedActivity? Activity { get; set; }
         public double AverageHeartRate { get; set; }
+        public double? PredictedHR { get; set; }
     }
 }

@@ -20,14 +20,19 @@ namespace StravaDotNet.Components.Services
             _heatmapService = heatmapService;
         }
 
-        public async Task<List<ActivityVm>> GetAllActivitiesAsync()
+        public async Task<List<ActivityVm>> GetAllActivityVmsAsync()
+        {
+            return await _detailedActivityService.GetDetailedActivityVmsAsync();
+        }
+
+        public async Task<List<DetailedActivity>> GetAllActivitiesAsync()
         {
             return await _detailedActivityService.GetDetailedActivitiesAsync();
         }
 
         public async Task<List<DetailedSegmentEffort>> GetAllSegmentEffortsAsync()
         {
-            return _segmentEffortService.GetDetailedSegmentEffortsAsync();
+            return await _segmentEffortService.GetDetailedSegmentEffortsAsync();
         }
 
         public HeatMapData GetHeatmapData(IQueryable<DetailedActivity> activities)

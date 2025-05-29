@@ -31,7 +31,7 @@
 
     private async Task LoadData()
     {
-        detailedActivities = await DetailedActivityService.GetDetailedActivitiesAsync();
+        detailedActivities = await DetailedActivityService.GetDetailedActivityVmsAsync();
         simpleActivities = new List<SimpleActivity>();
         foreach (ActivityVm activity in detailedActivities)
         {
