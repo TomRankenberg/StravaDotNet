@@ -1,7 +1,7 @@
 ﻿using Data.Models.Strava;
-using DataManagement.Models;
 using Newtonsoft.Json;
 using Statistics.BusinessLogic;
+using Statistics.Models;
 using System.Text;
 
 namespace StravaDotNet.Components.Services
@@ -27,6 +27,7 @@ namespace StravaDotNet.Components.Services
                 ActivityForStats activityStats = ActivityStatsConverter.ConvertToActivityForStats(activity, avgHeartRate);
                 activityStatsList.Add(activityStats);
             }
+            activityStatsList = ActivityStatsConverter.AddRecentTimeSpent(activityStatsList, 60);
             // Calculate recent activity time here
             var json = JsonConvert.SerializeObject(activityStatsList);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -35,5 +36,4 @@ namespace StravaDotNet.Components.Services
             return await response.Content.ReadAsStringAsync();
         }
     }
-
 }
