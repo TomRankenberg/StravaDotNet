@@ -1,11 +1,8 @@
 ﻿@page "/trainmodel"
-
 @using StravaDotNet.Components.Services
-@using StravaDotNet.ViewModels
+@using Data.Models.Strava
 @inject DataRetrievalService dataRetrievalService
 @rendermode InteractiveServer
-
-
 
 <h3>TrainModel</h3>
 
@@ -14,14 +11,14 @@
 <button @onclick="CallPython">Predict</button>
 
 @code {
-    private List<ActivityVm>? myActivities;
+    private List<DetailedActivity>? myActivities;
 
     private async Task CallPython()
     {
-		if (myActivities == null)
-		{
-			myActivities = await dataRetrievalService.GetAllActivitiesAsync();
-		}
+        if (myActivities == null)
+        {
+            myActivities = await dataRetrievalService.GetAllActivitiesAsync();
+        }
         var result = await PythonService.PredictAsync(myActivities);
         // handle result
     }

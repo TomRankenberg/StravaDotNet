@@ -10,7 +10,8 @@ namespace StravaDotNet.Controllers
     public class DetailedActivitiesController(DatabaseContext context) : ControllerBase
     {
         [HttpGet]
-        public ActionResult<List<ActivityVm>> Get()
+        [Route("GetActivityVms")]
+        public ActionResult<List<ActivityVm>> GetActivityVms()
         {
             List<ActivityVm> activityVms = [];
             foreach (DetailedActivity activity in context.Activities)
@@ -23,6 +24,18 @@ namespace StravaDotNet.Controllers
                 activityVms.Add(activityVm);
             }
             return activityVms;
+        }
+
+        [HttpGet]
+        [Route("GetAllActivities")]
+        public ActionResult<List<DetailedActivity>> GetAllActivities()
+        {
+            List<DetailedActivity> activities = [];
+            foreach (DetailedActivity activity in context.Activities)
+            {
+                activities.Add(activity);
+            }
+            return activities;
         }
     }
 }
