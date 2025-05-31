@@ -6,6 +6,7 @@
         public string Type { get; set; } = "";
         public float? Distance { get; set; }// Meters
         public int? ElapsedTime { get; set; }// Seconds
+        public int? BreakTime { get; set; }// Seconds
         public float? ElevationGain { get; set; }// Meters
         public DateTime? StartDate { get; set; }
         public float? AverageSpeed { get; set; }// m/s

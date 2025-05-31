@@ -32,7 +32,7 @@ namespace StravaDotNet.Components.Services
             return activities;
         }
 
-        public async Task<double> CalculateAverageHeartRateAsync(long activityId)
+        public async Task<double> CalculateAverageHeartRateAsync(long? activityId)
         {
             var response = await httpClient.GetAsync($"api/stream/GetHeartStreamFromActivityId?id={activityId}");
             if (response.IsSuccessStatusCode && response.StatusCode != System.Net.HttpStatusCode.NoContent)

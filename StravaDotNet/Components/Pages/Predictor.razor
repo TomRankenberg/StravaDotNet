@@ -8,7 +8,7 @@
 @inject DetailedActivityService activityService
 @rendermode InteractiveServer
 @inject IJSRuntime JSRuntime
-@inject PythonService PythonService
+@inject StatsService StatsService
 
 <form class="load-data-form">
     <button type="button" class="btn btn-secondary" margin-right:30px @onclick="CallStatic">Load Data</button>
@@ -40,7 +40,7 @@
         {
             myActivities = await dataRetrievalService.GetAllActivitiesAsync();
         }
-        var result = await PythonService.PredictAsync(myActivities);
+        var result = await StatsService.PredictAsync(myActivities);
         // handle result
     }
 
@@ -51,7 +51,7 @@
         {
             myActivities = await dataRetrievalService.GetAllActivitiesAsync();
         }
-        List<ActivityForStats> statsActivities = await PythonService.PredictStaticAsync(myActivities);
+        List<ActivityForStats> statsActivities = await StatsService.PredictStaticAsync(myActivities);
         activityVms = activityService.ConvertStatsToVm(statsActivities);
         await InvokeAsync(StateHasChanged);
         // Load plot

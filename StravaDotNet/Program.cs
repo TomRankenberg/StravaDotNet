@@ -1,12 +1,12 @@
-using StravaDotNet.Components;
-using Microsoft.EntityFrameworkCore;
-using Data.Interfaces;
 using Data.Context;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using StravaDotNet.Components.Services;
-using MudBlazor.Services;
-using Data.Repos;
+using Data.Interfaces;
 using Data.Models;
+using Data.Repos;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
+using StravaDotNet.Components;
+using StravaDotNet.Components.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,7 +49,7 @@ builder.Services.AddHttpClient<SegmentEffortService>(client =>
 builder.Services.AddScoped<HeatmapService>();
 builder.Services.AddScoped<DataRetrievalService>();
 builder.Services.AddScoped<PlottingHelperService>();
-builder.Services.AddScoped<PythonService>();
+builder.Services.AddScoped<StatsService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -57,8 +57,6 @@ builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 builder.Services.AddRazorPages();
 builder.Services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/Components/Pages");
-
-
 
 var app = builder.Build();
 

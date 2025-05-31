@@ -6,7 +6,7 @@ namespace Statistics.BusinessLogic
     public class ActivityStatsConverter
     {
 
-        public static ActivityForStats ConvertToActivityForStats(DetailedActivity activity, double? avgHeartRate)
+        public static ActivityForStats? ConvertToActivityForStats(DetailedActivity activity, double? avgHeartRate)
         {
             if (activity == null)
             {
@@ -17,6 +17,7 @@ namespace Statistics.BusinessLogic
                 Id = activity.Id,
                 StartDate = activity.StartDate,
                 ElapsedTime = activity.ElapsedTime,
+                BreakTime = activity.ElapsedTime - activity.MovingTime,
                 Distance = activity.Distance,
                 ElevationGain = activity.TotalElevationGain,
                 Type = activity.Type,
@@ -69,38 +70,40 @@ namespace Statistics.BusinessLogic
         {
             foreach(ActivityForStats activity in activities)
             {
-                activity.PredictedHR = CalcPredictedHR(activity.ActiveRecentTimeAll, activity.AverageSpeed, activity.Distance, activity.Type);
+                activity.PredictedHR = CalcPredictedHR(activity);
 
             }
 
             return activities;
         }
 
-        private static double? CalcPredictedHR(double? activeRecentAll, double? avgSpeed, double? distance, string type)
+        private static double? CalcPredictedHR(ActivityForStats activity)
         {
-            const double intercept = 4.480192e+01;
-            const double speedCoefficient = 1.326652e+01;
-            const double distanceCoefficient = 1.929494e-04;
-            const double recentTimeCoefficient = -3.813923e-05;
-            const double typeRunCoefficient = 7.925252e+01;
-            const double typeSwimCoefficient = 9.391313e+01;
+            const double intercept = 2.895563e+01;
+            const double speedCoefficient = 1.590361e+01;
+            const double distanceCoefficient = 9.037392e-06;
+            const double recentTimeCoefficient = -3.274816e-05;
+            const double typeRunCoefficient = 8.731897e+01;
+            const double typeSwimCoefficient = 1.051025e+02;
+            const double breakCoefficient = 1.296750e-02;
 
-            if (activeRecentAll == null || avgSpeed == null || distance == null)
+            if (activity.ActiveRecentTimeAll == null || activity.AverageSpeed == null || activity.Distance == null)
             {
                 return null;
             }
 
-            var typeCoefficient = type.ToLower() switch
+            var typeCoefficient = activity.Type.ToLower() switch
             {
                 "run" => typeRunCoefficient,
                 "swim" => typeSwimCoefficient,
                 _ => 1.0,// Default coefficient for rides
             };
             double predictedHR = intercept +
-                          speedCoefficient * (avgSpeed ?? 0) +
-                          distanceCoefficient * (distance ?? 0) +
-                          recentTimeCoefficient * (activeRecentAll ?? 0) +
-                          typeCoefficient;
+                          speedCoefficient * (activity.AverageSpeed ?? 0) +
+                          distanceCoefficient * (activity.Distance ?? 0) +
+                          recentTimeCoefficient * (activity.ActiveRecentTimeAll ?? 0) +
+                          typeCoefficient +
+                          breakCoefficient * (activity.BreakTime ?? 0);
 
             return predictedHR;
         }
