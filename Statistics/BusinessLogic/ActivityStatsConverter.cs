@@ -92,7 +92,7 @@ namespace Statistics.BusinessLogic
                 return null;
             }
 
-            var typeCoefficient = activity.Type.ToLower() switch
+            double typeCoefficient = activity.Type.ToLower() switch
             {
                 "run" => typeRunCoefficient,
                 "swim" => typeSwimCoefficient,
