@@ -5,7 +5,6 @@ namespace Statistics.BusinessLogic
 {
     public class ActivityStatsConverter
     {
-
         public static ActivityForStats? ConvertToActivityForStats(DetailedActivity activity, double? avgHeartRate)
         {
             if (activity == null)
@@ -68,42 +67,62 @@ namespace Statistics.BusinessLogic
 
         public static List<ActivityForStats> AddPredictedHeartRate(List<ActivityForStats> activities)
         {
-            foreach(ActivityForStats activity in activities)
+            foreach (ActivityForStats activity in activities)
             {
                 activity.PredictedHR = CalcPredictedHR(activity);
-
             }
+
+            double averageError = activities.Where(a => a.PredictedHR.HasValue && a.PredictedHR > 0 && a.AverageHeartRate.HasValue && a.AverageHeartRate > 0)
+                .Average(a => Math.Abs((double)(a.PredictedHR -(double) a.AverageHeartRate)));// todo: bring to frontend to display
 
             return activities;
         }
 
         private static double? CalcPredictedHR(ActivityForStats activity)
         {
-            const double intercept = 2.895563e+01;
-            const double speedCoefficient = 1.590361e+01;
-            const double distanceCoefficient = 9.037392e-06;
-            const double recentTimeCoefficient = -3.274816e-05;
-            const double typeRunCoefficient = 8.731897e+01;
-            const double typeSwimCoefficient = 1.051025e+02;
-            const double breakCoefficient = 1.296750e-02;
+            double intercept = 2.895563e+01;
+            double recentTimeCoefficient = -3.274816e-05;
+
+            double speedCoefficient = 1.590361e+01;
+            double distanceCoefficient = 9.037392e-06;
 
             if (activity.ActiveRecentTimeAll == null || activity.AverageSpeed == null || activity.Distance == null)
             {
                 return null;
             }
-
-            double typeCoefficient = activity.Type.ToLower() switch
+            string[] activityTypes = ["Run", "Ride", "Swim"];
+            if (!activityTypes.Contains(activity.Type))
             {
-                "run" => typeRunCoefficient,
-                "swim" => typeSwimCoefficient,
-                _ => 1.0,// Default coefficient for rides
-            };
+                return null;
+            }
+            switch (activity.Type)
+            {
+                case "Run":
+                    intercept = 1.055645e+02;
+                    recentTimeCoefficient = -1.215424e-04;
+                    speedCoefficient = 1.822356e+01;
+                    distanceCoefficient = 7.652229e-04;
+                    break;
+
+                case "Ride":
+                    intercept = 5.477113e+01;
+                    recentTimeCoefficient = 2.951486e-05;
+                    speedCoefficient = 1.191910e+01;
+                    distanceCoefficient = 0.0;
+                    break;
+
+                case "Swim":
+                    intercept = 1.362044e+02;
+                    recentTimeCoefficient = 7.808440e-04;
+                    speedCoefficient = 0.0;
+                    distanceCoefficient = 0.0;
+                    break;
+            }
+
             double predictedHR = intercept +
                           speedCoefficient * (activity.AverageSpeed ?? 0) +
                           distanceCoefficient * (activity.Distance ?? 0) +
-                          recentTimeCoefficient * (activity.ActiveRecentTimeAll ?? 0) +
-                          typeCoefficient +
-                          breakCoefficient * (activity.BreakTime ?? 0);
+                          recentTimeCoefficient * (activity.ActiveRecentTimeThisType ?? 0);
 
             return predictedHR;
         }

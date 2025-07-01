@@ -17,28 +17,32 @@ head(strava)
 strava$AverageSpeed = strava$Distance / strava$ElapsedTime
 
 strava2 <- strava[strava$Type%in%c("Run", "Ride", "Swim") & strava$AverageHeartRate > 0,]
-mod <- aov(AverageHeartRate ~ ActiveRecentTimeAll+AverageSpeed+Distance+Type+BreakTime, data= strava2)
-summary(mod)
-mod$coefficients
-plot(mod$coefficients[1] + 
-     mod$coefficients[2]*strava2$ActiveRecentTimeAll+
-       mod$coefficients[3]*strava2$AverageSpeed+
-       mod$coefficients[4]*strava2$Distance,
-     strava2$AverageHeartRate)
+# Run
+modRun <- aov(AverageHeartRate ~ ActiveRecentTimeThisType+AverageSpeed+Distance, data= strava2[strava2$Type=="Run",])
+summary(modRun)
+modRun$coefficients
+plot(modRun$coefficients[1] + 
+     modRun$coefficients[2]*strava2$ActiveRecentTimeThisType[strava2$Type == "Run"]+
+       modRun$coefficients[3]*strava2$AverageSpeed[strava2$Type == "Run"]+
+       modRun$coefficients[4]*strava2$Distance[strava2$Type == "Run"],
+     strava2$AverageHeartRate[strava2$Type == "Run"])
 
-strava2$predictedHR <- mod$coefficients[1] + 
-  mod$coefficients[2]*strava2$ActiveRecentTimeAll+
-  mod$coefficients[3]*strava2$AverageSpeed+
-  mod$coefficients[4]*strava2$Distance+
-  mod$coefficients[7]*strava2$BreakTime
+# Ride
+modRide <- aov(AverageHeartRate ~ ActiveRecentTimeThisType+AverageSpeed, data= strava2[strava2$Type=="Ride",])
+summary(modRide)
+modRide$coefficients
+plot(modRide$coefficients[1] + 
+       modRide$coefficients[2]*strava2$ActiveRecentTimeThisType[strava2$Type == "Ride"]+
+       modRide$coefficients[3]*strava2$AverageSpeed[strava2$Type == "Ride"],
+     strava2$AverageHeartRate[strava2$Type == "Ride"])
 
-strava2$predictedHR <- ifelse(strava2$Type=="Run", strava2$predictedHR+mod$coefficients[5],
-                              ifelse(strava2$Type=="Swim", strava2$predictedHR+mod$coefficients[6],
-                              strava2$predictedHR))
-
-ggplot(strava2, aes(x=predictedHR, y=AverageHeartRate))+
-  geom_point()+geom_smooth(method='lm')+geom_abline(slope = 1)
-
+# Swim
+modSwim <- aov(AverageHeartRate ~ ActiveRecentTimeThisType, data= strava2[strava2$Type=="Swim",])
+summary(modSwim)
+modSwim$coefficients
+plot(modSwim$coefficients[1] + 
+       modSwim$coefficients[2]*strava2$ActiveRecentTimeThisType[strava2$Type == "Swim"],
+     strava2$AverageHeartRate[strava2$Type == "Swim"])
 
 
 
