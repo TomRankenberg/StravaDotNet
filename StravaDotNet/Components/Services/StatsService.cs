@@ -47,11 +47,44 @@ namespace StravaDotNet.Components.Services
             activityStatsList = ActivityStatsConverter.AddPredictedHeartRate(activityStatsList);
             activityStatsList = activityStatsList
                 .Where(activityStatsList => 
-                activityStatsList.PredictedHR.HasValue && activityStatsList.PredictedHR.Value > 100 &&
+                activityStatsList.PredictedHR.HasValue && activityStatsList.PredictedHR.Value > 0 &&
                 activityStatsList.AverageHeartRate.HasValue && activityStatsList.AverageHeartRate.Value > 0)
                 .ToList();
 
             return activityStatsList;
+        }
+
+        public StatsVm CalculateSummaryStats(List<ActivityForStats> activities)
+        {
+            double[] measured = activities
+                .Where(a => a.AverageHeartRate.HasValue && a.PredictedHR.HasValue)
+                .Select(a => a.AverageHeartRate.Value)
+                .ToArray();
+            double[] predicted = activities
+                .Where(a => a.AverageHeartRate.HasValue && a.PredictedHR.HasValue)
+                .Select(a => a.PredictedHR.Value)
+                .ToArray();
+
+            if (measured.Length == 0 || predicted.Length == 0)
+            {
+                return new StatsVm();
+            }
+
+            double mse = measured.Zip(predicted, (m, p) => Math.Pow(m - p, 2)).Average();
+            double rmse = Math.Sqrt(mse);
+            double avgError = measured.Zip(predicted, (m, p) => Math.Abs(m - p)).Average();
+
+            double meanMeasured = measured.Average();
+            double ssTot = measured.Select(m => Math.Pow(m - meanMeasured, 2)).Sum();
+            double ssRes = measured.Zip(predicted, (m, p) => Math.Pow(m - p, 2)).Sum();
+            double r2 = 1 - (ssRes / ssTot);
+
+            return new StatsVm
+            {
+                RMSE = rmse,
+                R2 = r2,
+                AverageError = avgError
+            };
         }
     }
 }

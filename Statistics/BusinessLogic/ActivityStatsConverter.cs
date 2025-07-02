@@ -71,10 +71,7 @@ namespace Statistics.BusinessLogic
             {
                 activity.PredictedHR = CalcPredictedHR(activity);
             }
-
-            double averageError = activities.Where(a => a.PredictedHR.HasValue && a.PredictedHR > 0 && a.AverageHeartRate.HasValue && a.AverageHeartRate > 0)
-                .Average(a => Math.Abs((double)(a.PredictedHR -(double) a.AverageHeartRate)));// todo: bring to frontend to display
-
+            
             return activities;
         }
 
@@ -125,6 +122,18 @@ namespace Statistics.BusinessLogic
                           recentTimeCoefficient * (activity.ActiveRecentTimeThisType ?? 0);
 
             return predictedHR;
+        }
+
+        public static double CalcAvgHeartRateError(List<ActivityForStats> activities)
+        {
+            double averageError = 0.0;
+
+            IEnumerable<ActivityForStats> activitiesWithHRPrediction = activities.Where(a => a.PredictedHR.HasValue && a.PredictedHR > 0 && a.AverageHeartRate.HasValue && a.AverageHeartRate > 0);
+
+            averageError = activitiesWithHRPrediction.Average(a => Math.Abs((double)(a.PredictedHR - (double)a.AverageHeartRate)));
+
+            return averageError;
+
         }
     }
 }

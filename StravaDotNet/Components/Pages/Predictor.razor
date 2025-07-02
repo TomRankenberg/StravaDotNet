@@ -23,11 +23,21 @@
             </div>
         }
     </div>
+
+    @if (summaryStats != null)
+    {
+        <div>
+            <p>RMSE: @summaryStats.RMSE.ToString("F2")</p>
+            <p>R²: @summaryStats.R2.ToString("F3")</p>
+            <p>Average Error: @summaryStats.AverageError.ToString("F2")</p>
+        </div>
+    }
 }
 
 @code {
     private List<DetailedActivity>? myActivities;
     private List<ActivityVm>? activityVms;
+	private StatsVm? summaryStats;
     private readonly List<string> canvasIds = new()
     {
         "scatterPlotHR"
@@ -52,6 +62,8 @@
             myActivities = await dataRetrievalService.GetAllActivitiesAsync();
         }
         List<ActivityForStats> statsActivities = await StatsService.PredictStaticAsync(myActivities);
+        summaryStats = StatsService.CalculateSummaryStats(statsActivities);
+
         activityVms = activityService.ConvertStatsToVm(statsActivities);
         await InvokeAsync(StateHasChanged);
         // Load plot

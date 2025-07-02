@@ -5,8 +5,6 @@ VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StravaDotNet", "StravaDotNet\StravaDotNet.csproj", "{BDF7A0D7-FA84-4214-ABC7-BB5026D3254E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StravaDotNetTests", "StravaDotNetTests\StravaDotNetTests.csproj", "{91EDB190-E25B-445A-84E2-64E75E8C64E0}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{D9C69E2B-EE61-4F78-8947-0C64813D7D9C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManagement", "DataManagement\DataManagement.csproj", "{0A5C5E2B-2D55-481E-A324-5026110DF20B}"
@@ -23,10 +21,6 @@ Global
 		{BDF7A0D7-FA84-4214-ABC7-BB5026D3254E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDF7A0D7-FA84-4214-ABC7-BB5026D3254E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDF7A0D7-FA84-4214-ABC7-BB5026D3254E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{91EDB190-E25B-445A-84E2-64E75E8C64E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{91EDB190-E25B-445A-84E2-64E75E8C64E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{91EDB190-E25B-445A-84E2-64E75E8C64E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{91EDB190-E25B-445A-84E2-64E75E8C64E0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D9C69E2B-EE61-4F78-8947-0C64813D7D9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D9C69E2B-EE61-4F78-8947-0C64813D7D9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9C69E2B-EE61-4F78-8947-0C64813D7D9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
