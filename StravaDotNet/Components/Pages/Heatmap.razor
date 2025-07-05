@@ -2,6 +2,8 @@
 @inject HttpClient Http
 @using StravaDotNet.Components.Services
 @inject PlottingHelperService plottingHelperService
+@inject NavigationManager Navigation
+@inject AuthState AuthState
 @using DataManagement.Models
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
@@ -32,6 +34,15 @@
 <p>Number of activities plotted: @polylineCount</p>
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
+            AuthState.IsLoggedIn = isLoggedIn == "true";
+            StateHasChanged();
+        }
+    }
     private List<string> encodedLines = new List<string>();
     private int polylineCount = 0;
 

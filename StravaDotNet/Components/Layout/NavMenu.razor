@@ -1,6 +1,23 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using Services
+@inject AuthState AuthState
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
+            AuthState.IsLoggedIn = isLoggedIn == "true";
+            StateHasChanged(); // Ensure UI updates if value changes
+        }
+    }
+}
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <img src="images/api_logo_pwrdBy_strava_horiz_white.png" alt="Powered by Strava" class="w-75" />    
+        <img src="images/api_logo_pwrdBy_strava_horiz_white.png" alt="Powered by Strava" class="w-75" />
     </div>
 </div>
 
@@ -13,37 +30,39 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Fetch Data
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="heatmap">
-                <span class="bi bi-list-map-nav-menu" aria-hidden="true"></span> Heatmap
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="detailed-activity-plots">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Activity Plots
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="history">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> History
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="best-efforts">
-				<span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Best Efforts
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="predictor">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Predict Heart Rate
-            </NavLink>
-        </div>
-
+        @if (AuthState.IsLoggedIn)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="fetchdata">
+                    <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Fetch Data
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="heatmap">
+                    <span class="bi bi-list-map-nav-menu" aria-hidden="true"></span> Heatmap
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="detailed-activity-plots">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Activity Plots
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="history">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> History
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="best-efforts">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Best Efforts
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="predictor">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Predict Heart Rate
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
 

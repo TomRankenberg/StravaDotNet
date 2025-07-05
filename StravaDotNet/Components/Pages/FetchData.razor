@@ -1,10 +1,22 @@
 ﻿@page "/fetchdata"
 @using Data.Models.Strava
 @using System.Text.Json
+@using Services
+@inject NavigationManager Navigation
+@inject AuthState AuthState
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
+            AuthState.IsLoggedIn = isLoggedIn == "true";
+            StateHasChanged();
+        }
+    }
     private int userId;
     private DetailedActivity activity;
     private float? averageDistance;
@@ -71,39 +83,11 @@
 			isLoading = false;
 		}
     }
-
-    private async Task ConnectToStrava() 
-    { 
-        try { 
-            var response = await Http.GetAsync("https://localhost:7237/api/Strava/ConnectToStrava"); 
-            if (response.IsSuccessStatusCode) 
-            { 
-                var jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>(); 
-                var stravaAuthUrl = jsonResponse.Url; // Perform the redirection 
-                await JSRuntime.InvokeVoidAsync("eval", $"let _discard_ = open(`{stravaAuthUrl}`, `_blank`)");
-
-            } else { 
-                Console.WriteLine("Error calling ConnectToStrava"); 
-            } 
-        } catch (Exception ex) 
-        { 
-            Console.WriteLine($"Exception: {ex.Message}"); 
-        } 
-     }
-
-    public class JsonResponse 
-    { 
-        public string Url { get; set; } 
-    }
-
 }
 
 <div>
     <h5>Data retrieval</h5>
     <form>
-        <button type="button" style="border: none; background: none; padding: 0;" @onclick="ConnectToStrava">
-            <img src="images/btn_strava_connect_with_white.png" alt="Connect to Strava" style="height: 48px; cursor: pointer;" />
-        </button>
         <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(false)">Fetch all data</button>
         <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(true)">Fetch last month</button>
         <button type="button" class="btn btn-primary" @onclick="() => GetStreamsAsync()">Fetch data streams</button>

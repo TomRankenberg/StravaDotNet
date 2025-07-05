@@ -3,7 +3,10 @@
 @using StravaDotNet.ViewModels
 @using StravaDotNet.Components.Services
 @using MudBlazor
+@inject NavigationManager Navigation
+@inject AuthState AuthState
 @inject DetailedActivityService DetailedActivityService
+@inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
 <PageTitle>Activity History</PageTitle>
@@ -26,6 +29,15 @@
 </MudTable>
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
+            AuthState.IsLoggedIn = isLoggedIn == "true";
+            StateHasChanged();
+        }
+    }
     private List<ActivityVm> detailedActivities;
     private List<SimpleActivity> simpleActivities;
 
