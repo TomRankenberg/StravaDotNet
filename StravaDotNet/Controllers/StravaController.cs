@@ -106,7 +106,7 @@ namespace StravaDotNet.Controllers
             }
         }
 
-        public async Task<IActionResult> GetActivityById(long? activityId)
+        private async Task<IActionResult> GetActivityById(long? activityId)
         {
             if (Token == null)
             {
@@ -173,7 +173,7 @@ namespace StravaDotNet.Controllers
             return Ok();
         }
 
-        public async Task<IActionResult> GetStreamsForActivity(long? activityId)
+        private async Task<IActionResult> GetStreamsForActivity(long? activityId)
         {
             if (Token == null)
             {
@@ -265,10 +265,23 @@ namespace StravaDotNet.Controllers
                 }
             }
 
-            return Ok();
+            // Return HTML that closes the window
+            string html = @"
+                <html>
+                    <head>
+                        <title>Strava Authentication</title>
+                    </head>
+                    <body>
+                        <script>
+                            window.close();
+                        </script>
+                        <p>You can close this window.</p>
+                    </body>
+                </html>";
+            return Content(html, "text/html");
         }
 
-        public async Task<AccessToken> GetAccessTokenAsync(string authorizationCode)
+        private static async Task<AccessToken?> GetAccessTokenAsync(string authorizationCode)
         {
             var client = new HttpClient();
             var tokenRequest = new FormUrlEncodedContent(
