@@ -1,3 +1,4 @@
+using System.Globalization;
 using Data.Models.Strava;
 using DataManagement.Models;
 using Newtonsoft.Json;
@@ -14,8 +15,8 @@ namespace StravaDotNet.Components.Services
         {
             var data = items.Select(item => new
             {
-                x = xSelector(item),
-                y = Math.Round((decimal)ySelector(item), 2),
+                x = ((float)xSelector(item)).ToString(format: "F2", CultureInfo.CreateSpecificCulture("en-GB")),
+                y = ((double)ySelector(item)).ToString(format:"F2", CultureInfo.CreateSpecificCulture("en-GB")),
                 color = colorSelector(item),
                 date = dateSelector(item)
             }).ToList();

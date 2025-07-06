@@ -17,37 +17,25 @@
             StateHasChanged();
         }
     }
-    private int userId;
-    private DetailedActivity activity;
-    private float? averageDistance;
-    private float? averageSpeed;
     private bool isLoading = false;
     private bool isDataLoaded = false;
 
-    private async Task GetActivitiesAsync(bool lastMonthOnly)
+    private async Task GetActivitiesAsync(int daysToRetrieve)
     {
         isLoading = true;
         isDataLoaded = false;
         string requestUri = "https://localhost:7237/api/Strava/GetActivitiesAsync";
-		if (lastMonthOnly)
+        if (daysToRetrieve > 0)
 		{
-			DateTime oneMonthAgo = DateTime.Now.AddMonths(-1);
-            int secondsAfter = (int)oneMonthAgo.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            DateTime dateCutoff = DateTime.Now.AddDays(-daysToRetrieve);
+            int secondsAfter = (int)dateCutoff.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
 
 			requestUri += $"?after={secondsAfter}";
 		}
         try
         {
-            var response = await Http.GetAsync(requestUri);
-            
+            var response = await Http.GetAsync(requestUri);            
             List<DetailedActivity> activities = await response.Content.ReadFromJsonAsync<List<DetailedActivity>>();
-
-            if (activities != null && activities.Count > 10)
-            {
-                activity = activities[0];
-                averageDistance = activities.Where(a => a.Type == "Run").Take(10).Average(b => b.Distance) / 1000;
-                averageSpeed = activities.Where(a => a.Type == "Run").Take(10).Average(b => b.AverageSpeed) * 3.6f;
-            }
             isDataLoaded = true;
         }
         catch (Exception ex)
@@ -88,8 +76,9 @@
 <div>
     <h5>Data retrieval</h5>
     <form>
-        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(false)">Fetch all data</button>
-        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(true)">Fetch last month</button>
+        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(-1)">Fetch all data</button>
+        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(30)">Fetch last month</button>
+        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(7)">Fetch last week</button>
         <button type="button" class="btn btn-primary" @onclick="() => GetStreamsAsync()">Fetch data streams</button>
     </form>
 
@@ -100,16 +89,5 @@
     else if (isDataLoaded)
     {
         <h5>Activities retrieved!</h5>
-        <div>            
-            <h6>Average of last ten runs</h6>
-            <p><strong>Distance:</strong> @averageDistance km</p>
-            <p><strong>Speed:</strong> @averageSpeed km/h</p>
-        </div>
-        <div>
-            <h6>Last activity Details</h6>
-            <p><strong>Name:</strong> @activity.Name</p>
-            <p><strong>Type:</strong> @activity.Type</p>
-            <p><strong>Duration:</strong> @activity.ElapsedTime</p>
-        </div>
     }
 </div>

@@ -214,7 +214,7 @@ namespace StravaDotNet.Controllers
         public IActionResult ConnectToStrava()
         {
             string clientId = "144414";
-            string redirectUri = "https://localhost:7237/api/Strava/StravaCallback"; // Your specific callback endpoint
+            string redirectUri = "https://localhost:7237/api/Strava/StravaCallback";
             string state = Guid.NewGuid().ToString();
 
             var stravaAuthUrl = $"https://www.strava.com/oauth/authorize?client_id={clientId}&response_type=code&redirect_uri={redirectUri}&scope=read,activity:read_all&state={state}";
