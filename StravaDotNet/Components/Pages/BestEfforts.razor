@@ -4,10 +4,10 @@
 @using StravaDotNet.Components.Services
 @inject DataRetrievalService dataRetrievalService
 @inject PlottingHelperService plottingHelperService
+@inject NavigationManager Navigation
+@inject AuthState AuthState
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
-
-<h3>Best Efforts</h3>
 
 <form class="load-data-form">
     <button type="button" class="btn btn-secondary" margin-right:30px @onclick="LoadData">Load Data</button>
@@ -25,6 +25,7 @@
 }
 
 @code {
+
     private List<DetailedSegmentEffort>? detailedEfforts;
     private bool isDataLoaded = false;
     private readonly List<string> distances = new() { "400m", "1K", "2 mile", "5K", "10K", "15K" };
@@ -39,6 +40,12 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
+            AuthState.IsLoggedIn = isLoggedIn == "true";
+            StateHasChanged();
+        }
         if (isDataLoaded)
         {
             foreach (var distance in distances)

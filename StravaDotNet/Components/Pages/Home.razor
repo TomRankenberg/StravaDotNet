@@ -1,7 +1,46 @@
 ﻿@page "/"
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@using Services
+@inject AuthState AuthState
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<form>
+    <button type="button" style="border: none; background: none; padding: 0;" @onclick="ConnectToStrava">
+        <img src="images/btn_strava_connect_with_white.png" alt="Connect to Strava" style="height: 48px; cursor: pointer;" />
+    </button>
+</form>
 
-Welcome to your new app.
+@code {
+    private async Task ConnectToStrava()
+    {
+        try
+        {
+            var response = await Http.GetAsync("https://localhost:7237/api/Strava/ConnectToStrava");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>();
+                var stravaAuthUrl = jsonResponse.Url; // Perform the redirection
+                await JSRuntime.InvokeVoidAsync("eval", $"let _discard_ = open(`{stravaAuthUrl}`, `_blank`)");
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "true");
+                AuthState.IsLoggedIn = true;
+
+            }
+            else
+            {
+                Console.WriteLine("Error calling ConnectToStrava");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
+    }
+
+    public class JsonResponse
+    {
+        public string Url { get; set; }
+    }
+}

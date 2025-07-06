@@ -3,12 +3,13 @@
 @using StravaDotNet.ViewModels
 @using Newtonsoft.Json
 @using StravaDotNet.Components.Services
+@inject PlottingHelperService plottingHelperService
+@inject NavigationManager Navigation
+@inject AuthState AuthState
 @inject DataRetrievalService dataRetrievalService
 @inject PlottingHelperService plottingHelperService
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
-
-<h3>Detailed Activity Plots</h3>
 
 <form class="load-data-form">
     <button type="button" class="btn btn-secondary" margin-right:30px @onclick="LoadData">Load Data</button>
@@ -26,6 +27,15 @@
 }
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
+            AuthState.IsLoggedIn = isLoggedIn == "true";
+            StateHasChanged();
+        }
+    }
     private List<ActivityVm>? activityVms;
     private readonly List<string> canvasIds = new()
     {
