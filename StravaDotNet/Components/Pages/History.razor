@@ -15,18 +15,23 @@
     <button type="button" class="btn btn-secondary" style="margin-right:30px;" @onclick="LoadData">Load Data</button>
 </form>
 
-<MudTable Items="simpleActivities" Hover="true">
-    <HeaderContent>
-        <MudTh>Type</MudTh>
-        <MudTh>Date</MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd>
-            <MudIcon Icon="@GetIcon(context.Type)" />
-        </MudTd>
-        <MudTd>@context.StartDate.ToString("dd/MM/yyyy")</MudTd>
-    </RowTemplate>
-</MudTable>
+<MudTimeline Reverse="true">
+    @if (simpleActivities != null)
+    {
+        foreach (var activity in simpleActivities)
+        {
+            <MudTimelineItem>
+                <ChildContent>
+                    <MudPaper Class="pa-2 d-flex align-items-center">
+                        <MudIcon Icon="@GetIcon(activity.Type)" Class="me-2 timeline-icon-small" />
+                        <span class="me-3">@activity.StartDate.ToString("dd/MM/yyyy")</span>
+                        <span>@activity.Distance</span>
+                    </MudPaper>
+                </ChildContent>
+            </MudTimelineItem>
+        }
+    }
+</MudTimeline>
 
 @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -52,7 +57,10 @@
                 simpleActivities.Add(new SimpleActivity
                     {
                         Type = activity.Activity.Type,
-                        StartDate = activity.Activity.StartDate.Value
+                        StartDate = activity.Activity.StartDate.Value,
+						Distance = activity.Activity.Distance.HasValue
+								? $"{(activity.Activity.Distance.Value / 1000):F2} km"
+								: "N/A"
                     });
             }
         }
@@ -74,5 +82,13 @@
     {
         public string Type { get; set; }
         public DateTime StartDate { get; set; }
-    }
+		public string Distance { get; set; }
+	}
 }
+<style>
+    .timeline-icon-small {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+    }
+</style>
