@@ -15,23 +15,34 @@
     <button type="button" class="btn btn-secondary" style="margin-right:30px;" @onclick="LoadData">Load Data</button>
 </form>
 
-<MudTimeline Reverse="true">
-    @if (simpleActivities != null)
-    {
-        foreach (var activity in simpleActivities)
+
+@foreach (var week in CalendarWeeks.AsEnumerable().Reverse())
+{
+    <div class="week-row" style="display: flex;">
+        @foreach (var day in week.Days)
         {
-            <MudTimelineItem>
-                <ChildContent>
-                    <MudPaper Class="pa-2 d-flex align-items-center">
-                        <MudIcon Icon="@GetIcon(activity.Type)" Class="me-2 timeline-icon-small" />
-                        <span class="me-3">@activity.StartDate.ToString("dd/MM/yyyy")</span>
-                        <span>@activity.Distance</span>
-                    </MudPaper>
-                </ChildContent>
-            </MudTimelineItem>
+            <div class="day-cell" style="flex: 1 0 14.2857%; padding: 4px;">
+                <MudPaper Class="calendar-day pa-2">
+                    @if (day.Date != DateTime.MinValue)
+                    {
+                        <span>@day.Date.ToString("dd-MM-y")</span>
+                        @foreach (var activity in day.Activities)
+                        {
+                            <MudChip T="string" Color="Color.Info" Class="mt-1">
+                                @($"{activity.Distance} {activity.Type.ToLower()}")
+                            </MudChip>
+                        }
+                    }
+                </MudPaper>
+            </div>
         }
-    }
-</MudTimeline>
+    </div>
+}
+
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@LoadMoreMonths">
+    Load More
+</MudButton>
 
 @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -45,16 +56,21 @@
     }
     private List<ActivityVm> detailedActivities;
     private List<SimpleActivity> simpleActivities;
+    @code {
+        DateTime StartMonth = DateTime.Now.AddMonths(-3); // Four months back
+        DateTime EndMonth = DateTime.Now;
 
+        List<CalendarWeek> CalendarWeeks = new();
+        }
     private async Task LoadData()
     {
-        detailedActivities = await DetailedActivityService.GetDetailedActivityVmsAsync();
-        simpleActivities = new List<SimpleActivity>();
-        foreach (ActivityVm activity in detailedActivities)
+    detailedActivities = await DetailedActivityService.GetDetailedActivityVmsAsync();
+    simpleActivities = new List<SimpleActivity>();
+    foreach (ActivityVm activity in detailedActivities)
+    {
+        if (activity.Activity.StartDate.HasValue && activity.Activity.Type != null)
         {
-            if (activity.Activity.StartDate.HasValue && activity.Activity.Type != null)
-            {
-                simpleActivities.Add(new SimpleActivity
+            simpleActivities.Add(new SimpleActivity
                     {
                         Type = activity.Activity.Type,
                         StartDate = activity.Activity.StartDate.Value,
@@ -62,9 +78,25 @@
 								? $"{(activity.Activity.Distance.Value / 1000):F2} km"
 								: "N/A"
                     });
-            }
         }
-		simpleActivities = simpleActivities.OrderByDescending(x => x.StartDate).ToList();
+    }
+    simpleActivities = simpleActivities.OrderByDescending(x => x.StartDate).ToList();
+	LoadCalendar();
+    }
+    void LoadCalendar()
+    {
+        CalendarWeeks.Clear();
+
+        for (var date = StartMonth; date <= EndMonth; date = date.AddMonths(1))
+        {
+            var monthWeeks = GetCalendarWeeks(date.Year, date.Month, simpleActivities);
+            CalendarWeeks.AddRange(monthWeeks);
+        }
+    }
+    void LoadMoreMonths()
+    {
+        StartMonth = StartMonth.AddMonths(-1); // Expand the range
+        LoadCalendar();
     }
 
     private string GetIcon(string type)
@@ -82,13 +114,81 @@
     {
         public string Type { get; set; }
         public DateTime StartDate { get; set; }
-		public string Distance { get; set; }
+        public string Distance { get; set; }
 	}
+
+    private class CalendarDay
+    {
+        public DateTime Date { get; set; }
+        public List<SimpleActivity> Activities { get; set; } = new();
+    }
+
+    private class CalendarWeek
+    {
+        public List<CalendarDay> Days { get; set; } = new();
+    }
+
+    List<CalendarWeek> GetCalendarWeeks(int year, int month, List<SimpleActivity> activities)
+    {
+        var firstDay = new DateTime(year, month, 1);
+        int daysInMonth = DateTime.DaysInMonth(year, month);
+        List<CalendarWeek> weeks = [];
+        CalendarWeek currentWeek = new();
+
+        // Pad days before the first day of the month
+        int padStart = ((int)firstDay.DayOfWeek + 6) % 7; // Monday=0, Sunday=6
+        for (int i = 0; i < padStart; i++)
+        {
+            currentWeek.Days.Add(new CalendarDay { Date = DateTime.MinValue, Activities = new() });
+        }
+
+        for (int day = 1; day <= daysInMonth; day++)
+        {
+            DateTime date = new(year, month, day);
+            CalendarDay calendarDay = new()
+                    {
+                        Date = date,
+                        Activities = activities.Where(a => a.StartDate.Date == date.Date).ToList()
+                    };
+            currentWeek.Days.Add(calendarDay);
+
+            if (currentWeek.Days.Count == 7)
+            {
+                weeks.Add(currentWeek);
+                currentWeek = new CalendarWeek();
+            }
+        }
+
+        // Pad days after the last day of the month
+        if (currentWeek.Days.Count > 0)
+        {
+            while (currentWeek.Days.Count < 7)
+            {
+                currentWeek.Days.Add(new CalendarDay { Date = DateTime.MinValue, Activities = new() });
+            }
+            weeks.Add(currentWeek);
+        }
+
+        return weeks;
+    }
+
 }
 <style>
-    .timeline-icon-small {
-        font-size: 32px;
-        width: 32px;
-        height: 32px;
+
+        .calendar-day {
+    min-height: 120px;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 4px;
+    background-color: white;
+}
+
+    .week-row {
+        display: flex;
     }
+
+    .day-cell {
+        flex: 1 0 14.2857%;
+        padding: 4px;
+    }
+
 </style>
