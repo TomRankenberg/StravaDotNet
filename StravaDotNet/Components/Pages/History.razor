@@ -16,7 +16,7 @@
 </form>
 
 
-@foreach (var week in CalendarWeeks.AsEnumerable().Reverse())
+@foreach (CalendarWeek week in calendarWeeks.AsEnumerable().Reverse())
 {
     <div class="week-row" style="display: flex;">
         @foreach (var day in week.Days)
@@ -39,12 +39,21 @@
     </div>
 }
 
-
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@LoadMoreMonths">
-    Load More
-</MudButton>
+@if (isLoaded)
+{
+    <form>
+        <button type="button" class="btn btn-secondary" style="margin-right:30px;" @onclick="LoadMoreMonths">Load More</button>
+    </form>
+}
 
 @code {
+    private bool isLoaded = false;
+    private List<ActivityVm>? detailedActivities;
+    private List<SimpleActivity>? simpleActivities;
+    private DateTime startMonth = DateTime.Now.AddMonths(-3); // Four months back
+    private DateTime endMonth = DateTime.Now;
+    List<CalendarWeek> calendarWeeks = new();
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -54,84 +63,52 @@
             StateHasChanged();
         }
     }
-    private List<ActivityVm> detailedActivities;
-    private List<SimpleActivity> simpleActivities;
-    @code {
-        DateTime StartMonth = DateTime.Now.AddMonths(-3); // Four months back
-        DateTime EndMonth = DateTime.Now;
 
-        List<CalendarWeek> CalendarWeeks = new();
-        }
     private async Task LoadData()
     {
-    detailedActivities = await DetailedActivityService.GetDetailedActivityVmsAsync();
-    simpleActivities = new List<SimpleActivity>();
-    foreach (ActivityVm activity in detailedActivities)
-    {
-        if (activity.Activity.StartDate.HasValue && activity.Activity.Type != null)
+        detailedActivities = await DetailedActivityService.GetDetailedActivityVmsAsync();
+        simpleActivities = new List<SimpleActivity>();
+        foreach (ActivityVm activity in detailedActivities)
         {
-            simpleActivities.Add(new SimpleActivity
-                    {
-                        Type = activity.Activity.Type,
-                        StartDate = activity.Activity.StartDate.Value,
-						Distance = activity.Activity.Distance.HasValue
-								? $"{(activity.Activity.Distance.Value / 1000):F2} km"
-								: "N/A"
-                    });
+            if (activity.Activity.StartDate.HasValue && activity.Activity.Type != null)
+            {
+                simpleActivities.Add(new SimpleActivity
+                        {
+                            Type = activity.Activity.Type,
+                            StartDate = activity.Activity.StartDate.Value,
+						    Distance = activity.Activity.Distance.HasValue
+								    ? $"{(activity.Activity.Distance.Value / 1000):F2} km"
+								    : "N/A"
+                        });
+            }
         }
+        simpleActivities = simpleActivities.OrderByDescending(x => x.StartDate).ToList();
+	    LoadCalendar();
+        isLoaded = true;
     }
-    simpleActivities = simpleActivities.OrderByDescending(x => x.StartDate).ToList();
-	LoadCalendar();
-    }
+
     void LoadCalendar()
     {
-        CalendarWeeks.Clear();
+        calendarWeeks.Clear();
 
-        for (var date = StartMonth; date <= EndMonth; date = date.AddMonths(1))
+        for (var date = startMonth; date <= endMonth; date = date.AddMonths(1))
         {
             var monthWeeks = GetCalendarWeeks(date.Year, date.Month, simpleActivities);
-            CalendarWeeks.AddRange(monthWeeks);
+            calendarWeeks.AddRange(monthWeeks);
         }
     }
+
     void LoadMoreMonths()
     {
-        StartMonth = StartMonth.AddMonths(-1); // Expand the range
+        startMonth = startMonth.AddMonths(-1); // Expand the range
         LoadCalendar();
-    }
-
-    private string GetIcon(string type)
-    {
-        return type switch
-        {
-            "Run" => Icons.Material.Filled.DirectionsRun,
-            "Ride" => Icons.Material.Filled.DirectionsBike,
-            "Swim" => Icons.Material.Filled.Pool,
-            _ => Icons.Material.Filled.Help
-        };
-    }
-
-    private class SimpleActivity
-    {
-        public string Type { get; set; }
-        public DateTime StartDate { get; set; }
-        public string Distance { get; set; }
-	}
-
-    private class CalendarDay
-    {
-        public DateTime Date { get; set; }
-        public List<SimpleActivity> Activities { get; set; } = new();
-    }
-
-    private class CalendarWeek
-    {
-        public List<CalendarDay> Days { get; set; } = new();
     }
 
     List<CalendarWeek> GetCalendarWeeks(int year, int month, List<SimpleActivity> activities)
     {
         var firstDay = new DateTime(year, month, 1);
         int daysInMonth = DateTime.DaysInMonth(year, month);
+        DateTime lastDay = (year == DateTime.Today.Year && month == DateTime.Today.Month) ? DateTime.Today : new DateTime(year, month, daysInMonth);
         List<CalendarWeek> weeks = [];
         CalendarWeek currentWeek = new();
 
@@ -151,36 +128,56 @@
                         Activities = activities.Where(a => a.StartDate.Date == date.Date).ToList()
                     };
             currentWeek.Days.Add(calendarDay);
-
-            if (currentWeek.Days.Count == 7)
+            bool isLastDay = date == lastDay;
+            if (currentWeek.Days.Count == 7 || isLastDay)
             {
+                // Pad the last week if it's not full and we're at the last day
+                if (isLastDay && currentWeek.Days.Count < 7)
+                {
+                    while (currentWeek.Days.Count < 7)
+                    {
+                        currentWeek.Days.Add(new CalendarDay { Date = DateTime.MinValue, Activities = new() });
+                    }
+                }
                 weeks.Add(currentWeek);
                 currentWeek = new CalendarWeek();
-            }
-        }
 
-        // Pad days after the last day of the month
-        if (currentWeek.Days.Count > 0)
-        {
-            while (currentWeek.Days.Count < 7)
-            {
-                currentWeek.Days.Add(new CalendarDay { Date = DateTime.MinValue, Activities = new() });
+                // Stop if we've reached the last day to include
+                if (isLastDay)
+                    break;
             }
-            weeks.Add(currentWeek);
         }
 
         return weeks;
     }
 
+    private class SimpleActivity
+    {
+        public string Type { get; set; }
+        public DateTime StartDate { get; set; }
+        public string Distance { get; set; }
+    }
+
+    private class CalendarDay
+    {
+        public DateTime Date { get; set; }
+        public List<SimpleActivity> Activities { get; set; } = new();
+    }
+
+    private class CalendarWeek
+    {
+        public List<CalendarDay> Days { get; set; } = new();
+    }
+
 }
 <style>
 
-        .calendar-day {
-    min-height: 120px;
-    border: 1px solid rgba(0,0,0,0.12);
-    border-radius: 4px;
-    background-color: white;
-}
+    .calendar-day {
+        min-height: 120px;
+        border: 1px solid rgba(0,0,0,0.12);
+        border-radius: 4px;
+        background-color: white;
+    }
 
     .week-row {
         display: flex;
