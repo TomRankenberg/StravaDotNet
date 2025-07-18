@@ -6,9 +6,24 @@ namespace StravaDotNet.Components.Services
 {
     public class DetailedActivityService(HttpClient httpClient)
     {
-        public async Task<List<ActivityVm>?> GetDetailedActivityVmsAsync()
+        public async Task<List<ActivityVm>?> GetDetailedActivityVmsAsync(DateTime? from = null, DateTime? to = null)
         {
-            List<ActivityVm>? activityVms = await httpClient.GetFromJsonAsync<List<ActivityVm>>("api/detailedactivities/GetActivityVms");
+            string url = "api/detailedactivities/GetActivityVms";
+            var queryParams = new List<string>();
+            if (from.HasValue)
+            {
+                queryParams.Add($"from={from.Value:yyyy-MM-dd}");
+            }
+            if (to.HasValue)
+            {
+                queryParams.Add($"to={to.Value:yyyy-MM-dd}");
+            }
+            if (queryParams.Count > 0)
+            {
+                url += "?" + string.Join("&", queryParams);
+            }
+
+            List<ActivityVm>? activityVms = await httpClient.GetFromJsonAsync<List<ActivityVm>>(url);
             if (activityVms == null)
             {
                 return null;

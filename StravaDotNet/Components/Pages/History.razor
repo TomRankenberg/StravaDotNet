@@ -11,11 +11,6 @@
 
 <PageTitle>Activity History</PageTitle>
 
-<form>
-    <button type="button" class="btn btn-secondary" style="margin-right:30px;" @onclick="LoadData">Load Data</button>
-</form>
-
-
 @foreach (CalendarWeek week in calendarWeeks.AsEnumerable().Reverse())
 {
     <div class="week-row" style="display: flex;">
@@ -28,7 +23,7 @@
                         <span>@day.Date.ToString("dd-MM-y")</span>
                         @foreach (var activity in day.Activities)
                         {
-                            <MudChip T="string" Color="Color.Info" Class="mt-1">
+                            <MudChip T="string" Color=@GetChipColor(activity.Type) Variant="Variant.Filled" Class="mt-1">
                                 @($"{activity.Distance} {activity.Type.ToLower()}")
                             </MudChip>
                         }
@@ -60,14 +55,31 @@
         {
             var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
             AuthState.IsLoggedIn = isLoggedIn == "true";
+            await LoadData();
             StateHasChanged();
         }
     }
 
+    private static MudBlazor.Color GetChipColor(string activityType)
+    {
+        return activityType switch
+        {
+            "Run" => Color.Primary,
+            "Ride" => Color.Secondary,
+            "Swim" => Color.Success,
+            _ => Color.Default
+        };
+	}
+
     private async Task LoadData()
     {
-        detailedActivities = await DetailedActivityService.GetDetailedActivityVmsAsync();
+        detailedActivities = await DetailedActivityService.GetDetailedActivityVmsAsync(startMonth, endMonth);
         simpleActivities = new List<SimpleActivity>();
+        if (detailedActivities == null || !detailedActivities.Any())
+        {
+            isLoaded = true;
+            return;
+		};
         foreach (ActivityVm activity in detailedActivities)
         {
             if (activity.Activity.StartDate.HasValue && activity.Activity.Type != null)
@@ -142,7 +154,6 @@
                 weeks.Add(currentWeek);
                 currentWeek = new CalendarWeek();
 
-                // Stop if we've reached the last day to include
                 if (isLastDay)
                     break;
             }

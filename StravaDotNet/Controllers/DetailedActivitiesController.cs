@@ -11,15 +11,27 @@ namespace StravaDotNet.Controllers
     {
         [HttpGet]
         [Route("GetActivityVms")]
-        public ActionResult<List<ActivityVm>> GetActivityVms()
+        public ActionResult<List<ActivityVm>> GetActivityVms([FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
         {
+            var query = context.Activities.AsQueryable();
+
+            if (from.HasValue)
+            {
+                query = query.Where(a => a.StartDate.HasValue && a.StartDate.Value >= from.Value);
+            }
+
+            if (to.HasValue)
+            {
+                query = query.Where(a => a.StartDate.HasValue && a.StartDate.Value <= to.Value);
+            }
+
             List<ActivityVm> activityVms = [];
-            foreach (DetailedActivity activity in context.Activities)
+            foreach (DetailedActivity activity in query)
             {
                 ActivityVm activityVm = new()
                 {
                     Activity = activity,
-                    AverageHeartRate = 0 // Placeholder for average heart rate calculation
+                    AverageHeartRate = 0 // Placeholder
                 };
                 activityVms.Add(activityVm);
             }
