@@ -37,7 +37,7 @@
 @if (isLoaded)
 {
     <form>
-        <button type="button" class="btn btn-secondary" style="margin-right:30px;" @onclick="LoadMoreMonths">Load More</button>
+        <button type="button" class="btn btn-secondary" style="margin-right:30px;" @onclick="LoadMoreWeeks">Load More</button>
     </form>
 }
 
@@ -45,8 +45,8 @@
     private bool isLoaded = false;
     private List<ActivityVm>? detailedActivities;
     private List<SimpleActivity>? simpleActivities;
-    private DateTime startMonth = DateTime.Now.AddMonths(-3); // Four months back
-    private DateTime endMonth = DateTime.Now;
+    private DateTime startDay = DateTime.Now.AddDays(-8 * 7); // Eight weeks back
+    private DateTime endDay = DateTime.Now;
     List<CalendarWeek> calendarWeeks = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -69,7 +69,7 @@
             "Swim" => Color.Success,
             _ => Color.Default
         };
-	}
+    }
 
     private static string GetBackgroundColor(List<SimpleActivity> activities)
     {
@@ -86,13 +86,13 @@
 
     private async Task LoadData()
     {
-        detailedActivities = await DetailedActivityService.GetDetailedActivityVmsAsync(startMonth, endMonth);
+        detailedActivities = await DetailedActivityService.GetDetailedActivityVmsAsync(startDay, endDay);
         simpleActivities = new List<SimpleActivity>();
         if (detailedActivities == null || !detailedActivities.Any())
         {
             isLoaded = true;
             return;
-		};
+        };
         foreach (ActivityVm activity in detailedActivities)
         {
             if (activity.Activity.StartDate.HasValue && activity.Activity.Type != null)
@@ -108,7 +108,7 @@
             }
         }
         simpleActivities = simpleActivities.OrderByDescending(x => x.StartDate).ToList();
-	    LoadCalendar();
+        LoadCalendar();
         isLoaded = true;
     }
 
@@ -116,59 +116,68 @@
     {
         calendarWeeks.Clear();
 
-        for (var date = startMonth; date <= endMonth; date = date.AddMonths(1))
-        {
-            var monthWeeks = GetCalendarWeeks(date.Year, date.Month, simpleActivities);
-            calendarWeeks.AddRange(monthWeeks);
-        }
+        var monthWeeks = GetCalendarWeeks(simpleActivities);
+        calendarWeeks.AddRange(monthWeeks);
+		StateHasChanged();
     }
 
-    void LoadMoreMonths()
+    async Task LoadMoreWeeks()
     {
-        startMonth = startMonth.AddMonths(-1); // Expand the range
+        startDay = startDay.AddDays(-2 * 7); // Expand the range
+		List<ActivityVm>? newActivities = await DetailedActivityService.GetDetailedActivityVmsAsync(startDay, endDay);
+        var newSimpleActivities = newActivities.Select(a => new SimpleActivity
+        {
+            Type = a.Activity.Type,
+            StartDate = a.Activity.StartDate.Value,
+            Distance = a.Activity.Distance.HasValue
+                ? $"{(a.Activity.Distance.Value / 1000):F2} km"
+                : "N/A"
+        }).ToList();
+
+        // Avoid duplicates based on unique properties
+        foreach (var activity in newSimpleActivities)
+        {
+            if (!simpleActivities.Any(a => a.StartDate == activity.StartDate && a.Type == activity.Type))
+            {
+                simpleActivities.Add(activity);
+            }
+        }
+
         LoadCalendar();
     }
 
-    List<CalendarWeek> GetCalendarWeeks(int year, int month, List<SimpleActivity> activities)
+    List<CalendarWeek> GetCalendarWeeks(List<SimpleActivity> activities)
     {
-        var firstDay = new DateTime(year, month, 1);
-        int daysInMonth = DateTime.DaysInMonth(year, month);
-        DateTime lastDay = (year == DateTime.Today.Year && month == DateTime.Today.Month) ? DateTime.Today : new DateTime(year, month, daysInMonth);
-        List<CalendarWeek> weeks = [];
+        if (activities.Count == 0)
+            return new List<CalendarWeek>();
+
+        var startDate = activities.Min(a => a.StartDate.Date);
+        var endDate = activities.Max(a => a.StartDate.Date);
+
+        // Align start date to previous Monday and end date to next Sunday
+        int padStart = ((int)startDate.DayOfWeek + 6) % 7; // Monday = 0
+        int padEnd = 6 - ((int)endDate.DayOfWeek + 6) % 7;
+
+        startDate = startDate.AddDays(-padStart);
+        endDate = endDate.AddDays(padEnd);
+
+        List<CalendarWeek> weeks = new();
         CalendarWeek currentWeek = new();
 
-        // Pad days before the first day of the month
-        int padStart = ((int)firstDay.DayOfWeek + 6) % 7; // Monday=0, Sunday=6
-        for (int i = 0; i < padStart; i++)
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
         {
-            currentWeek.Days.Add(new CalendarDay { Date = DateTime.MinValue, Activities = new() });
-        }
+            var dayActivities = activities.Where(a => a.StartDate.Date == date).ToList();
 
-        for (int day = 1; day <= daysInMonth; day++)
-        {
-            DateTime date = new(year, month, day);
-            CalendarDay calendarDay = new()
-                    {
-                        Date = date,
-                        Activities = activities.Where(a => a.StartDate.Date == date.Date).ToList()
-                    };
-            currentWeek.Days.Add(calendarDay);
-            bool isLastDay = date == lastDay;
-            if (currentWeek.Days.Count == 7 || isLastDay)
+            currentWeek.Days.Add(new CalendarDay
             {
-                // Pad the last week if it's not full and we're at the last day
-                if (isLastDay && currentWeek.Days.Count < 7)
-                {
-                    while (currentWeek.Days.Count < 7)
-                    {
-                        currentWeek.Days.Add(new CalendarDay { Date = DateTime.MinValue, Activities = new() });
-                    }
-                }
+                Date = date,
+                Activities = dayActivities
+            });
+
+            if (currentWeek.Days.Count == 7)
+            {
                 weeks.Add(currentWeek);
                 currentWeek = new CalendarWeek();
-
-                if (isLastDay)
-                    break;
             }
         }
 
@@ -200,7 +209,7 @@
         min-height: 120px;
         border: 1px solid rgba(0,0,0,0.12);
         border-radius: 4px;
-        background-color: blueviolet;
+        background-color: white;
     }
 
     .week-row {
