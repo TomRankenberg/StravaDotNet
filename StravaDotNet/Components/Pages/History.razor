@@ -17,7 +17,7 @@
         @foreach (var day in week.Days)
         {
             <div class="day-cell" style="flex: 1 0 14.2857%; padding: 4px;">
-                <MudPaper Class="calendar-day pa-2">
+                <MudPaper Class="calendar-day pa-2" Style="@GetBackgroundColor(day.Activities)">
                     @if (day.Date != DateTime.MinValue)
                     {
                         <span>@day.Date.ToString("dd-MM-y")</span>
@@ -64,12 +64,25 @@
     {
         return activityType switch
         {
-            "Run" => Color.Primary,
-            "Ride" => Color.Secondary,
+            "Run" => Color.Secondary,
+            "Ride" => Color.Primary,
             "Swim" => Color.Success,
             _ => Color.Default
         };
 	}
+
+    private static string GetBackgroundColor(List<SimpleActivity> activities)
+    {
+        var firstType = activities.FirstOrDefault()?.Type?.ToLower();
+        return firstType switch
+        {
+            "run" => "background-color: lightcoral;",
+            "ride" => "background-color: lightblue;",
+            "swim" => "background-color: lightseagreen;",
+            null => "background-color: lightgray;",
+            _ => "background-color: white;"
+        };
+    }
 
     private async Task LoadData()
     {
@@ -187,7 +200,7 @@
         min-height: 120px;
         border: 1px solid rgba(0,0,0,0.12);
         border-radius: 4px;
-        background-color: white;
+        background-color: blueviolet;
     }
 
     .week-row {
