@@ -1,10 +1,10 @@
-﻿using Data.Models.Strava;
+﻿using Contracts.DTOs;
 
 namespace StravaDotNet.ViewModels
 {
     public class ActivityVm
     {
-        public DetailedActivity? Activity { get; set; }
+        public ActivityDTO? Activity { get; set; }
         public double AverageHeartRate { get; set; }
         public double? PredictedHR { get; set; }
     }

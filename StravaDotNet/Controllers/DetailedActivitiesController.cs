@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Data.Context;
 using StravaDotNet.ViewModels;
 using Data.Models.Strava;
+using DataManagement.BusinessLogic;
+using Contracts.DTOs;
 
 namespace StravaDotNet.Controllers
 {
@@ -31,7 +33,7 @@ namespace StravaDotNet.Controllers
             {
                 ActivityVm activityVm = new()
                 {
-                    Activity = activity,
+                    Activity = Mappers.MapToActivityDto(activity),
                     AverageHeartRate = 0 // Placeholder
                 };
                 activityVms.Add(activityVm);
@@ -41,12 +43,13 @@ namespace StravaDotNet.Controllers
 
         [HttpGet]
         [Route("GetAllActivities")]
-        public ActionResult<List<DetailedActivity>> GetAllActivities()
+        public ActionResult<List<ActivityDTO>> GetAllActivities()
         {
-            List<DetailedActivity> activities = [];
+            List<ActivityDTO> activities = [];
             foreach (DetailedActivity activity in context.Activities)
             {
-                activities.Add(activity);
+                ActivityDTO activityDTO= Mappers.MapToActivityDto(activity);
+                activities.Add(activityDTO);
             }
             return activities;
         }

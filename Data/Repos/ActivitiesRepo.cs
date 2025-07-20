@@ -59,9 +59,9 @@ namespace Data.Repos
             context.Entry(detailedActivity).State = EntityState.Detached;
         }
 
-        public IQueryable<IDetailedActivity> GetAllActivities()
+        public List<IDetailedActivity> GetAllActivities()
         {
-            return context.Activities;
+            return [..context.Activities];
         }
     }
 }

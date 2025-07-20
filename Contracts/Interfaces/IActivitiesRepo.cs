@@ -8,6 +8,6 @@
         public void UpdateActivity(IDetailedActivity detailedActivity);
         public void DetachActivity(IDetailedActivity detailedActivity);
         public List<long?> GetAllActivityIds();
-        public IQueryable<IDetailedActivity> GetAllActivities();
+        public List<IDetailedActivity> GetAllActivities();
     }
 }

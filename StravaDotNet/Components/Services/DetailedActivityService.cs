@@ -1,3 +1,4 @@
+using Contracts.DTOs;
 using Data.Models.Strava;
 using Statistics.Models;
 using StravaDotNet.ViewModels;
@@ -40,9 +41,9 @@ namespace StravaDotNet.Components.Services
             return activityVms;
         }
 
-        public async Task<List<DetailedActivity>?> GetDetailedActivitiesAsync()
+        public async Task<List<ActivityDTO>?> GetDetailedActivitiesAsync()
         {
-            List<DetailedActivity>? activities = await httpClient.GetFromJsonAsync<List<DetailedActivity>>("api/detailedactivities/GetAllActivities");
+            List<ActivityDTO>? activities = await httpClient.GetFromJsonAsync<List<ActivityDTO>>("api/detailedactivities/GetAllActivities");
 
             return activities;
         }
@@ -68,7 +69,7 @@ namespace StravaDotNet.Components.Services
             {
                 ActivityVm vm = new()
                 {
-                    Activity = new DetailedActivity
+                    Activity = new ActivityDTO
                     {
                         Id = activity.Id,
                         Type = activity.Type,

@@ -2,7 +2,7 @@
 using Data.Models.Strava;
 using Newtonsoft.Json;
 
-namespace DataManagement.BusinessLogic
+namespace Data.BusinessLogic
 {
     public class DataSaver(IUnitOfWork unitOfWork)
     {

@@ -1,7 +1,7 @@
 ﻿using Contracts.Interfaces;
+using Data.BusinessLogic;
 using Data.Models;
 using Data.Models.Strava;
-using DataManagement.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 

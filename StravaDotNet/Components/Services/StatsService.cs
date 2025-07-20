@@ -1,4 +1,5 @@
-﻿using Data.Models.Strava;
+﻿using Contracts.DTOs;
+using Data.Models.Strava;
 using Newtonsoft.Json;
 using Statistics.BusinessLogic;
 using Statistics.Models;
@@ -8,11 +9,11 @@ namespace StravaDotNet.Components.Services
 {
     public class StatsService(HttpClient httpClient, DetailedActivityService detailedActivityService)
     {
-        public async Task<string> PredictAsync(List<DetailedActivity> activities)
+        public async Task<string> PredictAsync(List<ActivityDTO> activities)
         {// Doesnt work yet, not implemented
             List<ActivityForStats> activityStatsList = [];
 
-            foreach (DetailedActivity activity in activities.Where(a => a.Id.HasValue))
+            foreach (ActivityDTO activity in activities.Where(a => a.Id.HasValue))
             {
                 double avgHeartRate = await detailedActivityService.CalculateAverageHeartRateAsync(activity.Id);
                 ActivityForStats? activityStats = ActivityStatsConverter.ConvertToActivityForStats(activity, avgHeartRate);
@@ -30,11 +31,11 @@ namespace StravaDotNet.Components.Services
             return await response.Content.ReadAsStringAsync();
         }
 
-        public async Task<List<ActivityForStats>> PredictStaticAsync(List<DetailedActivity> activities)
+        public async Task<List<ActivityForStats>> PredictStaticAsync(List<ActivityDTO> activities)
         {
             List<ActivityForStats> activityStatsList = [];
 
-            foreach (DetailedActivity activity in activities.Where(a => a.Id.HasValue))
+            foreach (ActivityDTO activity in activities.Where(a => a.Id.HasValue))
             {
                 double avgHeartRate = await detailedActivityService.CalculateAverageHeartRateAsync(activity.Id);
                 ActivityForStats? activityStats = ActivityStatsConverter.ConvertToActivityForStats(activity, avgHeartRate);

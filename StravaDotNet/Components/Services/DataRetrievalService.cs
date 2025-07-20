@@ -1,3 +1,4 @@
+using Contracts.DTOs;
 using Data.Models.Strava;
 using DataManagement.Models;
 using StravaDotNet.ViewModels;
@@ -25,7 +26,7 @@ namespace StravaDotNet.Components.Services
             return await _detailedActivityService.GetDetailedActivityVmsAsync();
         }
 
-        public async Task<List<DetailedActivity>> GetAllActivitiesAsync()
+        public async Task<List<ActivityDTO>> GetAllActivitiesAsync()
         {
             return await _detailedActivityService.GetDetailedActivitiesAsync();
         }
@@ -35,7 +36,7 @@ namespace StravaDotNet.Components.Services
             return await _segmentEffortService.GetDetailedSegmentEffortsAsync();
         }
 
-        public HeatMapData GetHeatmapData(IQueryable<DetailedActivity> activities)
+        public HeatMapData GetHeatmapData(List<ActivityDTO> activities)
         {
             return _heatmapService.GetHeatmapData(activities);
         }
