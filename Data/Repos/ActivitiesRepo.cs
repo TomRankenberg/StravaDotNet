@@ -1,5 +1,5 @@
-﻿using Data.Context;
-using Data.Interfaces;
+﻿using Contracts.Interfaces;
+using Data.Context;
 using Data.Models.Strava;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,39 +8,42 @@ namespace Data.Repos
     public class ActivitiesRepo(DatabaseContext context) : IActivitiesRepo
     {
         
-        public void AddActivity(DetailedActivity detailedActivity)
+        public void AddActivity(IDetailedActivity detailedActivity)
         {
-            context.Activities.Add(detailedActivity);
+            var entity = detailedActivity as DetailedActivity;
+            context.Activities.Add(entity);
             context.SaveChanges();
         }
 
-        public void AddOrEditActivity(DetailedActivity detailedActivity)
+        public void AddOrEditActivity(IDetailedActivity detailedActivity)
         {
+            var entity = detailedActivity as DetailedActivity; 
             if (context.Activities.Any(x => x.Id == detailedActivity.Id))
             {
-                UpdateActivity(detailedActivity);
+                UpdateActivity(entity);
             }
             else
             {
-                AddActivity(detailedActivity);
+                AddActivity(entity);
             }
             //DetachActivity(detailedActivity);
         }
 
-        public DetailedActivity GetActivityById(int id)
+        public IDetailedActivity GetActivityById(int id)
         {
             return context.Activities.FirstOrDefault(x => x.Id == id);
         }
 
-        public void UpdateActivity(DetailedActivity detailedActivity)
+        public void UpdateActivity(IDetailedActivity detailedActivity)
         {
+            var entity = detailedActivity as DetailedActivity;
             var existingActivity = context.Activities.Local.FirstOrDefault(a => a.Id == detailedActivity.Id);
             if (existingActivity != null)
             {
                 context.Entry(existingActivity).State = EntityState.Detached;
             }
 
-            context.Activities.Attach(detailedActivity);
+            context.Activities.Attach(entity);
             context.Entry(detailedActivity).State = EntityState.Modified;
             context.SaveChanges();
         }
@@ -51,12 +54,12 @@ namespace Data.Repos
 
         }
 
-        public void DetachActivity(DetailedActivity detailedActivity)
+        public void DetachActivity(IDetailedActivity detailedActivity)
         {
             context.Entry(detailedActivity).State = EntityState.Detached;
         }
 
-        public IQueryable<DetailedActivity> GetAllActivities()
+        public IQueryable<IDetailedActivity> GetAllActivities()
         {
             return context.Activities;
         }

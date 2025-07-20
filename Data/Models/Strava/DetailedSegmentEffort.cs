@@ -1,6 +1,7 @@
 using System.Text;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Contracts.Interfaces;
 
 namespace Data.Models.Strava
 {
@@ -8,9 +9,9 @@ namespace Data.Models.Strava
     /// 
     /// </summary>
     [DataContract]
-    public class DetailedSegmentEffort
+    public class DetailedSegmentEffort : IDetailedSegmentEffort
     {
-        public virtual DetailedActivity DetailedActivity { get; set; }
+        public virtual IDetailedActivity DetailedActivity { get; set; }
 
         /// <summary>
         /// The unique identifier of this effort
@@ -145,7 +146,7 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "segment", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "segment")]
-        public SummarySegment Segment { get; set; }
+        public ISummarySegment Segment { get; set; }
         public long? SegmentId { get; set; }
 
         /// <summary>

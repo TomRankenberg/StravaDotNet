@@ -1,6 +1,7 @@
 using System.Text;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Contracts.Interfaces;
 
 namespace Data.Models.Strava
 {
@@ -9,7 +10,7 @@ namespace Data.Models.Strava
     /// 
     /// </summary>
     [DataContract]
-    public class MetaAthlete
+    public class MetaAthlete : IMetaAthlete
     {
         /// <summary>
         /// The unique identifier of the athlete
@@ -18,7 +19,7 @@ namespace Data.Models.Strava
         [DataMember(Name = "id", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "id")]
         public int Id { get; set; }
-        public ICollection<DetailedActivity> Activities { get; set; }
+        public ICollection<IDetailedActivity> Activities { get; set; }
 
 
         /// <summary>

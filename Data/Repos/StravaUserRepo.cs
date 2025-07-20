@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Contracts.Interfaces;
 using Data.Context;
-using Data.Interfaces;
 using Data.Models;
 
 namespace Data.Repos
 {
     public class StravaUserRepo(DatabaseContext context) : IStravaUserRepo
     {
-        public void AddUser(StravaUser user)
+        public void AddUser(IStravaUser user)
         {
-            context.Users.Add(user);
+            var entity = user as StravaUser;
+            context.Users.Add(entity);
             context.SaveChanges();
         }
-        public void UpdateUser(StravaUser user)
+        public void UpdateUser(IStravaUser user)
         {
-            context.Users.Update(user);
+            var entity = user as StravaUser;
+            context.Users.Update(entity);
             context.SaveChangesAsync();
         }
-        public StravaUser GetUserById(int id)
+        public IStravaUser GetUserById(int id)
         {
             return context.Users.FirstOrDefault(x => x.UserId == id);
         }

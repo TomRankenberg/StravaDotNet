@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-namespace Strava.NET.Model {
+namespace Data.Models.Strava
+{
 
   /// <summary>
   /// A union type representing the time spent in a given zone.

@@ -1,24 +1,26 @@
-﻿using Data.Context;
-using Data.Interfaces;
+﻿using Contracts.Interfaces;
+using Data.Context;
 using Data.Models.Strava;
 
 namespace Data.Repos
 {
     public class MapRepo(DatabaseContext context) : IMapRepo
     {
-        public void AddMap(PolylineMap map)
+        public void AddMap(IPolylineMap map)
         {
-            context.PolylineMaps.Add(map);
+            var entity = map as PolylineMap;
+            context.PolylineMaps.Add(entity);
             context.SaveChanges();
         }
 
-        public void UpdateMap(PolylineMap map)
+        public void UpdateMap(IPolylineMap map)
         {
-            context.PolylineMaps.Update(map);
+            var entity = map as PolylineMap;
+            context.PolylineMaps.Update(entity);
             context.SaveChangesAsync();
         }
 
-        public string AddOrEditMap(PolylineMap map)
+        public string AddOrEditMap(IPolylineMap map)
         {
             if (context.PolylineMaps.Contains(map))
             {
@@ -31,7 +33,7 @@ namespace Data.Repos
             return map.Id;
         }
 
-        public PolylineMap GetMapById(string id)
+        public IPolylineMap GetMapById(string id)
         {
             return context.PolylineMaps.Find(id);
         }

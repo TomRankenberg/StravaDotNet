@@ -1,9 +1,7 @@
-using System;
 using System.Text;
-using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Contracts.Interfaces;
 
 namespace Data.Models.Strava
 {
@@ -12,7 +10,7 @@ namespace Data.Models.Strava
     /// 
     /// </summary>
     [DataContract]
-    public class SummarySegment
+    public class SummarySegment : ISummarySegment
     {
         /// <summary>
         /// The unique identifier of this segment
@@ -82,14 +80,14 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "start_latlng", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "start_latlng")]
-        public LatLng? StartLatlng { get; set; }
+        public ILatLng? StartLatlng { get; set; }
 
         /// <summary>
         /// Gets or Sets EndLatlng
         /// </summary>
         [DataMember(Name = "end_latlng", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "end_latlng")]
-        public LatLng? EndLatlng { get; set; }
+        public ILatLng? EndLatlng { get; set; }
 
         /// <summary>
         /// The category of the climb

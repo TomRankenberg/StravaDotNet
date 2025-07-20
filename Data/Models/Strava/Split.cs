@@ -1,6 +1,7 @@
 using System.Text;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Contracts.Interfaces;
 
 namespace Data.Models.Strava
 {
@@ -9,9 +10,9 @@ namespace Data.Models.Strava
     /// 
     /// </summary>
     [DataContract]
-    public class Split
+    public class Split : ISplit
     {
-        public virtual DetailedActivity DetailedActivity { get; set; }
+        public virtual IDetailedActivity DetailedActivity { get; set; }
         /// <summary>
         /// The average speed of this split, in meters per second
         /// </summary>

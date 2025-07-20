@@ -1,5 +1,5 @@
+using Contracts.Interfaces;
 using Data.Context;
-using Data.Interfaces;
 
 namespace Data.Models;
 public class UnitOfWork : IUnitOfWork

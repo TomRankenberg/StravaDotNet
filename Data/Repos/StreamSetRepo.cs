@@ -1,5 +1,5 @@
-﻿using Data.Context;
-using Data.Interfaces;
+﻿using Contracts.Interfaces;
+using Data.Context;
 using Data.Models.Strava;
 
 namespace Data.Repos
@@ -13,20 +13,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddStreamSet(StreamSet streamSet)
+        public void AddStreamSet(IStreamSet streamSet)
         {
-            _context.Streams.Add(streamSet);
+            var streamSetEntity = streamSet as StreamSet;
+            _context.Streams.Add(streamSetEntity);
             _context.SaveChanges();
         }
 
-        public StreamSet GetStreamSetById(int id)
+        public IStreamSet GetStreamSetById(int id)
         {
             return _context.Streams.Find(id);
         }
 
-        public void UpdateStreamSet(StreamSet streamSet)
+        public void UpdateStreamSet(IStreamSet streamSet)
         {
-            _context.Streams.Update(streamSet);
+            var streamSetEntity = streamSet as StreamSet;
+            _context.Streams.Update(streamSetEntity);
             _context.SaveChanges();
         }
 
@@ -55,20 +57,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddTimeStream(TimeStream timeStream)
+        public void AddTimeStream(ITimeStream timeStream)
         {
-            _context.TimeStreams.Add(timeStream);
+            var timeStreamEntity = timeStream as TimeStream;
+            _context.TimeStreams.Add(timeStreamEntity);
             _context.SaveChanges();
         }
 
-        public TimeStream GetTimeStreamById(int id)
+        public ITimeStream GetTimeStreamById(int id)
         {
             return _context.TimeStreams.Find(id);
         }
 
-        public void UpdateTimeStream(TimeStream timeStream)
+        public void UpdateTimeStream(ITimeStream timeStream)
         {
-            _context.TimeStreams.Update(timeStream);
+            var timeStreamEntity = timeStream as TimeStream;
+            _context.TimeStreams.Update(timeStreamEntity);
             _context.SaveChanges();
         }
 
@@ -92,20 +96,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddDistanceStream(DistanceStream distanceStream)
+        public void AddDistanceStream(IDistanceStream distanceStream)
         {
-            _context.DistanceStreams.Add(distanceStream);
+            var distanceStreamEntity = distanceStream as DistanceStream;
+            _context.DistanceStreams.Add(distanceStreamEntity);
             _context.SaveChanges();
         }
 
-        public DistanceStream GetDistanceStreamById(int id)
+        public IDistanceStream GetDistanceStreamById(int id)
         {
             return _context.DistanceStreams.Find(id);
         }
 
-        public void UpdateDistanceStream(DistanceStream distanceStream)
+        public void UpdateDistanceStream(IDistanceStream distanceStream)
         {
-            _context.DistanceStreams.Update(distanceStream);
+            var distanceStreamEntity = distanceStream as DistanceStream;
+            _context.DistanceStreams.Update(distanceStreamEntity);
             _context.SaveChanges();
         }
 
@@ -128,20 +134,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddLatLngStream(LatLngStream latLngStream)
+        public void AddLatLngStream(ILatLngStream latLngStream)
         {
-            _context.LatLngStreams.Add(latLngStream);
+            var latLngStreamEntity = latLngStream as LatLngStream;
+            _context.LatLngStreams.Add(latLngStreamEntity);
             _context.SaveChanges();
         }
 
-        public LatLngStream GetLatLngStreamById(int id)
+        public ILatLngStream GetLatLngStreamById(int id)
         {
             return _context.LatLngStreams.Find(id);
         }
 
-        public void UpdateLatLngStream(LatLngStream latLngStream)
+        public void UpdateLatLngStream(ILatLngStream latLngStream)
         {
-            _context.LatLngStreams.Update(latLngStream);
+            var latLngStreamEntity = latLngStream as LatLngStream;
+            _context.LatLngStreams.Update(latLngStreamEntity);
             _context.SaveChanges();
         }
 
@@ -165,20 +173,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddSmoothGradeStream(SmoothGradeStream smoothGradeStream)
+        public void AddSmoothGradeStream(ISmoothGradeStream smoothGradeStream)
         {
-            _context.SmoothGradeStreams.Add(smoothGradeStream);
+            var smoothGradeStreamEntity = smoothGradeStream as SmoothGradeStream;
+            _context.SmoothGradeStreams.Add(smoothGradeStreamEntity);
             _context.SaveChanges();
         }
 
-        public SmoothGradeStream GetSmoothGradeStreamById(int id)
+        public ISmoothGradeStream GetSmoothGradeStreamById(int id)
         {
             return _context.SmoothGradeStreams.Find(id);
         }
 
-        public void UpdateSmoothGradeStream(SmoothGradeStream smoothGradeStream)
+        public void UpdateSmoothGradeStream(ISmoothGradeStream smoothGradeStream)
         {
-            _context.SmoothGradeStreams.Update(smoothGradeStream);
+            var smoothGradeStreamEntity = smoothGradeStream as SmoothGradeStream;
+            _context.SmoothGradeStreams.Update(smoothGradeStreamEntity);
             _context.SaveChanges();
         }
 
@@ -202,20 +212,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddMovingStream(MovingStream movingStream)
+        public void AddMovingStream(IMovingStream movingStream)
         {
-            _context.MovingStreams.Add(movingStream);
+            var movingStreamEntity = movingStream as MovingStream;
+            _context.MovingStreams.Add(movingStreamEntity);
             _context.SaveChanges();
         }
 
-        public MovingStream GetMovingStreamById(int id)
+        public IMovingStream GetMovingStreamById(int id)
         {
             return _context.MovingStreams.Find(id);
         }
 
-        public void UpdateMovingStream(MovingStream movingStream)
+        public void UpdateMovingStream(IMovingStream movingStream)
         {
-            _context.MovingStreams.Update(movingStream);
+            var movingStreamEntity = movingStream as MovingStream;
+            _context.MovingStreams.Update(movingStreamEntity);
             _context.SaveChanges();
         }
 
@@ -239,20 +251,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddTemperatureStream(TemperatureStream temperatureStream)
+        public void AddTemperatureStream(ITemperatureStream temperatureStream)
         {
-            _context.TemperatureStreams.Add(temperatureStream);
+            var temperatureStreamEntity = temperatureStream as TemperatureStream;
+            _context.TemperatureStreams.Add(temperatureStreamEntity);
             _context.SaveChanges();
         }
 
-        public TemperatureStream GetTemperatureStreamById(int id)
+        public ITemperatureStream GetTemperatureStreamById(int id)
         {
             return _context.TemperatureStreams.Find(id);
         }
 
-        public void UpdateTemperatureStream(TemperatureStream temperatureStream)
+        public void UpdateTemperatureStream(ITemperatureStream temperatureStream)
         {
-            _context.TemperatureStreams.Update(temperatureStream);
+            var temperatureStreamEntity = temperatureStream as TemperatureStream;
+            _context.TemperatureStreams.Update(temperatureStreamEntity);
             _context.SaveChanges();
         }
 
@@ -276,20 +290,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddPowerStream(PowerStream powerStream)
+        public void AddPowerStream(IPowerStream powerStream)
         {
-            _context.PowerStreams.Add(powerStream);
+            var powerStreamEntity = powerStream as PowerStream;
+            _context.PowerStreams.Add(powerStreamEntity);
             _context.SaveChanges();
         }
 
-        public PowerStream GetPowerStreamById(int id)
+        public IPowerStream GetPowerStreamById(int id)
         {
             return _context.PowerStreams.Find(id);
         }
 
-        public void UpdatePowerStream(PowerStream powerStream)
+        public void UpdatePowerStream(IPowerStream powerStream)
         {
-            _context.PowerStreams.Update(powerStream);
+            var powerStreamEntity = powerStream as PowerStream;
+            _context.PowerStreams.Update(powerStreamEntity);
             _context.SaveChanges();
         }
 
@@ -313,20 +329,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddCadenceStream(CadenceStream cadenceStream)
+        public void AddCadenceStream(ICadenceStream cadenceStream)
         {
-            _context.CadenceStreams.Add(cadenceStream);
+            var cadenceStreamEntity = cadenceStream as CadenceStream;
+            _context.CadenceStreams.Add(cadenceStreamEntity);
             _context.SaveChanges();
         }
 
-        public CadenceStream GetCadenceStreamById(int id)
+        public ICadenceStream GetCadenceStreamById(int id)
         {
             return _context.CadenceStreams.Find(id);
         }
 
-        public void UpdateCadenceStream(CadenceStream cadenceStream)
+        public void UpdateCadenceStream(ICadenceStream cadenceStream)
         {
-            _context.CadenceStreams.Update(cadenceStream);
+            var cadenceStreamEntity = cadenceStream as CadenceStream;
+            _context.CadenceStreams.Update(cadenceStreamEntity);
             _context.SaveChanges();
         }
 
@@ -350,20 +368,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddHeartrateStream(HeartrateStream heartrateStream)
+        public void AddHeartrateStream(IHeartrateStream heartrateStream)
         {
-            _context.HeartrateStreams.Add(heartrateStream);
+            var heartrateStreamEntity = heartrateStream as HeartrateStream;
+            _context.HeartrateStreams.Add(heartrateStreamEntity);
             _context.SaveChanges();
         }
 
-        public HeartrateStream GetHeartrateStreamById(int id)
+        public IHeartrateStream GetHeartrateStreamById(int id)
         {
             return _context.HeartrateStreams.Find(id);
         }
 
-        public void UpdateHeartrateStream(HeartrateStream heartrateStream)
+        public void UpdateHeartrateStream(IHeartrateStream heartrateStream)
         {
-            _context.HeartrateStreams.Update(heartrateStream);
+            var heartrateStreamEntity = heartrateStream as HeartrateStream;
+            _context.HeartrateStreams.Update(heartrateStreamEntity);
             _context.SaveChanges();
         }
 
@@ -387,20 +407,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddSmoothVelocityStream(SmoothVelocityStream smoothVelocityStream)
+        public void AddSmoothVelocityStream(ISmoothVelocityStream smoothVelocityStream)
         {
-            _context.SmoothVelocityStreams.Add(smoothVelocityStream);
+            var smoothVelocityStreamEntity = smoothVelocityStream as SmoothVelocityStream;
+            _context.SmoothVelocityStreams.Add(smoothVelocityStreamEntity);
             _context.SaveChanges();
         }
 
-        public SmoothVelocityStream GetSmoothVelocityStreamById(int id)
+        public ISmoothVelocityStream GetSmoothVelocityStreamById(int id)
         {
             return _context.SmoothVelocityStreams.Find(id);
         }
 
-        public void UpdateSmoothVelocityStream(SmoothVelocityStream smoothVelocityStream)
+        public void UpdateSmoothVelocityStream(ISmoothVelocityStream smoothVelocityStream)
         {
-            _context.SmoothVelocityStreams.Update(smoothVelocityStream);
+            var smoothVelocityStreamEntity = smoothVelocityStream as SmoothVelocityStream;
+            _context.SmoothVelocityStreams.Update(smoothVelocityStreamEntity);
             _context.SaveChanges();
         }
 
@@ -424,20 +446,22 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddAltitudeStream(AltitudeStream altitudeStream)
+        public void AddAltitudeStream(IAltitudeStream altitudeStream)
         {
-            _context.AltitudeStreams.Add(altitudeStream);
+            var altitudeStreamEntity = altitudeStream as AltitudeStream;
+            _context.AltitudeStreams.Add(altitudeStreamEntity);
             _context.SaveChanges();
         }
 
-        public AltitudeStream GetAltitudeStreamById(int id)
+        public IAltitudeStream GetAltitudeStreamById(int id)
         {
             return _context.AltitudeStreams.Find(id);
         }
 
-        public void UpdateAltitudeStream(AltitudeStream altitudeStream)
+        public void UpdateAltitudeStream(IAltitudeStream altitudeStream)
         {
-            _context.AltitudeStreams.Update(altitudeStream);
+            var altitudeStreamEntity = altitudeStream as AltitudeStream;
+            _context.AltitudeStreams.Update(altitudeStreamEntity);
             _context.SaveChanges();
         }
 
