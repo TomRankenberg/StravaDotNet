@@ -11,7 +11,7 @@ namespace Data.Models.Strava
     [DataContract]
     public class DetailedSegmentEffort : IDetailedSegmentEffort
     {
-        public virtual IDetailedActivity DetailedActivity { get; set; }
+        public virtual DetailedActivity DetailedActivity { get; set; }
 
         /// <summary>
         /// The unique identifier of this effort
@@ -146,7 +146,7 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "segment", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "segment")]
-        public ISummarySegment Segment { get; set; }
+        public SummarySegment Segment { get; set; }
         public long? SegmentId { get; set; }
 
         /// <summary>

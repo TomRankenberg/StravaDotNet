@@ -12,7 +12,7 @@ namespace Data.Models.Strava
     [DataContract]
     public class Lap : ILap
     {
-        public virtual IDetailedActivity DetailedActivity { get; set; }
+        public virtual DetailedActivity DetailedActivity { get; set; }
 
         /// <summary>
         /// The unique identifier of this lap

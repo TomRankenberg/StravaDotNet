@@ -6,7 +6,6 @@
         float? AverageCadence { get; set; }
         float? AverageHeartrate { get; set; }
         float? AverageWatts { get; set; }
-        IDetailedActivity DetailedActivity { get; set; }
         bool? DeviceWatts { get; set; }
         float? Distance { get; set; }
         int? ElapsedTime { get; set; }
@@ -19,7 +18,6 @@
         int? MovingTime { get; set; }
         string Name { get; set; }
         int? PrRank { get; set; }
-        ISummarySegment Segment { get; set; }
         long? SegmentId { get; set; }
         DateTime? StartDate { get; set; }
         DateTime? StartDateLocal { get; set; }

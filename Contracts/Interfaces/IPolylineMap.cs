@@ -2,7 +2,6 @@
 {
     public interface IPolylineMap
     {
-        IDetailedActivity Activity { get; set; }
         long? ActivityId { get; set; }
         string Id { get; set; }
         string? Polyline { get; set; }

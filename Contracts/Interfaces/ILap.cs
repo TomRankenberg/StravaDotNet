@@ -4,7 +4,6 @@
     {
         float? AverageCadence { get; set; }
         float? AverageSpeed { get; set; }
-        IDetailedActivity DetailedActivity { get; set; }
         float? Distance { get; set; }
         int? ElapsedTime { get; set; }
         int? EndIndex { get; set; }

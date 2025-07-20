@@ -2,7 +2,6 @@
 {
     public interface IMetaAthlete
     {
-        ICollection<IDetailedActivity> Activities { get; set; }
         int Id { get; set; }
 
         string ToJson();

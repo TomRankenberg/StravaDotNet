@@ -19,77 +19,77 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "time", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "time")]
-        public ITimeStream Time { get; set; }
+        public TimeStream Time { get; set; }
 
         /// <summary>
         /// Gets or Sets Distance
         /// </summary>
         [DataMember(Name = "distance", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "distance")]
-        public IDistanceStream Distance { get; set; }
+        public DistanceStream Distance { get; set; }
 
         /// <summary>
         /// Gets or Sets Latlng
         /// </summary>
         [DataMember(Name = "latlng", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "latlng")]
-        public ILatLngStream Latlng { get; set; }
+        public LatLngStream Latlng { get; set; }
 
         /// <summary>
         /// Gets or Sets Altitude
         /// </summary>
         [DataMember(Name = "altitude", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "altitude")]
-        public IAltitudeStream Altitude { get; set; }
+        public AltitudeStream Altitude { get; set; }
 
         /// <summary>
         /// Gets or Sets VelocitySmooth
         /// </summary>
         [DataMember(Name = "velocity_smooth", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "velocity_smooth")]
-        public ISmoothVelocityStream VelocitySmooth { get; set; }
+        public SmoothVelocityStream VelocitySmooth { get; set; }
 
         /// <summary>
         /// Gets or Sets Heartrate
         /// </summary>
         [DataMember(Name = "heartrate", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "heartrate")]
-        public IHeartrateStream Heartrate { get; set; }
+        public HeartrateStream Heartrate { get; set; }
 
         /// <summary>
         /// Gets or Sets Cadence
         /// </summary>
         [DataMember(Name = "cadence", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "cadence")]
-        public ICadenceStream Cadence { get; set; }
+        public CadenceStream Cadence { get; set; }
 
         /// <summary>
         /// Gets or Sets Watts
         /// </summary>
         [DataMember(Name = "watts", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "watts")]
-        public IPowerStream Watts { get; set; }
+        public PowerStream Watts { get; set; }
 
         /// <summary>
         /// Gets or Sets Temp
         /// </summary>
         [DataMember(Name = "temp", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "temp")]
-        public ITemperatureStream Temp { get; set; }
+        public TemperatureStream Temp { get; set; }
 
         /// <summary>
         /// Gets or Sets Moving
         /// </summary>
         [DataMember(Name = "moving", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "moving")]
-        public IMovingStream Moving { get; set; }
+        public MovingStream Moving { get; set; }
 
         /// <summary>
         /// Gets or Sets GradeSmooth
         /// </summary>
         [DataMember(Name = "grade_smooth", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "grade_smooth")]
-        public ISmoothGradeStream GradeSmooth { get; set; }
+        public SmoothGradeStream GradeSmooth { get; set; }
 
 
         /// <summary>

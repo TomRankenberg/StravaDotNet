@@ -44,7 +44,7 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "athlete", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "athlete")]
-        public IMetaAthlete Athlete { get; set; }
+        public MetaAthlete Athlete { get; set; }
 
         /// <summary>
         /// The name of the activity
@@ -138,14 +138,14 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "start_latlng", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "start_latlng")]
-        public ILatLng StartLatlng { get; set; }
+        public LatLng StartLatlng { get; set; }
 
         /// <summary>
         /// Gets or Sets EndLatlng
         /// </summary>
         [DataMember(Name = "end_latlng", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "end_latlng")]
-        public ILatLng EndLatlng { get; set; }
+        public LatLng EndLatlng { get; set; }
 
         /// <summary>
         /// The number of achievements gained during this activity
@@ -200,7 +200,7 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "map", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "map")]
-        public IPolylineMap Map { get; set; }
+        public PolylineMap Map { get; set; }
         public string? Polyline { get; set; }
         public string MapId { get; set; }
 
@@ -360,7 +360,7 @@ namespace Data.Models.Strava
         [DataMember(Name = "segment_efforts", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "segment_efforts")]
         [NotMapped]
-        public List<IDetailedSegmentEffort> SegmentEfforts { get; set; }
+        public List<DetailedSegmentEffort> SegmentEfforts { get; set; }
 
         /// <summary>
         /// The name of the device used to record the activity
@@ -385,7 +385,7 @@ namespace Data.Models.Strava
         [DataMember(Name = "splits_metric", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "splits_metric")]
         [NotMapped]
-        public List<ISplit> SplitsMetric { get; set; }
+        public List<Split> SplitsMetric { get; set; }
 
         ///// <summary>
         ///// The splits of this activity in imperial units (for runs)
@@ -400,7 +400,7 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "laps", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "laps")]
-        public List<ILap> Laps { get; set; }
+        public List<Lap> Laps { get; set; }
 
         /// <summary>
         /// Gets or Sets BestEfforts
@@ -408,7 +408,7 @@ namespace Data.Models.Strava
         [DataMember(Name = "best_efforts", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "best_efforts")]
         [NotMapped]
-        public List<IDetailedSegmentEffort> BestEfforts { get; set; }
+        public List<DetailedSegmentEffort> BestEfforts { get; set; }
 
 
         /// <summary>

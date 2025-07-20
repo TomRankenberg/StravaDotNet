@@ -11,11 +11,9 @@
         float? Distance { get; set; }
         float? ElevationHigh { get; set; }
         float? ElevationLow { get; set; }
-        ILatLng? EndLatlng { get; set; }
         long? Id { get; set; }
         float? MaximumGrade { get; set; }
         string? Name { get; set; }
-        ILatLng? StartLatlng { get; set; }
         string? State { get; set; }
 
         string ToJson();

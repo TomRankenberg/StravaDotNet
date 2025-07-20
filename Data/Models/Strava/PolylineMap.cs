@@ -19,7 +19,7 @@ namespace Data.Models.Strava
         [DataMember(Name = "id", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
-        public IDetailedActivity Activity { get; set; }
+        public DetailedActivity Activity { get; set; }
 
         public long? ActivityId { get; set; }
 

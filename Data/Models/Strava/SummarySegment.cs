@@ -80,14 +80,14 @@ namespace Data.Models.Strava
         /// </summary>
         [DataMember(Name = "start_latlng", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "start_latlng")]
-        public ILatLng? StartLatlng { get; set; }
+        public LatLng? StartLatlng { get; set; }
 
         /// <summary>
         /// Gets or Sets EndLatlng
         /// </summary>
         [DataMember(Name = "end_latlng", EmitDefaultValue = false)]
         [JsonProperty(PropertyName = "end_latlng")]
-        public ILatLng? EndLatlng { get; set; }
+        public LatLng? EndLatlng { get; set; }
 
         /// <summary>
         /// The category of the climb

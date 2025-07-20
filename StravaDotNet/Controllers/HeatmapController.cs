@@ -1,4 +1,4 @@
-﻿using Data.Interfaces;
+﻿using Contracts.Interfaces;
 using Data.Models.Strava;
 using DataManagement.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ namespace StravaDotNet.Controllers
         public IActionResult GetHeatmap(bool runs, bool rides)
         {
             // Retrieve all activities
-            IQueryable<DetailedActivity> activities = activitiesRepo.GetAllActivities();
+            IQueryable<DetailedActivity> activities = (IQueryable<DetailedActivity>)activitiesRepo.GetAllActivities();
 
             // Filter activities based on the type (Run, Ride, or both)
             if (runs && rides)

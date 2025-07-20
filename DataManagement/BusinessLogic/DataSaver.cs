@@ -1,4 +1,4 @@
-﻿using Data.Interfaces;
+﻿using Contracts.Interfaces;
 using Data.Models.Strava;
 using Newtonsoft.Json;
 

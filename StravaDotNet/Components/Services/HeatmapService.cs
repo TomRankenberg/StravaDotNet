@@ -1,4 +1,4 @@
-using Data.Interfaces;
+using Contracts.Interfaces;
 using Data.Models.Strava;
 using DataManagement.Models;
 
@@ -24,13 +24,13 @@ namespace StravaDotNet.Components.Services
             List<DetailedActivity> activitiesList = activities.Where(a => a.MapId != null).ToList();
             foreach (DetailedActivity activity in activitiesList)
             {
-                PolylineMap map = _mapRepo.GetMapById(activity.MapId);
+                PolylineMap map = (PolylineMap)_mapRepo.GetMapById(activity.MapId);
                 HeatmapInput input = new HeatmapInput
                 {
                     ActivityType = activity.Type,
                     EncodedPolyline = map.SummaryPolyline ?? "",
-                    StartPoint = activity.StartLatlng,
-                    EndPoint = activity.EndLatlng,
+                    StartPoint = (LatLng)activity.StartLatlng,
+                    EndPoint = (LatLng)activity.EndLatlng,
                     StartTime = activity.StartDateLocal,
                     LineOpacity = Math.Clamp(5.0 / activities.Count(), 0.2, 1.0)
                 };
