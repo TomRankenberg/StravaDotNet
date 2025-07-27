@@ -1,6 +1,7 @@
 using System.Text;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Contracts.Interfaces;
 
 namespace Data.Models.Strava
 {
@@ -9,7 +10,7 @@ namespace Data.Models.Strava
     /// 
     /// </summary>
     [DataContract]
-    public class MetaAthlete
+    public class MetaAthlete : IMetaAthlete
     {
         /// <summary>
         /// The unique identifier of the athlete

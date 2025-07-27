@@ -1,7 +1,7 @@
-﻿using Data.Interfaces;
+﻿using Contracts.Interfaces;
+using Data.BusinessLogic;
 using Data.Models;
 using Data.Models.Strava;
-using DataManagement.BusinessLogic;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -19,7 +19,7 @@ namespace StravaDotNet.Controllers
         {
             if (Token == null)
             {
-                StravaUser stravaUser = userRepo.GetUserById(1);
+                StravaUser stravaUser = (StravaUser)userRepo.GetUserById(1);
                 Token = stravaUser.AccessToken;
             }
             string accessToken = $"?access_token={Token}";
@@ -110,7 +110,7 @@ namespace StravaDotNet.Controllers
         {
             if (Token == null)
             {
-                StravaUser stravaUser = userRepo.GetUserById(1);
+                StravaUser stravaUser = (StravaUser)userRepo.GetUserById(1);
                 Token = stravaUser.AccessToken;
             }
             string accessToken = $"&access_token={Token}";
@@ -177,7 +177,7 @@ namespace StravaDotNet.Controllers
         {
             if (Token == null)
             {
-                StravaUser stravaUser = userRepo.GetUserById(1);
+                StravaUser stravaUser = (StravaUser)userRepo.GetUserById(1);
                 Token = stravaUser.AccessToken;
             }
             string accessToken = $"&access_token={Token}";
@@ -240,7 +240,7 @@ namespace StravaDotNet.Controllers
             else
             {
                 Token = token.access_token;
-                StravaUser stravaUser = userRepo.GetUserById(1);
+                StravaUser stravaUser = (StravaUser)userRepo.GetUserById(1);
 
                 if (stravaUser == null)
                 {

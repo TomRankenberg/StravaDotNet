@@ -1,7 +1,8 @@
-using System.Text;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
+using System.Text;
+using Contracts.Interfaces;
+using Newtonsoft.Json;
 
 namespace Data.Models.Strava
 {
@@ -10,7 +11,7 @@ namespace Data.Models.Strava
     /// 
     /// </summary>
     [DataContract]
-    public class DetailedActivity
+    public class DetailedActivity : IDetailedActivity
     {
         public int AthleteId { get; set; }
         /// <summary>

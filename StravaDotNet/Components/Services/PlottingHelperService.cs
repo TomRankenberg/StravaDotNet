@@ -113,7 +113,7 @@ namespace StravaDotNet.Components.Services
         public string PrepareHourlyBarChartData(List<ActivityVm> activities)
         {
             var groupedActivities = activities
-                .GroupBy(a => new { a.Activity.StartDateLocal.Value.Hour, a.Activity.Type })
+                .GroupBy(a => new { a.Activity.StartDate.Value.Hour, a.Activity.Type })
                 .Select(g => new
                 {
                     Hour = g.Key.Hour,

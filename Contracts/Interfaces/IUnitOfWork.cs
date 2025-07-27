@@ -1,5 +1,4 @@
-﻿
-namespace Data.Interfaces
+﻿namespace Contracts.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {

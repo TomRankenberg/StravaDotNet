@@ -1,24 +1,25 @@
-﻿using Data.Context;
-using Data.Interfaces;
+﻿using Contracts.Interfaces;
+using Data.Context;
 using Data.Models.Strava;
 
 namespace Data.Repos
 {
     public class AthleteRepo(DatabaseContext context) : IAthleteRepo
     {
-        public void AddAthlete(MetaAthlete athlete)
+        public void AddAthlete(IMetaAthlete athlete)
         {
-            context.MetaAthletes.Add(athlete);
+            var entity = athlete as MetaAthlete ;
+            context.MetaAthletes.Add(entity);
             context.SaveChanges();
         }
-        public void UpdateAthlete(MetaAthlete athlete)
+        public void UpdateAthlete(IMetaAthlete athlete)
         {
             //context.MetaAthletes.Update(athlete);
             context.SaveChangesAsync();
         }
-        public void AddOrEditAthlete(MetaAthlete athlete)
+        public void AddOrEditAthlete(IMetaAthlete athlete)
         {
-            if (context.MetaAthletes.Contains(athlete))
+            if (context.MetaAthletes.Any(a => a.Id == athlete.Id))
             {
                 UpdateAthlete(athlete);
             }

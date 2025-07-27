@@ -1,7 +1,7 @@
 ﻿@page "/predictor"
+@using Contracts.DTOs
 @using StravaDotNet.Components.Services
 @using StravaDotNet.ViewModels
-@using Data.Models.Strava
 @using Statistics.Models
 @inject NavigationManager Navigation
 @inject AuthState AuthState
@@ -46,7 +46,7 @@
             StateHasChanged();
         }
     }
-    private List<DetailedActivity>? myActivities;
+    private List<ActivityDTO>? myActivities;
     private List<ActivityVm>? activityVms;
 	private StatsVm? summaryStats;
     private readonly List<string> canvasIds = new()

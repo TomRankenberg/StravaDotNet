@@ -1,11 +1,11 @@
-﻿using Data.Models.Strava;
+﻿using Contracts.DTOs;
 using Statistics.Models;
 
 namespace Statistics.BusinessLogic
 {
     public class ActivityStatsConverter
     {
-        public static ActivityForStats? ConvertToActivityForStats(DetailedActivity activity, double? avgHeartRate)
+        public static ActivityForStats? ConvertToActivityForStats(ActivityDTO activity, double? avgHeartRate)
         {
             if (activity == null)
             {

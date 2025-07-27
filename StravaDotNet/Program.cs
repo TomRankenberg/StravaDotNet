@@ -1,5 +1,5 @@
+using Contracts.Interfaces;
 using Data.Context;
-using Data.Interfaces;
 using Data.Models;
 using Data.Repos;
 using Microsoft.AspNetCore.Mvc.RazorPages;

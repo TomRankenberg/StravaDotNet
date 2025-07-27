@@ -1,5 +1,7 @@
-﻿using Data.Interfaces;
+﻿using Contracts.DTOs;
+using Contracts.Interfaces;
 using Data.Models.Strava;
+using DataManagement.BusinessLogic;
 using DataManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using StravaDotNet.Components.Services;
@@ -14,7 +16,7 @@ namespace StravaDotNet.Controllers
         public IActionResult GetHeatmap(bool runs, bool rides)
         {
             // Retrieve all activities
-            IQueryable<DetailedActivity> activities = activitiesRepo.GetAllActivities();
+            IEnumerable<IDetailedActivity> activities = activitiesRepo.GetAllActivities();
 
             // Filter activities based on the type (Run, Ride, or both)
             if (runs && rides)
@@ -31,8 +33,8 @@ namespace StravaDotNet.Controllers
             }
 
             // Ensure there are activities with maps
-            IQueryable<DetailedActivity> activitiesWithMaps = activities.Where(a => a.MapId != null);
-            if (!activitiesWithMaps.Any())
+            List<ActivityDTO> activitiesWithMaps = Mappers.MapToActivityDtos(activities.Where(a => a.MapId != null).ToList());
+            if (activitiesWithMaps.Count == 0)
             {
                 return NotFound("No activities with maps found.");
             }

@@ -1,9 +1,7 @@
-using System;
 using System.Text;
-using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Contracts.Interfaces;
 
 namespace Data.Models.Strava
 {
@@ -12,7 +10,7 @@ namespace Data.Models.Strava
     /// 
     /// </summary>
     [DataContract]
-    public class PolylineMap
+    public class PolylineMap : IPolylineMap
     {
         /// <summary>
         /// The identifier of the map
@@ -22,6 +20,7 @@ namespace Data.Models.Strava
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
         public DetailedActivity Activity { get; set; }
+
         public long? ActivityId { get; set; }
 
         /// <summary>
