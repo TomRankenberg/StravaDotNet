@@ -9,7 +9,7 @@ namespace StravaDotNet.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StravaController(IStravaUserRepo userRepo, IUnitOfWork unitOfWork) : ControllerBase
+    public class StravaController(IStravaUserRepo userRepo, IUnitOfWork unitOfWork, IConfiguration configuration) : ControllerBase
     {
         private string? Token { get; set; }
 
@@ -213,7 +213,7 @@ namespace StravaDotNet.Controllers
         [Route("ConnectToStrava")]
         public IActionResult ConnectToStrava()
         {
-            string clientId = "144414";
+            string clientId = configuration["StravaUser:ClientId"];
             string redirectUri = "https://localhost:7237/api/Strava/StravaCallback";
             string state = Guid.NewGuid().ToString();
 
@@ -249,10 +249,7 @@ namespace StravaDotNet.Controllers
                         UserId = 1,
                         AccessToken = token.access_token,
                         RefreshToken = token.refresh_token,
-                        AccessTokenExpiresAt = token.expires_at.ToString(),
-                        Secret = "31fa85c14dc72fee6ebf5bbb9a44f32e625898ad",
-                        StravaId = 144414,
-                        Email = "tomrankenberg@live.nl"
+                        AccessTokenExpiresAt = token.expires_at.ToString()
                     };
                     userRepo.AddUser(stravaUser);
                 }
@@ -281,13 +278,13 @@ namespace StravaDotNet.Controllers
             return Content(html, "text/html");
         }
 
-        private static async Task<AccessToken?> GetAccessTokenAsync(string authorizationCode)
+        private async Task<AccessToken?> GetAccessTokenAsync(string authorizationCode)
         {
             var client = new HttpClient();
             var tokenRequest = new FormUrlEncodedContent(
             [
-                new KeyValuePair<string, string>("client_id", "144414"),
-                new KeyValuePair<string, string>("client_secret", "31fa85c14dc72fee6ebf5bbb9a44f32e625898ad"),
+                new KeyValuePair<string, string>("client_id", configuration["StravaUser:ClientId"]),
+                new KeyValuePair<string, string>("client_secret", configuration["StravaUser:Secret"]),
                 new KeyValuePair<string, string>("code", authorizationCode),
                 new KeyValuePair<string, string>("grant_type", "authorization_code")
             ]);
