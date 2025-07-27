@@ -23,7 +23,7 @@ namespace Data.Repos
         }
         public long? AddOrEditSegment(ISummarySegment segment)
         {
-            if (context.Segments.Contains(segment))
+            if (context.Segments.Any(s => s.Id == segment.Id))
             {
                 UpdateSegment(segment);
             }

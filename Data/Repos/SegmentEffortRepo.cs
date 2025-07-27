@@ -25,7 +25,7 @@ namespace Data.Repos
 
         public void AddOrEditSegmentEffort(IDetailedSegmentEffort effort)
         {
-            if (context.SegmentEfforts.Contains(effort))
+            if (context.SegmentEfforts.Any(e => e.Id == effort.Id))
             {
                 UpdateSegmentEffort(effort);
             }

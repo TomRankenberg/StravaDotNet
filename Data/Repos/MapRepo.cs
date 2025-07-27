@@ -22,7 +22,7 @@ namespace Data.Repos
 
         public string AddOrEditMap(IPolylineMap map)
         {
-            if (context.PolylineMaps.Contains(map))
+            if (context.PolylineMaps.Any(p => p.Id == map.Id))
             {
                 UpdateMap(map);
             }

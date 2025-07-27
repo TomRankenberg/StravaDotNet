@@ -19,7 +19,7 @@ namespace Data.Repos
         }
         public void AddOrEditAthlete(IMetaAthlete athlete)
         {
-            if (context.MetaAthletes.Contains(athlete))
+            if (context.MetaAthletes.Any(a => a.Id == athlete.Id))
             {
                 UpdateAthlete(athlete);
             }

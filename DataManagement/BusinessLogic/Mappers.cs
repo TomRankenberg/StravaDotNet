@@ -20,7 +20,8 @@ namespace DataManagement.BusinessLogic
                 StartDate = activity.StartDate,
                 StartLatlng = ConvertToDto(activity.StartLatlng),
                 EndLatlng = ConvertToDto(activity.EndLatlng),
-                MapId = activity.MapId
+                MapId = activity.MapId,
+                ElevationGain = activity.TotalElevationGain,
             };
         }
 
