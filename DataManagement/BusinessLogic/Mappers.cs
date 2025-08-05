@@ -22,6 +22,7 @@ namespace DataManagement.BusinessLogic
                 EndLatlng = ConvertToDto(activity.EndLatlng),
                 MapId = activity.MapId,
                 ElevationGain = activity.TotalElevationGain,
+                AverageSpeed = activity.AverageSpeed,
             };
         }
 
