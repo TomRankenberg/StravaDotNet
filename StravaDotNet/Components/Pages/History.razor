@@ -17,18 +17,15 @@
         @foreach (var day in week.Days)
         {
             <div class="day-cell" style="flex: 1 0 14.2857%; padding: 4px;">
-                <MudPaper Class="calendar-day pa-2" Style="@GetBackgroundColor(day.Activities)">
-                    @if (day.Date != DateTime.MinValue)
+                <MudCard Class="activity-card pa-2" Style="@GetCardStyle(day.Activities)">
+                    <span>@day.Date.ToString("dd-MM-y")</span>
+                    @foreach (var activity in day.Activities)
                     {
-                        <span>@day.Date.ToString("dd-MM-y")</span>
-                        @foreach (var activity in day.Activities)
-                        {
-                            <MudChip T="string" Color=@GetChipColor(activity.Type) Variant="Variant.Filled" Class="mt-1">
-                                @($"{activity.Distance} {activity.Type.ToLower()}")
-                            </MudChip>
-                        }
+                        <MudChip T="string" Style="@GetChipStyle(activity.Type)" Variant="Variant.Filled" Class="mt-1">
+                            @($"{activity.Distance} {activity.Type.ToLower()}")
+                        </MudChip>
                     }
-                </MudPaper>
+                </MudCard>
             </div>
         }
     </div>
@@ -60,28 +57,48 @@
         }
     }
 
-    private static MudBlazor.Color GetChipColor(string activityType)
+    private static string GetChipStyle(string activityType)
+    {
+        var bgColor = GetChipColor(activityType);
+        return $"background-color: {bgColor}; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);";
+    }
+
+
+    private static string GetChipColor(string activityType)
     {
         return activityType switch
         {
-            "Run" => Color.Secondary,
-            "Ride" => Color.Primary,
-            "Swim" => Color.Success,
-            _ => Color.Default
+            "Run" => "#AB47BC",
+            "Ride" => "#64B5F6",
+            "Swim" => "#4DB6AC",
+            _ => "#d4d4d4"
         };
     }
 
-    private static string GetBackgroundColor(List<SimpleActivity> activities)
+    private static string GetCardStyle(List<SimpleActivity> activities)
     {
-        var firstType = activities.FirstOrDefault()?.Type?.ToLower();
-        return firstType switch
+        if (activities == null || activities.Count == 0)
+            return "background-color: #f5f5f5;";
+
+        var types = activities.Select(a => a.Type).Distinct().ToList();
+
+        if (types.Count == 1)
         {
-            "run" => "background-color: lightcoral;",
-            "ride" => "background-color: lightblue;",
-            "swim" => "background-color: lightseagreen;",
-            null => "background-color: lightgray;",
-            _ => "background-color: white;"
-        };
+            var bgColor = types[0] switch
+            {
+                "Run" => "#F3E5F5",
+                "Ride" => "#E3F2FD",
+                "Swim" => "#E0F2F1",
+                _ => "#f5f5f5"
+            };
+            return $"background-color: {bgColor}; border-left: 6px solid {GetChipColor(types[0])};";
+        }
+
+        // Blend two colors for mixed activities
+        var color1 = GetChipColor(types[0]);
+        var color2 = GetChipColor(types[1 % types.Count]); // fallback if only one
+
+        return $"background: linear-gradient(135deg, {color1}50 0%, {color2}50 100%); border-left: 6px solid {color1};";
     }
 
     private async Task LoadData()
@@ -102,7 +119,7 @@
                             Type = activity.Activity.Type,
                             StartDate = activity.Activity.StartDate.Value,
 						    Distance = activity.Activity.Distance.HasValue
-								    ? $"{(activity.Activity.Distance.Value / 1000):F2} km"
+								    ? $"{(activity.Activity.Distance.Value / 1000):F2}km"
 								    : "N/A"
                         });
             }
@@ -130,7 +147,7 @@
             Type = a.Activity.Type,
             StartDate = a.Activity.StartDate.Value,
             Distance = a.Activity.Distance.HasValue
-                ? $"{(a.Activity.Distance.Value / 1000):F2} km"
+                ? $"{(a.Activity.Distance.Value / 1000):F2}km"
                 : "N/A"
         }).ToList();
 
@@ -204,6 +221,16 @@
 
 }
 <style>
+    .activity-card {
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+		min-height: 120px;
+    }
+
+        .activity-card:hover {
+            transform: scale(1.02);
+        }
 
     .calendar-day {
         min-height: 120px;
