@@ -19,13 +19,13 @@ namespace StravaDotNet.Controllers
 
             if (from.HasValue)
             {
-                query = query.Where(a => a.StartDate.HasValue && a.StartDate.Value >= from.Value);
+                query = query.Where(a => a.StartDateLocal.HasValue && a.StartDateLocal.Value >= from.Value);
             }
 
             if (to.HasValue)
             {
                 to = new DateTime(to.Value.Year, to.Value.Month, to.Value.Day, 23, 59, 59);
-                query = query.Where(a => a.StartDate.HasValue && a.StartDate.Value <= to.Value);
+                query = query.Where(a => a.StartDateLocal.HasValue && a.StartDateLocal.Value <= to.Value);
             }
 
             List<ActivityVm> activityVms = [];

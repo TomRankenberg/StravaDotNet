@@ -17,7 +17,7 @@ namespace DataManagement.BusinessLogic
                 ElapsedTime = activity.ElapsedTime,
                 TotalElevationGain = activity.TotalElevationGain,
                 Type = activity.Type,
-                StartDate = activity.StartDate,
+                StartDate = activity.StartDateLocal,
                 StartLatlng = ConvertToDto(activity.StartLatlng),
                 EndLatlng = ConvertToDto(activity.EndLatlng),
                 MapId = activity.MapId,
