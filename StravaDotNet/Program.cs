@@ -14,8 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<AuthState>();
 builder.Services.AddMudServices();
 builder.Services.AddDbContext<DatabaseContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("Data")));
+    options.UseNpgsql(builder.Configuration["DBSettings:ConnectionString"]));
 
 builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
 builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();

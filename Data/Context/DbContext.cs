@@ -41,6 +41,10 @@ namespace Data.Context
                 .HasMany(x => x.SegmentEfforts)
                 .WithOne(x => x.DetailedActivity)
                 .HasForeignKey(x => x.ActivityId);
+            modelBuilder.Entity<DetailedActivity>().Property(e => e.StartLatlng)
+                .HasConversion(new LatLngConverter());
+            modelBuilder.Entity<DetailedActivity>().Property(e => e.EndLatlng)
+                .HasConversion(new LatLngConverter());
 
             modelBuilder.Entity<MetaAthlete>()
                 .HasMany(x => x.Activities)
