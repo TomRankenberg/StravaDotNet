@@ -2,7 +2,7 @@
 using Data.Models.Strava;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Data
+namespace Data.Converters
 {
     public class LatLngConverter : ValueConverter<LatLng, string>
     {

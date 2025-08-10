@@ -1,4 +1,5 @@
-﻿using Data.Models;
+﻿using Data.Converters;
+using Data.Models;
 using Data.Models.Strava;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,8 +30,6 @@ namespace Data.Context
         public virtual DbSet<MovingStream> MovingStreams { get; set; }
         public virtual DbSet<TemperatureStream> TemperatureStreams { get; set; }
         public virtual DbSet<PowerStream> PowerStreams { get; set; }
-        
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -74,12 +73,18 @@ namespace Data.Context
                 .HasOne<StreamSet>()
                 .WithOne()
                 .HasForeignKey<TimeStream>(ts => ts.StreamSetId);
+            modelBuilder.Entity<TimeStream>()
+                .Property(ts => ts.Data)
+                .HasConversion(new IntListConverter());
 
             modelBuilder.Entity<DistanceStream>().HasKey(ts => ts.DistanceStreamId);
             modelBuilder.Entity<DistanceStream>()
                 .HasOne<StreamSet>()
                 .WithOne()
                 .HasForeignKey<DistanceStream>(ds => ds.StreamSetId);
+            modelBuilder.Entity<DistanceStream>()
+                .Property(ts => ts.Data)
+                .HasConversion(new FloatListConverter());
 
             modelBuilder.Entity<LatLngStream>().HasKey(ts => ts.LatLngStreamId);
             modelBuilder.Entity<LatLngStream>()
@@ -92,54 +97,77 @@ namespace Data.Context
                 .HasOne<StreamSet>()
                 .WithOne()
                 .HasForeignKey<AltitudeStream>(als => als.StreamSetId);
+            modelBuilder.Entity<AltitudeStream>()
+                .Property(ts => ts.Data)
+                .HasConversion(new FloatListConverter());
 
             modelBuilder.Entity<SmoothVelocityStream>().HasKey(ts => ts.SmoothVelocityStreamId);
             modelBuilder.Entity<SmoothVelocityStream>()
                 .HasOne<StreamSet>()
                 .WithOne()
                 .HasForeignKey<SmoothVelocityStream>(svs => svs.StreamSetId);
+            modelBuilder.Entity<SmoothVelocityStream>()
+                .Property(ts => ts.Data)
+                .HasConversion(new FloatListConverter());
 
             modelBuilder.Entity<HeartrateStream>().HasKey(ts => ts.HeartrateStreamId);
             modelBuilder.Entity<HeartrateStream>()
                 .HasOne<StreamSet>()
                 .WithOne()
                 .HasForeignKey<HeartrateStream>(hs => hs.StreamSetId);
+            modelBuilder.Entity<HeartrateStream>()
+                .Property(ts => ts.Data)
+                .HasConversion(new IntListConverter());
 
             modelBuilder.Entity<CadenceStream>().HasKey(ts => ts.CadenceStreamId);
             modelBuilder.Entity<CadenceStream>()
                 .HasOne<StreamSet>()
                 .WithOne()
                 .HasForeignKey<CadenceStream>(cs => cs.StreamSetId);
+            modelBuilder.Entity<CadenceStream>()
+                .Property(ts => ts.Data)
+                .HasConversion(new IntListConverter());
 
             modelBuilder.Entity<PowerStream>().HasKey(ts => ts.PowerStreamId);
             modelBuilder.Entity<PowerStream>()
                 .HasOne<StreamSet>()
                 .WithOne()
                 .HasForeignKey<PowerStream>(ps => ps.StreamSetId);
+            modelBuilder.Entity<PowerStream>()
+                .Property(ts => ts.Data)
+                .HasConversion(new IntListConverter());
 
             modelBuilder.Entity<TemperatureStream>().HasKey(ts => ts.TemperatureStreamId);
             modelBuilder.Entity<TemperatureStream>()
                 .HasOne<StreamSet>()
                 .WithOne()
                 .HasForeignKey<TemperatureStream>(ts => ts.StreamSetId);
+            modelBuilder.Entity<TemperatureStream>()
+                .Property(ts => ts.Data)
+                .HasConversion(new IntListConverter());
 
             modelBuilder.Entity<MovingStream>().HasKey(ts => ts.MovingStreamId);
             modelBuilder.Entity<MovingStream>()
                 .HasOne<StreamSet>()
                 .WithOne()
                 .HasForeignKey<MovingStream>(ms => ms.StreamSetId);
+            modelBuilder.Entity<MovingStream>()
+                .Property(ts => ts.Data)
+                .HasConversion(new BoolListConverter());
 
             modelBuilder.Entity<SmoothGradeStream>().HasKey(ts => ts.SmoothGradeId);
             modelBuilder.Entity<SmoothGradeStream>()
                 .HasOne<StreamSet>()
                 .WithOne()
                 .HasForeignKey<SmoothGradeStream>(sgs => sgs.StreamSetId);
+            modelBuilder.Entity<SmoothGradeStream>()
+                .Property(ts => ts.Data)
+                .HasConversion(new FloatListConverter());
 
             modelBuilder.Entity<MetaActivity>().HasKey(x => x.Id);
             modelBuilder.Entity<MetaAthlete>().HasKey(x => x.Id);
 
             base.OnModelCreating(modelBuilder);
         }
-
     }
 }
