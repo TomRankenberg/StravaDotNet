@@ -12,7 +12,7 @@ namespace StravaDotNet.Controllers
         [Route("GetHeartStreamFromActivityId")]
         public ActionResult<HeartrateStream> GetHeartStreamFromActivityId(long? id)
         {
-            int? streamSetId = context.Streams
+            long streamSetId = context.Streams
                 .Where(s => s.ActivityId == id)
                 .Select(s => s.StreamSetId)
                 .FirstOrDefault();

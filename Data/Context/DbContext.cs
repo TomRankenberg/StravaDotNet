@@ -64,6 +64,10 @@ namespace Data.Context
 
             modelBuilder.Entity<StreamSet>().HasKey(s => s.StreamSetId);
             modelBuilder.Entity<StreamSet>()
+                .Property(s => s.StreamSetId)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<StreamSet>()
                 .HasOne<DetailedActivity>()
                 .WithOne()
                 .HasForeignKey<StreamSet>(ss => ss.ActivityId);

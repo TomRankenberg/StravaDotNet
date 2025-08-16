@@ -12,7 +12,7 @@ namespace Data.Models.Strava
     [DataContract]
     public class DistanceStream : IDistanceStream
     {
-        public int? StreamSetId { get; set; }
+        public long StreamSetId { get; set; }
         public int? DistanceStreamId { get; set; }
 
         /// <summary>

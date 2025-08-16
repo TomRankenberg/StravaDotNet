@@ -12,7 +12,7 @@ namespace Data.Models.Strava
     [DataContract]
     public class TimeStream : ITimeStream
     {
-        public int? StreamSetId { get; set; }
+        public long StreamSetId { get; set; }
         public int? TimeStreamId { get; set; }
 
 

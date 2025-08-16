@@ -13,7 +13,7 @@ namespace Data.Models.Strava
     public class LatLngStream : ILatLngStream
     {
         public int? LatLngStreamId { get; set; }
-        public int? StreamSetId { get; set; }
+        public long StreamSetId { get; set; }
 
         /// <summary>
         /// The number of data points in this stream

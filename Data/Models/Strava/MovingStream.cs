@@ -13,7 +13,7 @@ namespace Data.Models.Strava
     public class MovingStream : IMovingStream
     {
         public int? MovingStreamId { get; set; }
-        public int? StreamSetId { get; set; }
+        public long StreamSetId { get; set; }
 
         /// <summary>
         /// The number of data points in this stream

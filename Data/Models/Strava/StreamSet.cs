@@ -1,7 +1,9 @@
-using System.Text;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
+using System.Text;
 using Contracts.Interfaces;
+using Newtonsoft.Json;
 
 namespace Data.Models.Strava
 {
@@ -12,7 +14,9 @@ namespace Data.Models.Strava
     [DataContract]
     public class StreamSet : IStreamSet
     {
-        public int? StreamSetId { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long StreamSetId { get; set; }
         public long? ActivityId { get; set; }
         /// <summary>
         /// Gets or Sets Time
