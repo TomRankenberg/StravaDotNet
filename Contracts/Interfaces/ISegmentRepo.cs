@@ -2,8 +2,8 @@
 {
     public interface ISegmentRepo
     {
-        void AddSegment(ISummarySegment segment);
-        void UpdateSegment(ISummarySegment segment);
-        long? AddOrEditSegment(ISummarySegment segment);
+        Task AddSegmentAsync(ISummarySegment segment);
+        Task UpdateSegmentAsync(ISummarySegment segment);
+        Task<long?> AddOrEditSegment(ISummarySegment segment);
     }
 }

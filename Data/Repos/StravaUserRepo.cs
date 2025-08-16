@@ -6,22 +6,25 @@ namespace Data.Repos
 {
     public class StravaUserRepo(DatabaseContext context) : IStravaUserRepo
     {
-        public void AddUser(IStravaUser user)
+        public async Task AddUserAsync(IStravaUser user)
         {
             var entity = user as StravaUser;
             context.Users.Add(entity);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
-        public void UpdateUser(IStravaUser user)
+
+        public async Task UpdateUserAsync(IStravaUser user)
         {
             var entity = user as StravaUser;
             context.Users.Update(entity);
-            context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
+
         public IStravaUser GetUserById(int id)
         {
             return context.Users.FirstOrDefault(x => x.UserId == id);
         }
+
         public void DeleteUser()
         {
             throw new NotImplementedException();

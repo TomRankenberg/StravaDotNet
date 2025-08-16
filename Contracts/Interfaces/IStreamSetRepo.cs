@@ -2,135 +2,135 @@
 {
     public interface IStreamSetRepo
     {
-        void AddStreamSet(IStreamSet streamSet);
+        Task AddStreamSetAsync(IStreamSet streamSet);
 
-        IStreamSet GetStreamSetById(int id);
+        Task<IStreamSet?> GetStreamSetByIdAsync(int id);
 
-        void UpdateStreamSet(IStreamSet streamSet);
+        Task UpdateStreamSetAsync(IStreamSet streamSet);
 
-        void DeleteStreamSet(int id);
-        List<long?> GetAllActivityIdsFromStreamSets();
+        Task DeleteStreamSetAsync(int id);
+        Task<List<long?>> GetAllActivityIdsFromStreamSetsAsync();
 
     }
 
     public interface ITimeStreamRepo
     {
-        void AddTimeStream(ITimeStream timeStream);
+        Task AddTimeStreamAsync(ITimeStream timeStream);
 
-        ITimeStream GetTimeStreamById(int id);
+        Task<ITimeStream> GetTimeStreamByIdAsync(int id);
 
-        void UpdateTimeStream(ITimeStream timeStream);
+        Task UpdateTimeStreamAsync(ITimeStream timeStream);
 
-        void DeleteTimeStream(int id);
+        Task DeleteTimeStreamAsync(int id);
     }
 
     public interface IDistanceStreamRepo
     {
-        void AddDistanceStream(IDistanceStream distanceStream);
+        Task AddDistanceStreamAsync(IDistanceStream distanceStream);
 
-        IDistanceStream GetDistanceStreamById(int id);
+        Task<IDistanceStream> GetDistanceStreamByIdAsync(int id);
 
-        void UpdateDistanceStream(IDistanceStream distanceStream);
+        Task UpdateDistanceStreamAsync(IDistanceStream distanceStream);
 
-        void DeleteDistanceStream(int id);
+        Task DeleteDistanceStreamAsync(int id);
     }
 
     public interface ILatLngStreamRepo
     {
-        void AddLatLngStream(ILatLngStream latLngStream);
+        Task AddLatLngStreamAsync(ILatLngStream latLngStream);
 
-        ILatLngStream GetLatLngStreamById(int id);
+        Task<ILatLngStream> GetLatLngStreamByIdAsync(int id);
 
-        void UpdateLatLngStream(ILatLngStream latLngStream);
+        Task UpdateLatLngStreamAsync(ILatLngStream latLngStream);
 
-        void DeleteLatLngStream(int id);
+        Task DeleteLatLngStreamAsync(int id);
     }
 
     public interface ISmoothGradeStreamRepo
     {
-        void AddSmoothGradeStream(ISmoothGradeStream smoothGradeStream);
+        Task AddSmoothGradeStreamAsync(ISmoothGradeStream smoothGradeStream);
 
-        ISmoothGradeStream GetSmoothGradeStreamById(int id);
+        Task<ISmoothGradeStream?> GetSmoothGradeStreamByIdAsync(int id);
 
-        void UpdateSmoothGradeStream(ISmoothGradeStream smoothGradeStream);
+        Task UpdateSmoothGradeStreamAsync(ISmoothGradeStream smoothGradeStream);
 
-        void DeleteSmoothGradeStream(int id);
+        Task DeleteSmoothGradeStreamAsync(int id);
     }
 
     public interface IMovingStreamRepo
     {
-        void AddMovingStream(IMovingStream movingStream);
+        Task AddMovingStreamAsync(IMovingStream movingStream);
 
-        IMovingStream GetMovingStreamById(int id);
+        Task<IMovingStream?> GetMovingStreamByIdAsync(int id);
 
-        void UpdateMovingStream(IMovingStream movingStream);
+        Task UpdateMovingStreamAsync(IMovingStream movingStream);
 
-        void DeleteMovingStream(int id);
+        Task DeleteMovingStreamAsync(int id);
     }
 
     public interface ITemperatureStreamRepo
     {
-        void AddTemperatureStream(ITemperatureStream temperatureStream);
+        Task AddTemperatureStreamAsync(ITemperatureStream temperatureStream);
 
-        ITemperatureStream GetTemperatureStreamById(int id);
+        Task<ITemperatureStream?> GetTemperatureStreamByIdAsync(int id);
 
-        void UpdateTemperatureStream(ITemperatureStream temperatureStream);
+        Task UpdateTemperatureStreamAsync(ITemperatureStream temperatureStream);
 
-        void DeleteTemperatureStream(int id);
+        Task DeleteTemperatureStreamAsync(int id);
     }
 
     public interface IPowerStreamRepo
     {
-        void AddPowerStream(IPowerStream powerStream);
+        Task AddPowerStreamAsync(IPowerStream powerStream);
 
-        IPowerStream GetPowerStreamById(int id);
+        Task<IPowerStream?> GetPowerStreamByIdAsync(int id);
 
-        void UpdatePowerStream(IPowerStream powerStream);
+        Task UpdatePowerStreamAsync(IPowerStream powerStream);
 
-        void DeletePowerStream(int id);
+        Task DeletePowerStreamAsync(int id);
     }
 
     public interface ICadenceStreamRepo
     {
-        void AddCadenceStream(ICadenceStream cadenceStream);
+        Task AddCadenceStreamAsync(ICadenceStream cadenceStream);
 
-        ICadenceStream GetCadenceStreamById(int id);
+        Task<ICadenceStream?> GetCadenceStreamByIdAsync(int id);
 
-        void UpdateCadenceStream(ICadenceStream cadenceStream);
+        Task UpdateCadenceStreamAsync(ICadenceStream cadenceStream);
 
-        void DeleteCadenceStream(int id);
+        Task DeleteCadenceStreamAsync(int id);
     }
 
     public interface IHeartrateStreamRepo
     {
-        void AddHeartrateStream(IHeartrateStream heartrateStream);
+        Task AddHeartrateStreamAsync(IHeartrateStream heartrateStream);
 
-        IHeartrateStream GetHeartrateStreamById(int id);
+        Task<IHeartrateStream?> GetHeartrateStreamByIdAsync(int id);
 
-        void UpdateHeartrateStream(IHeartrateStream heartrateStream);
+        Task UpdateHeartrateStreamAsync(IHeartrateStream heartrateStream);
 
-        void DeleteHeartrateStream(int id);
+        Task DeleteHeartrateStreamAsync(int id);
     }
 
     public interface ISmoothVelocityStreamRepo
     {
-        void AddSmoothVelocityStream(ISmoothVelocityStream smoothVelocityStream);
+        Task AddSmoothVelocityStreamAsync(ISmoothVelocityStream smoothVelocityStream);
 
-        ISmoothVelocityStream GetSmoothVelocityStreamById(int id);
+        Task<ISmoothVelocityStream?> GetSmoothVelocityStreamByIdAsync(int id);
 
-        void UpdateSmoothVelocityStream(ISmoothVelocityStream smoothVelocityStream);
+        Task UpdateSmoothVelocityStreamAsync(ISmoothVelocityStream smoothVelocityStream);
 
-        void DeleteSmoothVelocityStream(int id);
+        Task DeleteSmoothVelocityStreamAsync(int id);
     }
 
     public interface IAltitudeStreamRepo
     {
-        void AddAltitudeStream(IAltitudeStream altitudeStream);
+        Task AddAltitudeStreamAsync(IAltitudeStream altitudeStream);
 
-        IAltitudeStream GetAltitudeStreamById(int id);
+        Task<IAltitudeStream?> GetAltitudeStreamByIdAsync(int id);
 
-        void UpdateAltitudeStream(IAltitudeStream altitudeStream);
+        Task UpdateAltitudeStreamAsync(IAltitudeStream altitudeStream);
 
-        void DeleteAltitudeStream(int id);
+        Task DeleteAltitudeStreamAsync(int id);
     }
 }

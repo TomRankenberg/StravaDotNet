@@ -8,25 +8,24 @@ namespace Data.Repos
     public class ActivitiesRepo(DatabaseContext context) : IActivitiesRepo
     {
         
-        public void AddActivity(IDetailedActivity detailedActivity)
+        public async Task AddActivityAsync(IDetailedActivity detailedActivity)
         {
             var entity = detailedActivity as DetailedActivity;
             context.Activities.Add(entity);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        public void AddOrEditActivity(IDetailedActivity detailedActivity)
+        public async Task AddOrEditActivity(IDetailedActivity detailedActivity)
         {
             var entity = detailedActivity as DetailedActivity; 
             if (context.Activities.Any(x => x.Id == detailedActivity.Id))
             {
-                UpdateActivity(entity);
+                await UpdateActivityAsync(entity);
             }
             else
             {
-                AddActivity(entity);
+                await AddActivityAsync(entity);
             }
-            //DetachActivity(detailedActivity);
         }
 
         public IDetailedActivity GetActivityById(int id)
@@ -34,7 +33,7 @@ namespace Data.Repos
             return context.Activities.FirstOrDefault(x => x.Id == id);
         }
 
-        public void UpdateActivity(IDetailedActivity detailedActivity)
+        public async Task UpdateActivityAsync(IDetailedActivity detailedActivity)
         {
             var entity = detailedActivity as DetailedActivity;
             var existingActivity = context.Activities.Local.FirstOrDefault(a => a.Id == detailedActivity.Id);
@@ -45,18 +44,13 @@ namespace Data.Repos
 
             context.Activities.Attach(entity);
             context.Entry(detailedActivity).State = EntityState.Modified;
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
         public List<long?> GetAllActivityIds()
         {
             return context.Activities.Select(s => s.Id).ToList();
 
-        }
-
-        public void DetachActivity(IDetailedActivity detailedActivity)
-        {
-            context.Entry(detailedActivity).State = EntityState.Detached;
         }
 
         public List<IDetailedActivity> GetAllActivities()

@@ -2,9 +2,9 @@
 {
     public interface IMapRepo
     {
-        void AddMap(IPolylineMap map);
-        void UpdateMap(IPolylineMap map);
-        string AddOrEditMap(IPolylineMap map);  
+        Task AddMapAsync(IPolylineMap map);
+        Task UpdateMapAsync(IPolylineMap map);
+        Task<string> AddOrEditMap(IPolylineMap map);  
         IPolylineMap GetMapById(string id);
     }
 }

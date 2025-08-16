@@ -7,31 +7,31 @@ namespace Data.Repos
 {
     public class SegmentEffortRepo(DatabaseContext context) : ISegmentEffortRepo
     {
-        public void AddSegmentEffort(IDetailedSegmentEffort effort)
+        public async Task AddSegmentEffortAsync(IDetailedSegmentEffort effort)
         {
             var entity = effort as DetailedSegmentEffort;
             context.SegmentEfforts.Add(entity);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             context.Entry(effort).State = EntityState.Detached;
         }
 
-        public void UpdateSegmentEffort(IDetailedSegmentEffort effort)
+        public async Task UpdateSegmentEffortAsync(IDetailedSegmentEffort effort)
         {
             var entity = effort as DetailedSegmentEffort;   
             context.SegmentEfforts.Update(entity);
-            context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             context.Entry(effort).State = EntityState.Detached;
         }
 
-        public void AddOrEditSegmentEffort(IDetailedSegmentEffort effort)
+        public async Task AddOrEditSegmentEffortAsync(IDetailedSegmentEffort effort)
         {
             if (context.SegmentEfforts.Any(e => e.Id == effort.Id))
             {
-                UpdateSegmentEffort(effort);
+                await UpdateSegmentEffortAsync(effort);
             }
             else
             {
-                AddSegmentEffort(effort);
+                await AddSegmentEffortAsync(effort);
             }
         }
     }

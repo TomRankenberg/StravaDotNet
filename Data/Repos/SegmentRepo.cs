@@ -7,29 +7,29 @@ namespace Data.Repos
 {
     public class SegmentRepo(DatabaseContext context) : ISegmentRepo
     {
-        public void AddSegment(ISummarySegment segment)
+        public async Task AddSegmentAsync(ISummarySegment segment)
         {
             var entity = segment as SummarySegment;
             context.Segments.Add(entity);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             context.Entry(segment).State = EntityState.Detached;
         }
-        public void UpdateSegment(ISummarySegment segment)
+        public async Task UpdateSegmentAsync(ISummarySegment segment)
         {
             var entity = segment as SummarySegment;
             context.Segments.Update(entity);
-            context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             context.Entry(segment).State = EntityState.Detached;
         }
-        public long? AddOrEditSegment(ISummarySegment segment)
+        public async Task<long?> AddOrEditSegment(ISummarySegment segment)
         {
             if (context.Segments.Any(s => s.Id == segment.Id))
             {
-                UpdateSegment(segment);
+                await UpdateSegmentAsync(segment);
             }
             else
             {
-                AddSegment(segment);
+                await AddSegmentAsync(segment);
             }
 
             return segment.Id;

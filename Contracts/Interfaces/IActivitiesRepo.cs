@@ -2,11 +2,10 @@
 {
     public interface IActivitiesRepo
     {
-        public void AddActivity(IDetailedActivity detailedActivity);
-        public void AddOrEditActivity(IDetailedActivity detailedActivity);
+        public Task AddActivityAsync(IDetailedActivity detailedActivity);
+        public Task AddOrEditActivity(IDetailedActivity detailedActivity);
         public IDetailedActivity GetActivityById(int id);
-        public void UpdateActivity(IDetailedActivity detailedActivity);
-        public void DetachActivity(IDetailedActivity detailedActivity);
+        public Task UpdateActivityAsync(IDetailedActivity detailedActivity);
         public List<long?> GetAllActivityIds();
         public List<IDetailedActivity> GetAllActivities();
     }

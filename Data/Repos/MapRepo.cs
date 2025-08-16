@@ -6,29 +6,29 @@ namespace Data.Repos
 {
     public class MapRepo(DatabaseContext context) : IMapRepo
     {
-        public void AddMap(IPolylineMap map)
+        public async Task AddMapAsync(IPolylineMap map)
         {
             var entity = map as PolylineMap;
             context.PolylineMaps.Add(entity);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        public void UpdateMap(IPolylineMap map)
+        public async Task UpdateMapAsync(IPolylineMap map)
         {
             var entity = map as PolylineMap;
             context.PolylineMaps.Update(entity);
-            context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
-        public string AddOrEditMap(IPolylineMap map)
+        public async Task<string> AddOrEditMap(IPolylineMap map)
         {
             if (context.PolylineMaps.Any(p => p.Id == map.Id))
             {
-                UpdateMap(map);
+                await UpdateMapAsync(map);
             }
             else
             {
-                AddMap(map);
+                await AddMapAsync(map);
             }
             return map.Id;
         }

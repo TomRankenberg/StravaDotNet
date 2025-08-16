@@ -56,7 +56,7 @@ namespace StravaDotNet.Controllers
                             {
                                 try
                                 {
-                                    dataSaver.SaveActivity(detailedActivity, detailedActivity.Athlete.Id);
+                                    await dataSaver.SaveActivity(detailedActivity, detailedActivity.Athlete.Id);
                                 }
                                 catch (Exception e)
                                 {
@@ -86,7 +86,7 @@ namespace StravaDotNet.Controllers
                                 {
                                     try
                                     {
-                                        dataSaver.SaveActivity(detailedActivity, detailedActivity.Athlete.Id);
+                                        await dataSaver.SaveActivity(detailedActivity, detailedActivity.Athlete.Id);
                                     }
                                     catch (Exception e)
                                     {
@@ -148,7 +148,7 @@ namespace StravaDotNet.Controllers
         {
             DataSaver dataSaver = new(unitOfWork);
             List<long?> activityIds = unitOfWork.Activities.GetAllActivityIds();
-            List<long?> activityIdsFromStreams = unitOfWork.StreamSets.GetAllActivityIdsFromStreamSets();
+            List<long?> activityIdsFromStreams = await unitOfWork.StreamSets.GetAllActivityIdsFromStreamSetsAsync();
             foreach (long? activityId in activityIds)
             {
                 if (!activityIdsFromStreams.Contains(activityId))
@@ -160,13 +160,17 @@ namespace StravaDotNet.Controllers
                         {
                             try
                             {
-                                dataSaver.SaveStreams(streamSet, activityId);
+                                await dataSaver.SaveStreams(streamSet, activityId);
                             }
                             catch (Exception e)
                             {
                                 Console.WriteLine(e.Message);
                             }
                         }
+                    }
+                    else
+                    {
+                        return BadRequest("Failed to retrieve streams for activity ID: " + activityId);
                     }
                 }
             }
@@ -251,14 +255,14 @@ namespace StravaDotNet.Controllers
                         RefreshToken = token.refresh_token,
                         AccessTokenExpiresAt = token.expires_at.ToString()
                     };
-                    userRepo.AddUser(stravaUser);
+                    await userRepo.AddUserAsync(stravaUser);
                 }
                 else
                 {
                     stravaUser.AccessToken = token.access_token;
                     stravaUser.RefreshToken = token.refresh_token;
                     stravaUser.AccessTokenExpiresAt = token.expires_at.ToString();
-                    userRepo.UpdateUser(stravaUser);
+                    await userRepo.UpdateUserAsync(stravaUser);
                 }
             }
 

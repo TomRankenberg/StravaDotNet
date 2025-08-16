@@ -2,9 +2,9 @@
 {
     public interface ISegmentEffortRepo
     {
-        public void AddSegmentEffort(IDetailedSegmentEffort segmentEffort);
-        public void UpdateSegmentEffort(IDetailedSegmentEffort segmentEffort);
-        public void AddOrEditSegmentEffort(IDetailedSegmentEffort segmentEffort);
+        public Task AddSegmentEffortAsync(IDetailedSegmentEffort segmentEffort);
+        public Task UpdateSegmentEffortAsync(IDetailedSegmentEffort segmentEffort);
+        public Task AddOrEditSegmentEffortAsync(IDetailedSegmentEffort segmentEffort);
 
     }
 }

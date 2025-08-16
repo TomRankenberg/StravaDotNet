@@ -2,9 +2,9 @@
 {
     public interface IStravaUserRepo
     {
-        public void AddUser(IStravaUser user);
+        public Task AddUserAsync(IStravaUser user);
         public IStravaUser GetUserById(int id);
-        public void UpdateUser(IStravaUser user);
+        public Task UpdateUserAsync(IStravaUser user);
         public void DeleteUser();
 
     }

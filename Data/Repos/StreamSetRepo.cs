@@ -1,50 +1,44 @@
 ﻿using Contracts.Interfaces;
 using Data.Context;
 using Data.Models.Strava;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.Repos
 {
-    public class StreamSetRepo : IStreamSetRepo
+    public class StreamSetRepo(DatabaseContext context) : IStreamSetRepo
     {
-        private readonly DatabaseContext _context;
-
-        public StreamSetRepo(DatabaseContext context)
-        {
-            _context = context;
-        }
-
-        public void AddStreamSet(IStreamSet streamSet)
+        public async Task AddStreamSetAsync(IStreamSet streamSet)
         {
             var streamSetEntity = streamSet as StreamSet;
-            _context.Streams.Add(streamSetEntity);
-            _context.SaveChanges();
+            await context.Streams.AddAsync(streamSetEntity);
+            await context.SaveChangesAsync();
         }
 
-        public IStreamSet GetStreamSetById(int id)
+        public async Task<IStreamSet?> GetStreamSetByIdAsync(int id)
         {
-            return _context.Streams.Find(id);
+            return await context.Streams.FindAsync(id);
         }
 
-        public void UpdateStreamSet(IStreamSet streamSet)
+        public async Task UpdateStreamSetAsync(IStreamSet streamSet)
         {
             var streamSetEntity = streamSet as StreamSet;
-            _context.Streams.Update(streamSetEntity);
-            _context.SaveChanges();
+            context.Streams.Update(streamSetEntity);
+            await context.SaveChangesAsync();
         }
 
-        public void DeleteStreamSet(int id)
+        public async Task DeleteStreamSetAsync(int id)
         {
-            var streamSet = _context.Streams.Find(id);
+            var streamSet = await context.Streams.FindAsync(id);
             if (streamSet != null)
             {
-                _context.Streams.Remove(streamSet);
-                _context.SaveChanges();
+                context.Streams.Remove(streamSet);
+                await context.SaveChangesAsync();
             }
         }
 
-        public List<long?> GetAllActivityIdsFromStreamSets()
+        public async Task<List<long?>> GetAllActivityIdsFromStreamSetsAsync()
         {
-            return _context.Streams.Select(s => s.ActivityId).ToList();
+            return await context.Streams.Select(s => s.ActivityId).ToListAsync();
         }
     }
 
@@ -57,32 +51,32 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddTimeStream(ITimeStream timeStream)
+        public async Task AddTimeStreamAsync(ITimeStream timeStream)
         {
             var timeStreamEntity = timeStream as TimeStream;
-            _context.TimeStreams.Add(timeStreamEntity);
-            _context.SaveChanges();
+            await _context.TimeStreams.AddAsync(timeStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public ITimeStream GetTimeStreamById(int id)
+        public async Task<ITimeStream?> GetTimeStreamByIdAsync(int id)
         {
-            return _context.TimeStreams.Find(id);
+            return await _context.TimeStreams.FindAsync(id);
         }
 
-        public void UpdateTimeStream(ITimeStream timeStream)
+        public async Task UpdateTimeStreamAsync(ITimeStream timeStream)
         {
             var timeStreamEntity = timeStream as TimeStream;
             _context.TimeStreams.Update(timeStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteTimeStream(int id)
+        public async Task DeleteTimeStreamAsync(int id)
         {
-            var timeStream = _context.TimeStreams.Find(id);
+            var timeStream = await _context.TimeStreams.FindAsync(id);
             if (timeStream != null)
             {
                 _context.TimeStreams.Remove(timeStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
@@ -96,35 +90,36 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddDistanceStream(IDistanceStream distanceStream)
+        public async Task AddDistanceStreamAsync(IDistanceStream distanceStream)
         {
             var distanceStreamEntity = distanceStream as DistanceStream;
-            _context.DistanceStreams.Add(distanceStreamEntity);
-            _context.SaveChanges();
+            await _context.DistanceStreams.AddAsync(distanceStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public IDistanceStream GetDistanceStreamById(int id)
+        public async Task<IDistanceStream?> GetDistanceStreamByIdAsync(int id)
         {
-            return _context.DistanceStreams.Find(id);
+            return await _context.DistanceStreams.FindAsync(id);
         }
 
-        public void UpdateDistanceStream(IDistanceStream distanceStream)
+        public async Task UpdateDistanceStreamAsync(IDistanceStream distanceStream)
         {
             var distanceStreamEntity = distanceStream as DistanceStream;
             _context.DistanceStreams.Update(distanceStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteDistanceStream(int id)
+        public async Task DeleteDistanceStreamAsync(int id)
         {
-            var distanceStream = _context.DistanceStreams.Find(id);
+            var distanceStream = await _context.DistanceStreams.FindAsync(id);
             if (distanceStream != null)
             {
                 _context.DistanceStreams.Remove(distanceStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
+
     public class LatLngStreamRepo : ILatLngStreamRepo
     {
         private readonly DatabaseContext _context;
@@ -134,32 +129,32 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddLatLngStream(ILatLngStream latLngStream)
+        public async Task AddLatLngStreamAsync(ILatLngStream latLngStream)
         {
             var latLngStreamEntity = latLngStream as LatLngStream;
-            _context.LatLngStreams.Add(latLngStreamEntity);
-            _context.SaveChanges();
+            await _context.LatLngStreams.AddAsync(latLngStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public ILatLngStream GetLatLngStreamById(int id)
+        public async Task<ILatLngStream?> GetLatLngStreamByIdAsync(int id)
         {
-            return _context.LatLngStreams.Find(id);
+            return await _context.LatLngStreams.FindAsync(id);
         }
 
-        public void UpdateLatLngStream(ILatLngStream latLngStream)
+        public async Task UpdateLatLngStreamAsync(ILatLngStream latLngStream)
         {
             var latLngStreamEntity = latLngStream as LatLngStream;
             _context.LatLngStreams.Update(latLngStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteLatLngStream(int id)
+        public async Task DeleteLatLngStreamAsync(int id)
         {
-            var latLngStream = _context.LatLngStreams.Find(id);
+            var latLngStream = await _context.LatLngStreams.FindAsync(id);
             if (latLngStream != null)
             {
                 _context.LatLngStreams.Remove(latLngStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
@@ -173,32 +168,32 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddSmoothGradeStream(ISmoothGradeStream smoothGradeStream)
+        public async Task AddSmoothGradeStreamAsync(ISmoothGradeStream smoothGradeStream)
         {
             var smoothGradeStreamEntity = smoothGradeStream as SmoothGradeStream;
-            _context.SmoothGradeStreams.Add(smoothGradeStreamEntity);
-            _context.SaveChanges();
+            await _context.SmoothGradeStreams.AddAsync(smoothGradeStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public ISmoothGradeStream GetSmoothGradeStreamById(int id)
+        public async Task<ISmoothGradeStream?> GetSmoothGradeStreamByIdAsync(int id)
         {
-            return _context.SmoothGradeStreams.Find(id);
+            return await _context.SmoothGradeStreams.FindAsync(id);
         }
 
-        public void UpdateSmoothGradeStream(ISmoothGradeStream smoothGradeStream)
+        public async Task UpdateSmoothGradeStreamAsync(ISmoothGradeStream smoothGradeStream)
         {
             var smoothGradeStreamEntity = smoothGradeStream as SmoothGradeStream;
             _context.SmoothGradeStreams.Update(smoothGradeStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteSmoothGradeStream(int id)
+        public async Task DeleteSmoothGradeStreamAsync(int id)
         {
-            var smoothGradeStream = _context.SmoothGradeStreams.Find(id);
+            var smoothGradeStream = await _context.SmoothGradeStreams.FindAsync(id);
             if (smoothGradeStream != null)
             {
                 _context.SmoothGradeStreams.Remove(smoothGradeStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
@@ -212,32 +207,32 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddMovingStream(IMovingStream movingStream)
+        public async Task AddMovingStreamAsync(IMovingStream movingStream)
         {
             var movingStreamEntity = movingStream as MovingStream;
-            _context.MovingStreams.Add(movingStreamEntity);
-            _context.SaveChanges();
+            await _context.MovingStreams.AddAsync(movingStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public IMovingStream GetMovingStreamById(int id)
+        public async Task<IMovingStream?> GetMovingStreamByIdAsync(int id)
         {
-            return _context.MovingStreams.Find(id);
+            return await _context.MovingStreams.FindAsync(id);
         }
 
-        public void UpdateMovingStream(IMovingStream movingStream)
+        public async Task UpdateMovingStreamAsync(IMovingStream movingStream)
         {
             var movingStreamEntity = movingStream as MovingStream;
             _context.MovingStreams.Update(movingStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteMovingStream(int id)
+        public async Task DeleteMovingStreamAsync(int id)
         {
-            var movingStream = _context.MovingStreams.Find(id);
+            var movingStream = await _context.MovingStreams.FindAsync(id);
             if (movingStream != null)
             {
                 _context.MovingStreams.Remove(movingStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
@@ -251,32 +246,32 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddTemperatureStream(ITemperatureStream temperatureStream)
+        public async Task AddTemperatureStreamAsync(ITemperatureStream temperatureStream)
         {
             var temperatureStreamEntity = temperatureStream as TemperatureStream;
-            _context.TemperatureStreams.Add(temperatureStreamEntity);
-            _context.SaveChanges();
+            await _context.TemperatureStreams.AddAsync(temperatureStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public ITemperatureStream GetTemperatureStreamById(int id)
+        public async Task<ITemperatureStream?> GetTemperatureStreamByIdAsync(int id)
         {
-            return _context.TemperatureStreams.Find(id);
+            return await _context.TemperatureStreams.FindAsync(id);
         }
 
-        public void UpdateTemperatureStream(ITemperatureStream temperatureStream)
+        public async Task UpdateTemperatureStreamAsync(ITemperatureStream temperatureStream)
         {
             var temperatureStreamEntity = temperatureStream as TemperatureStream;
             _context.TemperatureStreams.Update(temperatureStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteTemperatureStream(int id)
+        public async Task DeleteTemperatureStreamAsync(int id)
         {
-            var temperatureStream = _context.TemperatureStreams.Find(id);
+            var temperatureStream = await _context.TemperatureStreams.FindAsync(id);
             if (temperatureStream != null)
             {
                 _context.TemperatureStreams.Remove(temperatureStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
@@ -290,32 +285,32 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddPowerStream(IPowerStream powerStream)
+        public async Task AddPowerStreamAsync(IPowerStream powerStream)
         {
             var powerStreamEntity = powerStream as PowerStream;
-            _context.PowerStreams.Add(powerStreamEntity);
-            _context.SaveChanges();
+            await _context.PowerStreams.AddAsync(powerStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public IPowerStream GetPowerStreamById(int id)
+        public async Task<IPowerStream?> GetPowerStreamByIdAsync(int id)
         {
-            return _context.PowerStreams.Find(id);
+            return await _context.PowerStreams.FindAsync(id);
         }
 
-        public void UpdatePowerStream(IPowerStream powerStream)
+        public async Task UpdatePowerStreamAsync(IPowerStream powerStream)
         {
             var powerStreamEntity = powerStream as PowerStream;
             _context.PowerStreams.Update(powerStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeletePowerStream(int id)
+        public async Task DeletePowerStreamAsync(int id)
         {
-            var powerStream = _context.PowerStreams.Find(id);
+            var powerStream = await _context.PowerStreams.FindAsync(id);
             if (powerStream != null)
             {
                 _context.PowerStreams.Remove(powerStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
@@ -329,32 +324,32 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddCadenceStream(ICadenceStream cadenceStream)
+        public async Task AddCadenceStreamAsync(ICadenceStream cadenceStream)
         {
             var cadenceStreamEntity = cadenceStream as CadenceStream;
-            _context.CadenceStreams.Add(cadenceStreamEntity);
-            _context.SaveChanges();
+            await _context.CadenceStreams.AddAsync(cadenceStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public ICadenceStream GetCadenceStreamById(int id)
+        public async Task<ICadenceStream?> GetCadenceStreamByIdAsync(int id)
         {
-            return _context.CadenceStreams.Find(id);
+            return await _context.CadenceStreams.FindAsync(id);
         }
 
-        public void UpdateCadenceStream(ICadenceStream cadenceStream)
+        public async Task UpdateCadenceStreamAsync(ICadenceStream cadenceStream)
         {
             var cadenceStreamEntity = cadenceStream as CadenceStream;
             _context.CadenceStreams.Update(cadenceStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteCadenceStream(int id)
+        public async Task DeleteCadenceStreamAsync(int id)
         {
-            var cadenceStream = _context.CadenceStreams.Find(id);
+            var cadenceStream = await _context.CadenceStreams.FindAsync(id);
             if (cadenceStream != null)
             {
                 _context.CadenceStreams.Remove(cadenceStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
@@ -368,32 +363,32 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddHeartrateStream(IHeartrateStream heartrateStream)
+        public async Task AddHeartrateStreamAsync(IHeartrateStream heartrateStream)
         {
             var heartrateStreamEntity = heartrateStream as HeartrateStream;
-            _context.HeartrateStreams.Add(heartrateStreamEntity);
-            _context.SaveChanges();
+            await _context.HeartrateStreams.AddAsync(heartrateStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public IHeartrateStream GetHeartrateStreamById(int id)
+        public async Task<IHeartrateStream?> GetHeartrateStreamByIdAsync(int id)
         {
-            return _context.HeartrateStreams.Find(id);
+            return await _context.HeartrateStreams.FindAsync(id);
         }
 
-        public void UpdateHeartrateStream(IHeartrateStream heartrateStream)
+        public async Task UpdateHeartrateStreamAsync(IHeartrateStream heartrateStream)
         {
             var heartrateStreamEntity = heartrateStream as HeartrateStream;
             _context.HeartrateStreams.Update(heartrateStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteHeartrateStream(int id)
+        public async Task DeleteHeartrateStreamAsync(int id)
         {
-            var heartrateStream = _context.HeartrateStreams.Find(id);
+            var heartrateStream = await _context.HeartrateStreams.FindAsync(id);
             if (heartrateStream != null)
             {
                 _context.HeartrateStreams.Remove(heartrateStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
@@ -407,32 +402,32 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddSmoothVelocityStream(ISmoothVelocityStream smoothVelocityStream)
+        public async Task AddSmoothVelocityStreamAsync(ISmoothVelocityStream smoothVelocityStream)
         {
             var smoothVelocityStreamEntity = smoothVelocityStream as SmoothVelocityStream;
-            _context.SmoothVelocityStreams.Add(smoothVelocityStreamEntity);
-            _context.SaveChanges();
+            await _context.SmoothVelocityStreams.AddAsync(smoothVelocityStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public ISmoothVelocityStream GetSmoothVelocityStreamById(int id)
+        public async Task<ISmoothVelocityStream?> GetSmoothVelocityStreamByIdAsync(int id)
         {
-            return _context.SmoothVelocityStreams.Find(id);
+            return await _context.SmoothVelocityStreams.FindAsync(id);
         }
 
-        public void UpdateSmoothVelocityStream(ISmoothVelocityStream smoothVelocityStream)
+        public async Task UpdateSmoothVelocityStreamAsync(ISmoothVelocityStream smoothVelocityStream)
         {
             var smoothVelocityStreamEntity = smoothVelocityStream as SmoothVelocityStream;
             _context.SmoothVelocityStreams.Update(smoothVelocityStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteSmoothVelocityStream(int id)
+        public async Task DeleteSmoothVelocityStreamAsync(int id)
         {
-            var smoothVelocityStream = _context.SmoothVelocityStreams.Find(id);
+            var smoothVelocityStream = await _context.SmoothVelocityStreams.FindAsync(id);
             if (smoothVelocityStream != null)
             {
                 _context.SmoothVelocityStreams.Remove(smoothVelocityStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
@@ -446,34 +441,33 @@ namespace Data.Repos
             _context = context;
         }
 
-        public void AddAltitudeStream(IAltitudeStream altitudeStream)
+        public async Task AddAltitudeStreamAsync(IAltitudeStream altitudeStream)
         {
             var altitudeStreamEntity = altitudeStream as AltitudeStream;
-            _context.AltitudeStreams.Add(altitudeStreamEntity);
-            _context.SaveChanges();
+            await _context.AltitudeStreams.AddAsync(altitudeStreamEntity);
+            await _context.SaveChangesAsync();
         }
 
-        public IAltitudeStream GetAltitudeStreamById(int id)
+        public async Task<IAltitudeStream?> GetAltitudeStreamByIdAsync(int id)
         {
-            return _context.AltitudeStreams.Find(id);
+            return await _context.AltitudeStreams.FindAsync(id);
         }
 
-        public void UpdateAltitudeStream(IAltitudeStream altitudeStream)
+        public async Task UpdateAltitudeStreamAsync(IAltitudeStream altitudeStream)
         {
             var altitudeStreamEntity = altitudeStream as AltitudeStream;
             _context.AltitudeStreams.Update(altitudeStreamEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteAltitudeStream(int id)
+        public async Task DeleteAltitudeStreamAsync(int id)
         {
-            var altitudeStream = _context.AltitudeStreams.Find(id);
+            var altitudeStream = await _context.AltitudeStreams.FindAsync(id);
             if (altitudeStream != null)
             {
                 _context.AltitudeStreams.Remove(altitudeStream);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
     }
-    // Repeat similar implementations for DistanceStreamRepo, LatLngStreamRepo, SmoothGradeStreamRepo, etc.
 }

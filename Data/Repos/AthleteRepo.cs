@@ -6,26 +6,26 @@ namespace Data.Repos
 {
     public class AthleteRepo(DatabaseContext context) : IAthleteRepo
     {
-        public void AddAthlete(IMetaAthlete athlete)
+        public async Task AddAthleteAsync(IMetaAthlete athlete)
         {
             var entity = athlete as MetaAthlete ;
             context.MetaAthletes.Add(entity);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
-        public void UpdateAthlete(IMetaAthlete athlete)
+        public async Task UpdateAthleteAsync(IMetaAthlete athlete)
         {
             //context.MetaAthletes.Update(athlete);
-            context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
-        public void AddOrEditAthlete(IMetaAthlete athlete)
+        public async Task AddOrEditAthlete(IMetaAthlete athlete)
         {
             if (context.MetaAthletes.Any(a => a.Id == athlete.Id))
             {
-                UpdateAthlete(athlete);
+                await UpdateAthleteAsync(athlete);
             }
             else
             {
-                AddAthlete(athlete);
+                await AddAthleteAsync(athlete);
             }
         }
     }
