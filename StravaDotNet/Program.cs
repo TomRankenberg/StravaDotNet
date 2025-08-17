@@ -50,6 +50,7 @@ builder.Services.AddScoped<HeatmapService>();
 builder.Services.AddScoped<DataRetrievalService>();
 builder.Services.AddScoped<PlottingHelperService>();
 builder.Services.AddScoped<StatsService>();
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

@@ -1,8 +1,11 @@
 ﻿@page "/"
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
+@using Contracts.Interfaces
 @using Services
+@inject NavigationManager Navigation
 @inject AuthState AuthState
+@inject AuthService AuthService
 @rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
@@ -14,6 +17,23 @@
 </form>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        IStravaUser user = await AuthService.ValidateCredentialsAsync();
+        int secondsEpoch = int.Parse(user.AccessTokenExpiresAt);
+        DateTime tokenExpiryDateTime = new DateTime(1970, 1, 1).AddSeconds(secondsEpoch);
+        if (tokenExpiryDateTime < DateTime.UtcNow)
+        {
+            AuthState.IsLoggedIn = false;
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "false");
+        }
+        else
+        {
+            AuthState.IsLoggedIn = true;
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "true");
+        }
+        StateHasChanged();
+    }
     private async Task ConnectToStrava()
     {
         try

@@ -20,7 +20,7 @@ namespace Data.Repos
             await context.SaveChangesAsync();
         }
 
-        public IStravaUser GetUserById(int id)
+        public async Task<IStravaUser> GetUserByIdAsync(int id)
         {
             return context.Users.FirstOrDefault(x => x.UserId == id);
         }

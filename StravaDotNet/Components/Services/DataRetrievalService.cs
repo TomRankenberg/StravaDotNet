@@ -5,40 +5,29 @@ using StravaDotNet.ViewModels;
 
 namespace StravaDotNet.Components.Services
 {
-    public class DataRetrievalService
+    public class DataRetrievalService(
+        DetailedActivityService detailedActivityService,
+        SegmentEffortService segmentEffortService,
+        HeatmapService heatmapService)
     {
-        private readonly DetailedActivityService _detailedActivityService;
-        private readonly SegmentEffortService _segmentEffortService;
-        private readonly HeatmapService _heatmapService;
-
-        public DataRetrievalService(
-            DetailedActivityService detailedActivityService,
-            SegmentEffortService segmentEffortService,
-            HeatmapService heatmapService)
-        {
-            _detailedActivityService = detailedActivityService;
-            _segmentEffortService = segmentEffortService;
-            _heatmapService = heatmapService;
-        }
-
         public async Task<List<ActivityVm>> GetAllActivityVmsAsync()
         {
-            return await _detailedActivityService.GetDetailedActivityVmsAsync();
+            return await detailedActivityService.GetDetailedActivityVmsAsync();
         }
 
         public async Task<List<ActivityDTO>> GetAllActivitiesAsync()
         {
-            return await _detailedActivityService.GetDetailedActivitiesAsync();
+            return await detailedActivityService.GetDetailedActivitiesAsync();
         }
 
         public async Task<List<DetailedSegmentEffort>> GetAllSegmentEffortsAsync()
         {
-            return await _segmentEffortService.GetDetailedSegmentEffortsAsync();
+            return await segmentEffortService.GetDetailedSegmentEffortsAsync();
         }
 
         public HeatMapData GetHeatmapData(List<ActivityDTO> activities)
         {
-            return _heatmapService.GetHeatmapData(activities);
+            return heatmapService.GetHeatmapData(activities);
         }
     }
 }
