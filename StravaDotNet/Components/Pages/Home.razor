@@ -14,6 +14,9 @@
     <button type="button" style="border: none; background: none; padding: 0;" @onclick="ConnectToStrava">
         <img src="images/btn_strava_connect_with_white.png" alt="Connect to Strava" style="height: 48px; cursor: pointer;" />
     </button>
+	<br />
+    <br/>
+    <button type="button" class="btn btn-secondary" @onclick="Disconnect">Disconnect</button>
 </form>
 
 @code {
@@ -58,6 +61,14 @@
             Console.WriteLine($"Exception: {ex.Message}");
         }
     }
+
+    private async Task Disconnect()
+    {
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "false");
+        AuthState.IsLoggedIn = false;
+        Navigation.NavigateTo("/", true);
+		StateHasChanged();
+	}
 
     public class JsonResponse
     {
