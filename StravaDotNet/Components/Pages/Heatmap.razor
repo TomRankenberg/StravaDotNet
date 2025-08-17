@@ -40,7 +40,14 @@
         {
             var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
             AuthState.IsLoggedIn = isLoggedIn == "true";
-            StateHasChanged();
+            if (!AuthState.IsLoggedIn)
+            {
+                Navigation.NavigateTo("/", true);
+            }
+            else
+            {
+                StateHasChanged();
+            }
         }
     }
     private List<string> encodedLines = new List<string>();

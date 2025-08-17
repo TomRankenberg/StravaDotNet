@@ -22,17 +22,16 @@
         IStravaUser user = await AuthService.ValidateCredentialsAsync();
         int secondsEpoch = int.Parse(user.AccessTokenExpiresAt);
         DateTime tokenExpiryDateTime = new DateTime(1970, 1, 1).AddSeconds(secondsEpoch);
-        if (tokenExpiryDateTime < DateTime.UtcNow)
+
+        AuthState.IsLoggedIn = tokenExpiryDateTime > DateTime.UtcNow;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            AuthState.IsLoggedIn = false;
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "false");
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", AuthState.IsLoggedIn.ToString().ToLower());
         }
-        else
-        {
-            AuthState.IsLoggedIn = true;
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "true");
-        }
-        StateHasChanged();
     }
     private async Task ConnectToStrava()
     {
@@ -46,7 +45,7 @@
                 await JSRuntime.InvokeVoidAsync("eval", $"let _discard_ = open(`{stravaAuthUrl}`, `_blank`)");
                 await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "true");
                 AuthState.IsLoggedIn = true;
-
+                StateHasChanged();
             }
             else
             {
