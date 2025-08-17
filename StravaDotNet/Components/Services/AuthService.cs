@@ -9,5 +9,10 @@ namespace StravaDotNet.Components.Services
             IStravaUser user = await stravaUserRepo.GetUserByIdAsync(1);
             return user;
         }
+
+        public async Task RemoveCredentialsAsync()
+        {
+            await stravaUserRepo.RemoveCredentialsByIdAsync(1);
+        }
     }
 }

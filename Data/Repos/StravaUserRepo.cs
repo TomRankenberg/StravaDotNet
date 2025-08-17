@@ -29,5 +29,16 @@ namespace Data.Repos
         {
             throw new NotImplementedException();
         }
+
+        public async Task RemoveCredentialsByIdAsync(int id)
+        {
+            IStravaUser user = await GetUserByIdAsync(id);
+            if (user != null)
+            {
+                user.AccessToken = "";
+                user.AccessTokenExpiresAt = "0";
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }
