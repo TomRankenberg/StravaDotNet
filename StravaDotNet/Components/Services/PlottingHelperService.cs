@@ -66,9 +66,9 @@ namespace StravaDotNet.Components.Services
                 .GroupBy(a => new { a.Activity.StartDate.Value.Year, a.Activity.StartDate.Value.Month, a.Activity.Type })
                 .Select(g => new
                 {
-                    Year = g.Key.Year,
-                    Month = g.Key.Month,
-                    Type = g.Key.Type,
+                    g.Key.Year,
+                    g.Key.Month,
+                    g.Key.Type,
                     Count = g.Count()
                 })
                 .ToList();
@@ -116,8 +116,8 @@ namespace StravaDotNet.Components.Services
                 .GroupBy(a => new { a.Activity.StartDate.Value.Hour, a.Activity.Type })
                 .Select(g => new
                 {
-                    Hour = g.Key.Hour,
-                    Type = g.Key.Type,
+                    g.Key.Hour,
+                    g.Key.Type,
                     Count = g.Count()
                 })
                 .ToList();

@@ -20,13 +20,15 @@
                     title: {
                         display: true,
                         text: 'Distance (km)'
-                    }
+                    },
+                    format: { maximumFractionDigits: 2, minimumFractionDigits: 2 }
                 },
                 y: {
                     title: {
                         display: true,
                         text: yAxisTile
-                    }
+                    },
+                    format: { maximumFractionDigits: 2, minimumFractionDigits: 2 }
                 }
             },
             plugins: {
@@ -35,16 +37,16 @@
                 },
                 tooltip: {
                     callbacks: {
-                        label: function (context) {
-                            var label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            label += '(' + context.raw.x + ', ' + context.raw.y + ')';
-                            label += ' Date: ' + context.raw.date;
-                            return label;
+                        label: (context) => {
+                            return [
+                                'Date: ' + context.raw.date,
+                                'Distance (km): ' + context.raw.x,
+                                yAxisTile + ': ' + context.raw.y,
+
+                            ];
                         }
-                    }
+                    },
+                    displayColors: false
                 }
             }
         }
@@ -190,10 +192,9 @@ function plotScatterChartWithLine(data, type, xAxisTitle, yAxisTile) {
     };
     const datasets = [scatterDataset, diagonalLine];
 
-
     var scatterChart = new Chart(ctx, {
         type: 'scatter',
-        data: {datasets: datasets},
+        data: { datasets: datasets },
         options: {
             scales: {
                 x: {
@@ -217,21 +218,18 @@ function plotScatterChartWithLine(data, type, xAxisTitle, yAxisTile) {
                 },
                 tooltip: {
                     callbacks: {
-                        label: function (context) {
-                            var label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            label += '(' + context.raw.x + ', ' + context.raw.y + ')';
-                            label += ' Date: ' + context.raw.date;
-                            return label;
+                        label: (context) => {
+                            return [
+                                'Date: ' + context.raw.date,
+                                xAxisTitle + ': '+ context.raw.x,
+                                yAxisTile + ': ' + context.raw.y,
+
+                            ];
                         }
-                    }
+                    },
+                    displayColors: false
                 }
             }
         }
     });
 }
-
-
-
