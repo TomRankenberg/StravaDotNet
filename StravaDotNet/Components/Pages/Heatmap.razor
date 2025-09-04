@@ -9,6 +9,7 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime
 @using Data.Models.Strava
+@inject Microsoft.Extensions.Options.IOptions<AppSettings> Options
 
 @using System.Text.Json;
 @rendermode InteractiveServer
@@ -64,7 +65,7 @@
         try
         {
             string arguments = $"?runs={includeRuns}&rides={includeRides}";
-            heatMapData = await Http.GetFromJsonAsync<HeatMapData>($"https://localhost:7237/api/Heatmap/GetHeatmap{arguments}");
+            heatMapData = await Http.GetFromJsonAsync<HeatMapData>($"{Options.Value.BaseAddress}/api/Heatmap/GetHeatmap{arguments}");
             heatMapData.Input = PlottingHelperService.AddColorToHeatmap(heatMapData.Input);
             heatMapDataString = JsonSerializer.Serialize(heatMapData);
             encodedLines = heatMapData.Input.Select(i => i.EncodedPolyline).ToList();

@@ -5,6 +5,7 @@ using Data.Repos;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
+using StravaDotNet;
 using StravaDotNet.Components;
 using StravaDotNet.Components.Services;
 
@@ -58,6 +59,9 @@ builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 builder.Services.AddRazorPages();
 builder.Services.Configure<RazorPagesOptions>(options => options.RootDirectory = "/Components/Pages");
+
+var baseUrl = builder.Configuration["BaseAddress"];
+builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
 var app = builder.Build();
 

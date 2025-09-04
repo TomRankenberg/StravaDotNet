@@ -7,6 +7,7 @@
 @inject AuthState AuthState
 @inject AuthService AuthService
 @rendermode InteractiveServer
+@inject Microsoft.Extensions.Options.IOptions<AppSettings> Options
 
 <PageTitle>Home</PageTitle>
 
@@ -40,7 +41,7 @@
     {
         try
         {
-            var response = await Http.GetAsync("https://localhost:7237/api/Strava/ConnectToStrava");
+            var response = await Http.GetAsync($"{Options.Value.BaseAddress}/api/Strava/ConnectToStrava");
             if (response.IsSuccessStatusCode)
             {
                 var jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>();

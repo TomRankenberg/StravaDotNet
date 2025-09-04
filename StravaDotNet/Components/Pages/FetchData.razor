@@ -7,6 +7,8 @@
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
+@inject Microsoft.Extensions.Options.IOptions<AppSettings> Options
+
 @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -31,7 +33,7 @@
     {
         isLoading = true;
         isDataLoaded = false;
-        string requestUri = "https://localhost:7237/api/Strava/GetActivitiesAsync";
+        string requestUri = $"{Options.Value.BaseAddress}/api/Strava/GetActivitiesAsync";
         if (daysToRetrieve > 0)
 		{
             DateTime dateCutoff = DateTime.Now.AddDays(-daysToRetrieve);
@@ -58,7 +60,7 @@
     private async Task GetStreamsAsync(){
 		isLoading = true;
 		isDataLoaded = false;
-		string requestUri = "https://localhost:7237/api/Strava/GetStreamsAsync";
+		string requestUri = $"{Options.Value.BaseAddress}/api/Strava/GetStreamsAsync";
 		try
 		{
 			var response = await Http.GetAsync(requestUri);
