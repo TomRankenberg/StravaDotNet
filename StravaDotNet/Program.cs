@@ -41,11 +41,11 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddHttpClient<DetailedActivityService>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["BaseAddress"]);
+    client.BaseAddress = new Uri(builder.Configuration.GetSection("AppSettings")["BaseAddress"]);
 });
 builder.Services.AddHttpClient<SegmentEffortService>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["BaseAddress"]);
+    client.BaseAddress = new Uri(builder.Configuration.GetSection("AppSettings")["BaseAddress"]);
 });
 builder.Services.AddScoped<HeatmapService>();
 builder.Services.AddScoped<DataRetrievalService>();
