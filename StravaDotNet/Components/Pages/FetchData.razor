@@ -44,7 +44,7 @@
         try
         {
             var response = await Http.GetAsync(requestUri);            
-            List<DetailedActivity> activities = await response.Content.ReadFromJsonAsync<List<DetailedActivity>>();
+            List<DetailedActivity>? activities = await response.Content.ReadFromJsonAsync<List<DetailedActivity>>();
             isDataLoaded = true;
         }
         catch (Exception ex)
@@ -64,7 +64,7 @@
 		try
 		{
 			var response = await Http.GetAsync(requestUri);
-			List<Stream> streams = await response.Content.ReadFromJsonAsync<List<Stream>>();
+			List<Stream>? streams = await response.Content.ReadFromJsonAsync<List<Stream>>();
 			if (streams != null && streams.Count > 0)
 			{
 				Console.WriteLine($"{streams.Count} Streams retrieved successfully.");

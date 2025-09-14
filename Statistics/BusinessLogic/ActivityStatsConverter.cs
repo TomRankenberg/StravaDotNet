@@ -5,12 +5,8 @@ namespace Statistics.BusinessLogic
 {
     public class ActivityStatsConverter
     {
-        public static ActivityForStats? ConvertToActivityForStats(ActivityDTO activity, double? avgHeartRate)
+        public static ActivityForStats ConvertToActivityForStats(ActivityDTO activity, double? avgHeartRate)
         {
-            if (activity == null)
-            {
-                return null;
-            }
             return new ActivityForStats
             {
                 Id = activity.Id,

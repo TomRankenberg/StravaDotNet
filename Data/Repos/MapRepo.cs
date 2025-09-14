@@ -33,7 +33,7 @@ namespace Data.Repos
             return map.Id;
         }
 
-        public IPolylineMap GetMapById(string id)
+        public async Task<IPolylineMap> GetMapById(string id)
         {
             return context.PolylineMaps.Find(id);
         }

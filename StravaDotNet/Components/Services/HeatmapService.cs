@@ -1,6 +1,5 @@
 using Contracts.DTOs;
 using Contracts.Interfaces;
-using Data.Models.Strava;
 using DataManagement.BusinessLogic;
 using DataManagement.Models;
 
@@ -15,7 +14,7 @@ namespace StravaDotNet.Components.Services
             _mapRepo = mapRepo;
         }
 
-        public HeatMapData GetHeatmapData(List<ActivityDTO> activities)
+        public async Task<HeatMapData> GetHeatmapData(List<ActivityDTO> activities)
         {
             HeatMapData data = new()
             {
@@ -24,20 +23,23 @@ namespace StravaDotNet.Components.Services
             };
 
             List<ActivityDTO> activitiesList = activities.Where(a => a.MapId != null).ToList();
-            foreach (ActivityDTO activity in activitiesList)
+
+            List<Task<HeatmapInput>> inputTasks = activitiesList.Select(async activity =>
             {
-                PolylineMap map = (PolylineMap)_mapRepo.GetMapById(activity.MapId);
-                HeatmapInput input = new()
+                IPolylineMap map = await _mapRepo.GetMapById(activity.MapId);
+                return new HeatmapInput
                 {
                     ActivityType = activity.Type,
                     EncodedPolyline = map.SummaryPolyline ?? "",
                     StartPoint = Mappers.ConvertToLatLng(activity.StartLatlng),
                     EndPoint = Mappers.ConvertToLatLng(activity.EndLatlng),
                     StartTime = activity.StartDate,
-                    LineOpacity = Math.Clamp(5.0 / activities.Count(), 0.2, 1.0)
+                    LineOpacity = Math.Clamp(5.0 / activities.Count, 0.2, 1.0)
                 };
-                data.Input.Add(input);
-            }
+            }).ToList();
+
+            var inputs = await Task.WhenAll(inputTasks);
+            data.Input.AddRange(inputs);
 
             return data;
         }

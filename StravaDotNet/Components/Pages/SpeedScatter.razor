@@ -70,16 +70,20 @@
     {
         if (activityVms != null)
         {
-            await PlotChartIfNotInitialized("scatterPlotRun", () => PlotSpeed("Run"));
-            await PlotChartIfNotInitialized("scatterPlotRide", () => PlotSpeed("Ride"));
-            await PlotChartIfNotInitialized("heartRatePlotRun", () => PlotHeartRate("Run"));
-            await PlotChartIfNotInitialized("heartRatePlotRide", () => PlotHeartRate("Ride"));
-            await PlotChartIfNotInitialized("stackedBarsMonths", PlotMonthlyActivities);
-            await PlotChartIfNotInitialized("stackedBarsHours", PlotHourlyActivities);
-            await PlotChartIfNotInitialized("cumulativeRunDistance", () => PlotCumulativeActivities("Run"));
-            await PlotChartIfNotInitialized("cumulativeRideDistance", () => PlotCumulativeActivities("Ride"));
-            await PlotChartIfNotInitialized("cumulativeSwimDistance", () => PlotCumulativeActivities("Swim"));
-            await PlotChartIfNotInitialized("cumulativeHoursTotal", () => PlotCumulativeActivities("All"));
+            var tasks = new List<Task>()
+            {
+            PlotChartIfNotInitialized("scatterPlotRun", () => PlotSpeed("Run")),
+            PlotChartIfNotInitialized("scatterPlotRide", () => PlotSpeed("Ride")),
+            PlotChartIfNotInitialized("heartRatePlotRun", () => PlotHeartRate("Run")),
+            PlotChartIfNotInitialized("heartRatePlotRide", () => PlotHeartRate("Ride")),
+            PlotChartIfNotInitialized("stackedBarsMonths", PlotMonthlyActivities),
+            PlotChartIfNotInitialized("stackedBarsHours", PlotHourlyActivities),
+            PlotChartIfNotInitialized("cumulativeRunDistance", () => PlotCumulativeActivities("Run")),
+            PlotChartIfNotInitialized("cumulativeRideDistance", () => PlotCumulativeActivities("Ride")),
+            PlotChartIfNotInitialized("cumulativeSwimDistance", () => PlotCumulativeActivities("Swim")),
+            PlotChartIfNotInitialized("cumulativeHoursTotal", () => PlotCumulativeActivities("All"))
+            };
+			await Task.WhenAll(tasks);
         }
     }
 

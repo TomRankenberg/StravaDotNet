@@ -13,7 +13,7 @@ namespace StravaDotNet.Controllers
     {
         [HttpGet]
         [Route("GetHeatmap")]
-        public IActionResult GetHeatmap(bool runs, bool rides)
+        public async Task<IActionResult> GetHeatmap(bool runs, bool rides)
         {
             // Retrieve all activities
             IEnumerable<IDetailedActivity> activities = activitiesRepo.GetAllActivities();
@@ -40,7 +40,7 @@ namespace StravaDotNet.Controllers
             }
 
             // Use HeatmapService to generate heatmap data
-            HeatMapData heatMapData = heatmapService.GetHeatmapData(activitiesWithMaps);
+            HeatMapData heatMapData = await heatmapService.GetHeatmapData(activitiesWithMaps);
 
             return Ok(heatMapData);
         }
