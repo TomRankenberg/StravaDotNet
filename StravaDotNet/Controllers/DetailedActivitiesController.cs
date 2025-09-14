@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
+using Contracts.DTOs;
 using Data.Context;
-using StravaDotNet.ViewModels;
 using Data.Models.Strava;
 using DataManagement.BusinessLogic;
-using Contracts.DTOs;
+using Microsoft.AspNetCore.Mvc;
+using StravaDotNet.ViewModels;
 
 namespace StravaDotNet.Controllers
 {
@@ -29,17 +29,16 @@ namespace StravaDotNet.Controllers
                 DateTime toUtc = to.Value.ToUniversalTime();
                 query = query.Where(a => a.StartDateLocal.HasValue && a.StartDateLocal.Value <= toUtc);
             }
+            List<DetailedActivity> activities = query.ToList();
 
-            List<ActivityVm> activityVms = [];
-            foreach (DetailedActivity activity in query)
-            {
-                ActivityVm activityVm = new()
-                {
-                    Activity = Mappers.MapToActivityDto(activity),
-                    AverageHeartRate = 0 // Placeholder
-                };
-                activityVms.Add(activityVm);
-            }
+            List<ActivityVm> activityVms = activities
+                    .AsParallel()
+                    .Select(activity => new ActivityVm
+                    {
+                        Activity = Mappers.MapToActivityDto(activity),
+                        AverageHeartRate = 0 // Placeholder
+                    })
+                    .ToList();
             return activityVms;
         }
 
@@ -50,7 +49,7 @@ namespace StravaDotNet.Controllers
             List<ActivityDTO> activities = [];
             foreach (DetailedActivity activity in context.Activities)
             {
-                ActivityDTO activityDTO= Mappers.MapToActivityDto(activity);
+                ActivityDTO activityDTO = Mappers.MapToActivityDto(activity);
                 activities.Add(activityDTO);
             }
             return activities;

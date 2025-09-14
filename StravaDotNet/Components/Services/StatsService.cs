@@ -1,9 +1,8 @@
 ﻿using Contracts.DTOs;
-using Data.Models.Strava;
-using Newtonsoft.Json;
 using Statistics.BusinessLogic;
 using Statistics.Models;
 using System.Text;
+using System.Text.Json;
 
 namespace StravaDotNet.Components.Services
 {
@@ -24,7 +23,7 @@ namespace StravaDotNet.Components.Services
             }
             activityStatsList = ActivityStatsConverter.AddRecentTimeSpent(activityStatsList, 60);
             activityStatsList = ActivityStatsConverter.AddPredictedHeartRate(activityStatsList);
-            var json = JsonConvert.SerializeObject(activityStatsList);
+            var json = JsonSerializer.Serialize(activityStatsList);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync("http://localhost:5000/predict", content);
             response.EnsureSuccessStatusCode();
@@ -33,23 +32,23 @@ namespace StravaDotNet.Components.Services
 
         public async Task<List<ActivityForStats>> PredictStaticAsync(List<ActivityDTO> activities)
         {
-            List<ActivityForStats> activityStatsList = [];
-
-            foreach (ActivityDTO activity in activities.Where(a => a.Id.HasValue))
-            {
-                double avgHeartRate = await detailedActivityService.CalculateAverageHeartRateAsync(activity.Id);
-                ActivityForStats? activityStats = ActivityStatsConverter.ConvertToActivityForStats(activity, avgHeartRate);
-                if (activityStats != null)
+            List<Task<ActivityForStats>> tasks = activities
+                .Where(a => a.Id.HasValue)
+                .Select(async activity =>
                 {
-                    activityStatsList.Add(activityStats);
-                }
-            }
+                    double avgHeartRate = await detailedActivityService.CalculateAverageHeartRateAsync(activity.Id);
+                    return ActivityStatsConverter.ConvertToActivityForStats(activity, avgHeartRate);
+                }).ToList();
+
+            List<ActivityForStats> activityStatsList = (await Task.WhenAll(tasks))
+                .Where(stats => stats != null)
+                .ToList();
+
             activityStatsList = ActivityStatsConverter.AddRecentTimeSpent(activityStatsList, 60);
             activityStatsList = ActivityStatsConverter.AddPredictedHeartRate(activityStatsList);
             activityStatsList = activityStatsList
-                .Where(activityStatsList => 
-                activityStatsList.PredictedHR.HasValue && activityStatsList.PredictedHR.Value > 0 &&
-                activityStatsList.AverageHeartRate.HasValue && activityStatsList.AverageHeartRate.Value > 0)
+                .Where(stats => stats.PredictedHR.HasValue && stats.PredictedHR.Value > 0 &&
+                                stats.AverageHeartRate.HasValue && stats.AverageHeartRate.Value > 0)
                 .ToList();
 
             return activityStatsList;

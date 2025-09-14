@@ -25,9 +25,9 @@ namespace StravaDotNet.Components.Services
             return await segmentEffortService.GetDetailedSegmentEffortsAsync();
         }
 
-        public HeatMapData GetHeatmapData(List<ActivityDTO> activities)
+        public async Task<HeatMapData> GetHeatmapData(List<ActivityDTO> activities)
         {
-            return heatmapService.GetHeatmapData(activities);
+            return await heatmapService.GetHeatmapData(activities);
         }
     }
 }

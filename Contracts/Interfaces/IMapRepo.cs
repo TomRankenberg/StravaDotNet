@@ -5,6 +5,6 @@
         Task AddMapAsync(IPolylineMap map);
         Task UpdateMapAsync(IPolylineMap map);
         Task<string> AddOrEditMap(IPolylineMap map);  
-        IPolylineMap GetMapById(string id);
+        Task<IPolylineMap> GetMapById(string id);
     }
 }

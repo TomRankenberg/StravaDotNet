@@ -30,13 +30,15 @@ namespace StravaDotNet.Components.Services
                 return null;
             }
 
-            foreach (ActivityVm activityVm in activityVms)
-            {
-                if (activityVm.Activity != null && activityVm.Activity.Id != null)
+            var tasks = activityVms
+                .Where(vm => vm.Activity != null && vm.Activity.Id != null)
+                .Select(async vm =>
                 {
-                    activityVm.AverageHeartRate = await CalculateAverageHeartRateAsync(activityVm.Activity.Id.Value);
-                }
-            }
+                    vm.AverageHeartRate = await CalculateAverageHeartRateAsync(vm.Activity.Id.Value);
+                })
+                .ToList();
+
+            await Task.WhenAll(tasks);
 
             return activityVms;
         }
