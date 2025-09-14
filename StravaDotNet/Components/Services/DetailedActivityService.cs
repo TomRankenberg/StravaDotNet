@@ -7,6 +7,8 @@ namespace StravaDotNet.Components.Services
 {
     public class DetailedActivityService(HttpClient httpClient)
     {
+        private static readonly SemaphoreSlim _semaphore = new(4);
+
         public async Task<List<ActivityVm>?> GetDetailedActivityVmsAsync(DateTime? from = null, DateTime? to = null)
         {
             string url = "api/detailedactivities/GetActivityVms";
@@ -52,16 +54,25 @@ namespace StravaDotNet.Components.Services
 
         public async Task<double> CalculateAverageHeartRateAsync(long? activityId)
         {
-            var response = await httpClient.GetAsync($"api/stream/GetHeartStreamFromActivityId?id={activityId}");
-            if (response.IsSuccessStatusCode && response.StatusCode != System.Net.HttpStatusCode.NoContent)
+            await _semaphore.WaitAsync();
+            try
             {
-                var heartrateStream = await response.Content.ReadFromJsonAsync<HeartrateStream>();
-                if (heartrateStream?.Data != null)
+                var response = await httpClient.GetAsync($"api/stream/GetHeartStreamFromActivityId?id={activityId}");
+                if (response.IsSuccessStatusCode && response.StatusCode != System.Net.HttpStatusCode.NoContent)
                 {
-                    return heartrateStream.Data.Where(x => x != null).Average(x => x ?? 0);
+                    var heartrateStream = await response.Content.ReadFromJsonAsync<HeartrateStream>();
+                    if (heartrateStream?.Data != null)
+                    {
+                        return heartrateStream.Data.Where(x => x != null).Average(x => x ?? 0);
+                    }
                 }
+                return 0;
             }
-            return 0;
+            finally
+            {
+                _semaphore.Release();
+            }
+
         }
 
         public List<ActivityVm> ConvertStatsToVm(List<ActivityForStats> activityForStats)
