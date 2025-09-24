@@ -57,5 +57,12 @@ namespace Data.Repos
         {
             return [..context.Activities];
         }
+
+        public List<IDetailedActivity> GetAllActivitiesNoTracking()
+        {
+            List<IDetailedActivity> activities = context.Activities.AsNoTracking().ToList<IDetailedActivity>();
+
+            return activities;
+        }
     }
 }

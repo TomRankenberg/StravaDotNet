@@ -8,5 +8,6 @@
         public Task UpdateActivityAsync(IDetailedActivity detailedActivity);
         public List<long?> GetAllActivityIds();
         public List<IDetailedActivity> GetAllActivities();
+        public List<IDetailedActivity> GetAllActivitiesNoTracking();
     }
 }

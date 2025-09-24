@@ -1,6 +1,7 @@
 ﻿using Contracts.Interfaces;
 using Data.Context;
 using Data.Models.Strava;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.Repos
 {
@@ -36,6 +37,12 @@ namespace Data.Repos
         public async Task<IPolylineMap> GetMapById(string id)
         {
             return context.PolylineMaps.Find(id);
+        }
+
+        public async Task<IPolylineMap> GetMapByIdNoTracking(string id)
+        {
+            IPolylineMap map = await context.PolylineMaps.AsNoTracking().FirstAsync(m => m.Id == id);
+            return map;
         }
     }
 }

@@ -5,15 +5,8 @@ using DataManagement.Models;
 
 namespace StravaDotNet.Components.Services
 {
-    public class HeatmapService
+    public class HeatmapService(IMapRepo mapRepo)
     {
-        private readonly IMapRepo _mapRepo;
-
-        public HeatmapService(IMapRepo mapRepo)
-        {
-            _mapRepo = mapRepo;
-        }
-
         public async Task<HeatMapData> GetHeatmapData(List<ActivityDTO> activities)
         {
             HeatMapData data = new()
@@ -24,10 +17,11 @@ namespace StravaDotNet.Components.Services
 
             List<ActivityDTO> activitiesList = activities.Where(a => a.MapId != null).ToList();
 
-            List<Task<HeatmapInput>> inputTasks = activitiesList.Select(async activity =>
+            List<HeatmapInput> inputs = [];
+            foreach (var activity in activitiesList)
             {
-                IPolylineMap map = await _mapRepo.GetMapById(activity.MapId);
-                return new HeatmapInput
+                IPolylineMap map = await mapRepo.GetMapByIdNoTracking(activity.MapId);
+                inputs.Add(new HeatmapInput
                 {
                     ActivityType = activity.Type,
                     EncodedPolyline = map.SummaryPolyline ?? "",
@@ -35,10 +29,8 @@ namespace StravaDotNet.Components.Services
                     EndPoint = Mappers.ConvertToLatLng(activity.EndLatlng),
                     StartTime = activity.StartDate,
                     LineOpacity = Math.Clamp(5.0 / activities.Count, 0.2, 1.0)
-                };
-            }).ToList();
-
-            var inputs = await Task.WhenAll(inputTasks);
+                });
+            }
             data.Input.AddRange(inputs);
 
             return data;

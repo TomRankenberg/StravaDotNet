@@ -16,7 +16,7 @@ namespace StravaDotNet.Controllers
         public async Task<IActionResult> GetHeatmap(bool runs, bool rides)
         {
             // Retrieve all activities
-            IEnumerable<IDetailedActivity> activities = activitiesRepo.GetAllActivities();
+            IEnumerable<IDetailedActivity> activities = activitiesRepo.GetAllActivitiesNoTracking();
 
             // Filter activities based on the type (Run, Ride, or both)
             if (runs && rides)
