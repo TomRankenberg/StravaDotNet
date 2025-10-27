@@ -18,7 +18,6 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration["DBSettings:ConnectionString"]).LogTo(Console.WriteLine, LogLevel.Information));
 
 builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
-builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
 builder.Services.AddScoped<IActivitiesRepo, ActivitiesRepo>();
 builder.Services.AddScoped<IAthleteRepo, AthleteRepo>();
 builder.Services.AddScoped<IMapRepo, MapRepo>();
@@ -51,7 +50,8 @@ builder.Services.AddScoped<HeatmapService>();
 builder.Services.AddScoped<DataRetrievalService>();
 builder.Services.AddScoped<PlottingHelperService>();
 builder.Services.AddScoped<StatsService>();
-builder.Services.AddScoped<AuthService>();
+builder.Services.AddHttpClient<IAuthService, AuthService>();
+builder.Services.AddHttpClient<IStravaService, StravaService>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

@@ -9,7 +9,8 @@ namespace StravaDotNet.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class StravaController(IStravaUserRepo userRepo, IUnitOfWork unitOfWork, IConfiguration configuration) : ControllerBase
+    public class StravaController(IStravaUserRepo userRepo, IUnitOfWork unitOfWork, IConfiguration configuration,
+        IAuthService authService, IStravaService stravaService) : ControllerBase
     {
         private string? Token { get; set; }
 
@@ -49,20 +50,15 @@ namespace StravaDotNet.Controllers
                 {
                     foreach (DetailedActivity activity in activities)
                     {
-                        IActionResult detailedActivityResponse = await GetActivityById(activity.Id);
-                        if (detailedActivityResponse is OkObjectResult okResult)
+                        IDetailedActivity detailedActivity = await stravaService.GetActivityById(activity.Id, Token);
+
+                        try
                         {
-                            if (okResult.Value is DetailedActivity detailedActivity)
-                            {
-                                try
-                                {
-                                    await dataSaver.SaveActivity(detailedActivity, detailedActivity.Athlete.Id);
-                                }
-                                catch (Exception e)
-                                {
-                                    Console.WriteLine(e.Message);
-                                }
-                            }
+                            await dataSaver.SaveActivity((DetailedActivity)detailedActivity, ((DetailedActivity)detailedActivity).Athlete.Id);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
                         }
                     }
                     while (activities.Count == 50 && after == null)
@@ -79,20 +75,15 @@ namespace StravaDotNet.Controllers
                         }
                         foreach (DetailedActivity activity in activities)
                         {
-                            IActionResult detailedActivityResponse = await GetActivityById(activity.Id);
-                            if (detailedActivityResponse is OkObjectResult okResult)
+                            IDetailedActivity detailedActivity = await stravaService.GetActivityById(activity.Id, Token);
+
+                            try
                             {
-                                if (okResult.Value is DetailedActivity detailedActivity)
-                                {
-                                    try
-                                    {
-                                        await dataSaver.SaveActivity(detailedActivity, detailedActivity.Athlete.Id);
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Console.WriteLine(e.Message);
-                                    }
-                                }
+                                await dataSaver.SaveActivity((DetailedActivity)detailedActivity, ((DetailedActivity)detailedActivity).Athlete.Id);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
                             }
                         }
                     }
@@ -102,42 +93,6 @@ namespace StravaDotNet.Controllers
             }
             else
             {
-                return BadRequest();
-            }
-        }
-
-        private async Task<IActionResult> GetActivityById(long? activityId)
-        {
-            if (Token == null)
-            {
-                IStravaUser stravaUser = await userRepo.GetUserByIdAsync(1);
-                Token = stravaUser.AccessToken;
-            }
-            string accessToken = $"&access_token={Token}";
-
-            string path = $"https://www.strava.com/api/v3/activities/{activityId}?include_all_efforts=true";
-            string url = path + accessToken;
-            var response = await new HttpClient().GetAsync(url);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                string data = response.Content.ReadAsStringAsync().Result;
-                DetailedActivity? activity = JsonConvert.DeserializeObject<DetailedActivity>(data);
-                return Ok(activity);
-            }
-            else
-            {
-                string data = response.Content.ReadAsStringAsync().Result;
-                while (data.Contains("Rate Limit Exceeded"))
-                {
-                    Thread.Sleep(960000);// wait 16 minutes
-                    response = await new HttpClient().GetAsync(url);
-                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                    {
-                        data = response.Content.ReadAsStringAsync().Result;
-                        DetailedActivity? activity = JsonConvert.DeserializeObject<DetailedActivity>(data);
-                        return Ok(activity);
-                    }
-                }
                 return BadRequest();
             }
         }
@@ -153,7 +108,7 @@ namespace StravaDotNet.Controllers
             {
                 if (!activityIdsFromStreams.Contains(activityId))
                 {
-                    IActionResult streamResult = await GetStreamsForActivity(activityId);
+                    IStreamSet? streamResult = await stravaService.GetStreamsForActivity(activityId, Token);
                     if (streamResult is OkObjectResult okResult)
                     {
                         if (okResult.Value is StreamSet streamSet)
@@ -175,42 +130,6 @@ namespace StravaDotNet.Controllers
                 }
             }
             return Ok();
-        }
-
-        private async Task<IActionResult> GetStreamsForActivity(long? activityId)
-        {
-            if (Token == null)
-            {
-                IStravaUser stravaUser = await userRepo.GetUserByIdAsync(1);
-                Token = stravaUser.AccessToken;
-            }
-            string accessToken = $"&access_token={Token}";
-
-            string path = $"https://www.strava.com/api/v3/activities/{activityId}/streams?keys=time,heartrate,distance,altitude,temp&key_by_type=true";
-            string url = path + accessToken;
-            var response = await new HttpClient().GetAsync(url);
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                string data = response.Content.ReadAsStringAsync().Result;
-                StreamSet? activity = JsonConvert.DeserializeObject<StreamSet>(data);
-                return Ok(activity);
-            }
-            else
-            {
-                string data = response.Content.ReadAsStringAsync().Result;
-                while (data.Contains("Rate Limit Exceeded"))
-                {
-                    Thread.Sleep(960000);// wait 16 minutes
-                    response = await new HttpClient().GetAsync(url);
-                    if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                    {
-                        data = response.Content.ReadAsStringAsync().Result;
-                        StreamSet? activity = JsonConvert.DeserializeObject<StreamSet>(data);
-                        return Ok(activity);
-                    }
-                }
-                return BadRequest();
-            }
         }
 
         [HttpGet]
@@ -237,7 +156,7 @@ namespace StravaDotNet.Controllers
             }
 
             // Exchange the authorization code for an access token
-            var token = await GetAccessTokenAsync(code);
+            var token = await authService.GetAccessTokenAsync(code);
             if (token == null)
             {
                 return BadRequest("Error getting access token.");
@@ -281,24 +200,6 @@ namespace StravaDotNet.Controllers
                     </body>
                 </html>";
             return Content(html, "text/html");
-        }
-
-        private async Task<AccessToken?> GetAccessTokenAsync(string authorizationCode)
-        {
-            var client = new HttpClient();
-            var tokenRequest = new FormUrlEncodedContent(
-            [
-                new KeyValuePair<string, string>("client_id", configuration["StravaUser:ClientId"]),
-                new KeyValuePair<string, string>("client_secret", configuration["StravaUser:Secret"]),
-                new KeyValuePair<string, string>("code", authorizationCode),
-                new KeyValuePair<string, string>("grant_type", "authorization_code")
-            ]);
-
-            var response = await client.PostAsync("https://www.strava.com/oauth/token", tokenRequest);
-            var content = await response.Content.ReadAsStringAsync();
-            AccessToken? token = JsonConvert.DeserializeObject<AccessToken>(content);
-
-            return token;
         }
     }
 }
