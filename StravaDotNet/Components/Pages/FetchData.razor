@@ -16,7 +16,7 @@
         {
             var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
             AuthState.IsLoggedIn = isLoggedIn == "true";
-            if (!AuthState.IsLoggedIn)
+            if (true)//!AuthState.IsLoggedIn
             {
                 Navigation.NavigateTo("/", true);
             }
