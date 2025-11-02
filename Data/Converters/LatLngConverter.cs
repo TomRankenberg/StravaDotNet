@@ -30,7 +30,9 @@ namespace Data.Converters
             var trimmed = input.Trim('[', ']');
 
             if (string.IsNullOrWhiteSpace(trimmed))
-                return new LatLng();
+            {
+                return [];
+            }
 
             var floatValues = trimmed
                 .Split(',')
