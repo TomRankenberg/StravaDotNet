@@ -6,7 +6,55 @@ namespace StravaDotNet.Components.Services
 {
     public class StravaService(HttpClient client, IStravaUserRepo userRepo) : IStravaService
     {
-        public async Task<IDetailedActivity?> GetActivityById(long? activityId, string? token)
+        public async Task<string?> RetrieveActivities(string? token, int? after)
+        {
+            string tokenString = $"?access_token={token}";
+
+            string afterString = "";
+            if (after != null)
+            {
+                afterString = $"&after={after}";
+            }
+
+            string activitiesToGet = "&per_page=50";
+            int page = 1;
+            string numberOfPages = $"&page={page}";
+            string path = "https://www.strava.com/api/v3/athlete/activities/";
+
+            string url = path + tokenString + activitiesToGet + numberOfPages + afterString;
+
+            HttpResponseMessage response = await client.GetAsync(url);
+
+            List<DetailedActivity>? activities = null;
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                string data = response.Content.ReadAsStringAsync().Result;
+
+                activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
+
+                while (activities != null && activities.Count == 50 && after == null)
+                {
+                    page++;
+                    numberOfPages = $"&page={page}";
+                    url = path + tokenString + activitiesToGet + numberOfPages;
+                    response = await new HttpClient().GetAsync(url);
+                    data = response.Content.ReadAsStringAsync().Result;
+                    List<DetailedActivity>? extraActivities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
+                    if (extraActivities == null)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        activities.AddRange(extraActivities);
+                    }
+                }
+            }
+            string activitiesJson = JsonConvert.SerializeObject(activities);
+            return activitiesJson;
+        }
+
+        public async Task<string?> GetActivityById(long? activityId, string? token)
         {
             if (token == null)
             {
@@ -20,8 +68,7 @@ namespace StravaDotNet.Components.Services
             var response = await client.GetAsync(url);
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                string data = response.Content.ReadAsStringAsync().Result;
-                DetailedActivity? activity = JsonConvert.DeserializeObject<DetailedActivity>(data);
+                string activity = response.Content.ReadAsStringAsync().Result;
                 return activity;
             }
             else
@@ -33,8 +80,7 @@ namespace StravaDotNet.Components.Services
                     response = await client.GetAsync(url);
                     if (response.StatusCode == System.Net.HttpStatusCode.OK)
                     {
-                        data = response.Content.ReadAsStringAsync().Result;
-                        DetailedActivity? activity = JsonConvert.DeserializeObject<DetailedActivity>(data);
+                        string activity = response.Content.ReadAsStringAsync().Result;
                         return activity;
                     }
                 }

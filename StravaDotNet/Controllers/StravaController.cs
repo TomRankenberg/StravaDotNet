@@ -3,14 +3,13 @@ using Data.BusinessLogic;
 using Data.Models;
 using Data.Models.Strava;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 
 namespace StravaDotNet.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class StravaController(IStravaUserRepo userRepo, IUnitOfWork unitOfWork, IConfiguration configuration,
-        IAuthService authService, IStravaService stravaService) : ControllerBase
+        IAuthService authService, IStravaService stravaService, ISavingService savingService) : ControllerBase
     {
         private string? Token { get; set; }
 
@@ -23,73 +22,12 @@ namespace StravaDotNet.Controllers
                 IStravaUser stravaUser = await userRepo.GetUserByIdAsync(1);
                 Token = stravaUser.AccessToken;
             }
-            string accessToken = $"?access_token={Token}";
+            string? activitiesJson = await stravaService.RetrieveActivities(Token, after);
 
-            string afterString = "";
-            if (after != null)
+            if (activitiesJson != null )
             {
-                afterString = $"&after={after}";
-            }
-
-            string activitiesToGet = "&per_page=50";
-            int page = 1;
-            string numberOfPages = $"&page={page}";
-            string path = "https://www.strava.com/api/v3/athlete/activities/";
-
-            string url = path + accessToken + activitiesToGet + numberOfPages + afterString;
-
-            var response = await new HttpClient().GetAsync(url);
-
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                string data = response.Content.ReadAsStringAsync().Result;
-
-                List<DetailedActivity>? activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
-                DataSaver dataSaver = new(unitOfWork);
-                if (activities != null)
-                {
-                    foreach (DetailedActivity activity in activities)
-                    {
-                        IDetailedActivity detailedActivity = await stravaService.GetActivityById(activity.Id, Token);
-
-                        try
-                        {
-                            await dataSaver.SaveActivity((DetailedActivity)detailedActivity, ((DetailedActivity)detailedActivity).Athlete.Id);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e.Message);
-                        }
-                    }
-                    while (activities.Count == 50 && after == null)
-                    {
-                        page++;
-                        numberOfPages = $"&page={page}";
-                        url = path + accessToken + activitiesToGet + numberOfPages;
-                        response = await new HttpClient().GetAsync(url);
-                        data = response.Content.ReadAsStringAsync().Result;
-                        activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
-                        if (activities == null)
-                        {
-                            break;
-                        }
-                        foreach (DetailedActivity activity in activities)
-                        {
-                            IDetailedActivity detailedActivity = await stravaService.GetActivityById(activity.Id, Token);
-
-                            try
-                            {
-                                await dataSaver.SaveActivity((DetailedActivity)detailedActivity, ((DetailedActivity)detailedActivity).Athlete.Id);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e.Message);
-                            }
-                        }
-                    }
-                }
-
-                return Ok(activities);
+                await savingService.SaveActivities(activitiesJson, Token);
+                return Ok(activitiesJson);
             }
             else
             {
