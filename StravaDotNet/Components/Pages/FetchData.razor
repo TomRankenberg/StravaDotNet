@@ -1,5 +1,4 @@
 ﻿@page "/fetchdata"
-@using Data.Models.Strava
 @using System.Text.Json
 @using Services
 @inject NavigationManager Navigation
@@ -16,7 +15,7 @@
         {
             var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
             AuthState.IsLoggedIn = isLoggedIn == "true";
-            if (true)//!AuthState.IsLoggedIn
+            if (!AuthState.IsLoggedIn)
             {
                 Navigation.NavigateTo("/", true);
             }
@@ -29,23 +28,16 @@
     private bool isLoading = false;
     private bool isDataLoaded = false;
 
-    private async Task GetActivitiesAsync(int daysToRetrieve)
+    private async Task GetActivitiesAsync()
     {
         isLoading = true;
         isDataLoaded = false;
         string requestUri = $"{Options.Value.BaseAddress}/api/Strava/GetActivitiesAsync";
-        if (daysToRetrieve > 0)
-		{
-            DateTime dateCutoff = DateTime.Now.AddDays(-daysToRetrieve);
-            int secondsAfter = (int)dateCutoff.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-
-			requestUri += $"?after={secondsAfter}";
-		}
         try
         {
             var response = await Http.GetAsync(requestUri);            
-            List<DetailedActivity>? activities = await response.Content.ReadFromJsonAsync<List<DetailedActivity>>();
             isDataLoaded = true;
+            await GetStreamsAsync();
         }
         catch (Exception ex)
         {
@@ -64,10 +56,9 @@
 		try
 		{
 			var response = await Http.GetAsync(requestUri);
-			List<Stream>? streams = await response.Content.ReadFromJsonAsync<List<Stream>>();
-			if (streams != null && streams.Count > 0)
+			if (response.IsSuccessStatusCode)
 			{
-				Console.WriteLine($"{streams.Count} Streams retrieved successfully.");
+				Console.WriteLine("Streams retrieved successfully.");
 			}
 			isDataLoaded = true;
 		}
@@ -83,12 +74,8 @@
 }
 
 <div>
-    <h5>Data retrieval</h5>
     <form>
-        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(-1)">Fetch all data</button>
-        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(30)">Fetch last month</button>
-        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync(7)">Fetch last week</button>
-        <button type="button" class="btn btn-primary" @onclick="() => GetStreamsAsync()">Fetch data streams</button>
+        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync()">Update activities</button>
     </form>
 
     @if (isLoading)

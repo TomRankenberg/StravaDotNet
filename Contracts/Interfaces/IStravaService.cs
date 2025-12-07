@@ -4,6 +4,6 @@
     {
         Task<IStreamSet?> GetStreamsForActivity(long? id, string? token);
         Task<string?> GetActivityById(long? activityId, string? token);
-        Task<string?> RetrieveActivities(string? token, int? after);
+        Task<string?> RetrieveActivities(string? token, long after);
     }
 }

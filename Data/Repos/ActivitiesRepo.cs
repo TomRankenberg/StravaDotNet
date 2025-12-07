@@ -64,5 +64,13 @@ namespace Data.Repos
 
             return activities;
         }
+
+        public async Task<DateTime?> GetLatestActivityTimeAsync()
+        {
+            DetailedActivity? latestActivity = await context.Activities
+                .OrderByDescending(a => a.StartDate)
+                .FirstAsync();
+            return latestActivity?.StartDate;
+        }
     }
 }
