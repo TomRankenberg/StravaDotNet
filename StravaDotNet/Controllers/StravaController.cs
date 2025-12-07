@@ -15,13 +15,15 @@ namespace StravaDotNet.Controllers
 
         [HttpGet]
         [Route("GetActivitiesAsync")]
-        public async Task<IActionResult> GetActivitiesAsync(int? after)
+        public async Task<IActionResult> GetActivitiesAsync()
         {
             if (Token == null)
             {
                 IStravaUser stravaUser = await userRepo.GetUserByIdAsync(1);
                 Token = stravaUser.AccessToken;
             }
+            DateTime? latestActivityTime = await unitOfWork.Activities.GetLatestActivityTimeAsync();
+            long after = latestActivityTime != null ? ((DateTimeOffset)latestActivityTime.Value).ToUnixTimeSeconds() : 0;
             string? activitiesJson = await stravaService.RetrieveActivities(Token, after);
 
             if (activitiesJson != null )
@@ -47,23 +49,20 @@ namespace StravaDotNet.Controllers
                 if (!activityIdsFromStreams.Contains(activityId))
                 {
                     IStreamSet? streamResult = await stravaService.GetStreamsForActivity(activityId, Token);
-                    if (streamResult is OkObjectResult okResult)
+                    if (streamResult != null)
                     {
-                        if (okResult.Value is StreamSet streamSet)
+                        try
                         {
-                            try
-                            {
-                                await dataSaver.SaveStreams(streamSet, activityId);
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e.Message);
-                            }
+                            await dataSaver.SaveStreams((StreamSet)streamResult, activityId);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
                         }
                     }
                     else
                     {
-                        return BadRequest("Failed to retrieve streams for activity ID: " + activityId);
+                        return BadRequest($"Failed to retrieve streams for activity ID: {activityId}");
                     }
                 }
             }

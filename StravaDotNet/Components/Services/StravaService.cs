@@ -6,15 +6,10 @@ namespace StravaDotNet.Components.Services
 {
     public class StravaService(HttpClient client, IStravaUserRepo userRepo) : IStravaService
     {
-        public async Task<string?> RetrieveActivities(string? token, int? after)
+        public async Task<string?> RetrieveActivities(string? token, long after)
         {
             string tokenString = $"?access_token={token}";
-
-            string afterString = "";
-            if (after != null)
-            {
-                afterString = $"&after={after}";
-            }
+            string afterString = $"&after={after}";
 
             string activitiesToGet = "&per_page=50";
             int page = 1;
@@ -32,7 +27,7 @@ namespace StravaDotNet.Components.Services
 
                 activities = JsonConvert.DeserializeObject<List<DetailedActivity>>(data);
 
-                while (activities != null && activities.Count == 50 && after == null)
+                while (activities != null && activities.Count == 50)
                 {
                     page++;
                     numberOfPages = $"&page={page}";
