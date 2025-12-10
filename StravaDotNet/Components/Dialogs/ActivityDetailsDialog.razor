@@ -4,33 +4,55 @@
 <MudDialog>
     <DialogContent>
         <h4>Activity Details</h4>
-        <p><b>Type:</b> @Activity.ActivityType</p>
-        <p><b>Start:</b> @Activity.StartPoint</p>
-        <p><b>End:</b> @Activity.EndPoint</p>
-        <p><b>Start Time:</b> @Activity.StartTime</p>
+        <p><b>Type:</b> @Activity?.ActivityType</p>
+        <p><b>Start:</b> @Activity?.StartPoint</p>
+        <p><b>End:</b> @Activity?.EndPoint</p>
+        <p><b>Start Time:</b> @Activity?.StartTime</p>
         <p><b>Route:</b></p>
-        @if (!string.IsNullOrEmpty(Activity.EncodedPolyline))
+
+        @if (!string.IsNullOrEmpty(DecodedRoute))
         {
-			string decodedRoute = Activity.EncodedPolyline; // In a real scenario, decode the polyline here
-            <!-- Placeholder for map rendering -->
-            <div style="height:200px;width:100%;background:#eee;text-align:center;line-height:200px;">
-                [Map route here]
+            <div style="height:200px;width:100%;background:#eee;padding:8px;overflow:auto;">
+                <pre style="white-space:pre-wrap;margin:0;">@DecodedRoute</pre>
             </div>
+        }
+        else if (!string.IsNullOrEmpty(Activity?.EncodedPolyline))
+        {
+            <div>Decoding route...</div>
         }
         else
         {
             <p>No route data.</p>
         }
     </DialogContent>
+
     <DialogActions>
-        <MudButton OnClick="Close">Close</MudButton>
+        <MudButton OnClick="Close" Color="Color.Primary">Close</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
     [Parameter] public HeatmapInput? Activity { get; set; }
 
-    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    private string? DecodedRoute;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrEmpty(Activity?.EncodedPolyline))
+        {
+            // Replace with real polyline decode logic or JS interop as needed.
+            DecodedRoute = DecodePolylinePreview(Activity.EncodedPolyline);
+        }
+    }
+
+    private string DecodePolylinePreview(string encoded)
+    {
+        // placeholder - return a short preview so the dialog renders without errors
+        // implement actual decoding (C# or JS interop) later
+        return $"Encoded polyline length: {encoded.Length}\n\n{encoded.Substring(0, Math.Min(200, encoded.Length))}";
+    }
 
     void Close() => MudDialog?.Cancel();
 }
