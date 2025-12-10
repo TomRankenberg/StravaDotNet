@@ -1,0 +1,36 @@
+@using DataManagement.Models
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <h4>Activity Details</h4>
+        <p><b>Type:</b> @Activity.ActivityType</p>
+        <p><b>Start:</b> @Activity.StartPoint</p>
+        <p><b>End:</b> @Activity.EndPoint</p>
+        <p><b>Start Time:</b> @Activity.StartTime</p>
+        <p><b>Route:</b></p>
+        @if (!string.IsNullOrEmpty(Activity.EncodedPolyline))
+        {
+			string decodedRoute = Activity.EncodedPolyline; // In a real scenario, decode the polyline here
+            <!-- Placeholder for map rendering -->
+            <div style="height:200px;width:100%;background:#eee;text-align:center;line-height:200px;">
+                [Map route here]
+            </div>
+        }
+        else
+        {
+            <p>No route data.</p>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [Parameter] public HeatmapInput? Activity { get; set; }
+
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+
+    void Close() => MudDialog?.Cancel();
+}
