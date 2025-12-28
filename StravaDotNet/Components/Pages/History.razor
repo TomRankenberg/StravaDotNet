@@ -71,7 +71,7 @@
     // Example stub: implement this to fetch the HeatmapInput for the activity
     private async Task<HeatmapInput?> GetHeatmapInputForActivity(SimpleActivity activity)
     {
-        HeatmapInput? heatmapInput = await HeatmapService.GetHeatmapInput(activity.MapId);
+        HeatmapInput? heatmapInput = await HeatmapService.GetHeatmapInput(activity.MapId, activity.Type);
 
         return heatmapInput;
     }

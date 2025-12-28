@@ -1,13 +1,12 @@
 @using DataManagement.Models
 @using MudBlazor
+@inject IJSRuntime JSRuntime
+
 
 <MudDialog>
     <DialogContent>
         <h4>Activity Details</h4>
         <p><b>Type:</b> @Activity?.ActivityType</p>
-        <p><b>Start:</b> @Activity?.StartPoint</p>
-        <p><b>End:</b> @Activity?.EndPoint</p>
-        <p><b>Start Time:</b> @Activity?.StartTime</p>
         <p><b>Route:</b></p>
 
         @if (!string.IsNullOrEmpty(DecodedRoute))
