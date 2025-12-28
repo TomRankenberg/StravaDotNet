@@ -1,12 +1,16 @@
 ﻿@page "/history"
 @using Data.Models.Strava
+@using DataManagement.Models
+@using StravaDotNet.Components.Dialogs
 @using StravaDotNet.ViewModels
 @using StravaDotNet.Components.Services
 @using MudBlazor
 @inject NavigationManager Navigation
 @inject AuthState AuthState
 @inject DetailedActivityService DetailedActivityService
+@inject HeatmapService HeatmapService
 @inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 @rendermode InteractiveServer
 
 <PageTitle>Activity History</PageTitle>
@@ -16,17 +20,19 @@
     <div class="week-row" style="display: flex;">
         @foreach (var day in week.Days)
         {
-            <div class="day-cell" style="flex: 1 0 14.2857%; padding: 4px;">
-                <MudCard Class="activity-card pa-2" Style="@GetCardStyle(day.Activities)">
-                    <span>@day.Date.ToString("dd-MM-y")</span>
-                    @foreach (var activity in day.Activities)
-                    {
-                        <MudChip T="string" Style="@GetChipStyle(activity.Type)" Variant="Variant.Filled" Class="mt-1">
-                            @($"{activity.Distance} {activity.Type.ToLower()}")
-                        </MudChip>
-                    }
-                </MudCard>
-            </div>
+        <div class="day-cell" style="flex: 1 0 14.2857%; padding: 4px;">
+            <MudCard Class="activity-card pa-2"
+						 Style="@($"{GetCardStyle(day.Activities)} cursor: pointer;")"
+                        @onclick="() => ShowActivityDetails(day.Activities.FirstOrDefault())">
+                <span>@day.Date.ToString("dd-MM-y")</span>
+                @foreach (var activity in day.Activities)
+                {
+                    <MudChip T="string" Style="@GetChipStyle(activity.Type)" Variant="Variant.Filled" Class="mt-1">
+                        @($"{activity.Distance} {activity.Type.ToLower()}")
+                    </MudChip>
+                }
+            </MudCard>
+        </div>
         }
     </div>
 }
@@ -45,6 +51,29 @@
     private DateTime startDay = DateTime.Now.AddDays(-8 * 7); // Eight weeks back
     private DateTime endDay = DateTime.Now;
     List<CalendarWeek> calendarWeeks = new();
+    private HeatmapInput? selectedActivity;
+
+    private async Task ShowActivityDetails(SimpleActivity? activity)
+    {
+        if (activity is null)
+        {
+            return;
+        }
+
+        var heatmapInput = await GetHeatmapInputForActivity(activity);
+        if (heatmapInput != null)
+        {
+            var parameters = new DialogParameters { ["HeatmapInput"] = heatmapInput };
+            await DialogService.ShowAsync<ActivityDetailsDialog>("Activity Details", parameters);
+        }
+    }
+
+    private async Task<HeatMapData?> GetHeatmapInputForActivity(SimpleActivity activity)
+    {
+        HeatMapData? heatmapInput = await HeatmapService.GetHeatmapDataSingle(activity.MapId, activity.Type);
+
+        return heatmapInput;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -122,13 +151,14 @@
             if (activity.Activity.StartDate.HasValue && activity.Activity.Type != null)
             {
                 simpleActivities.Add(new SimpleActivity
-                        {
-                            Type = activity.Activity.Type,
-                            StartDate = activity.Activity.StartDate.Value,
-						    Distance = activity.Activity.Distance.HasValue
-								    ? $"{(activity.Activity.Distance.Value / 1000):F2}km"
-								    : "N/A"
-                        });
+                {
+                    Type = activity.Activity.Type,
+                    StartDate = activity.Activity.StartDate.Value,
+					Distance = activity.Activity.Distance.HasValue
+							? $"{(activity.Activity.Distance.Value / 1000):F2}km"
+							: "N/A",
+				    MapId = activity.Activity.MapId
+                });
             }
         }
         simpleActivities = simpleActivities.OrderByDescending(x => x.StartDate).ToList();
@@ -155,7 +185,8 @@
             StartDate = a.Activity.StartDate.Value,
             Distance = a.Activity.Distance.HasValue
                 ? $"{(a.Activity.Distance.Value / 1000):F2}km"
-                : "N/A"
+                : "N/A",
+            MapId = a.Activity.MapId
         }).ToList();
 
         // Avoid duplicates based on unique properties
@@ -213,6 +244,7 @@
         public string Type { get; set; }
         public DateTime StartDate { get; set; }
         public string Distance { get; set; }
+		public string? MapId { get; set; }
     }
 
     private class CalendarDay

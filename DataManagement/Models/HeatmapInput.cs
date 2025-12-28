@@ -1,5 +1,4 @@
-﻿using Contracts.DTOs;
-using Data.Models.Strava;
+﻿using Data.Models.Strava;
 
 namespace DataManagement.Models
 {
