@@ -7,7 +7,7 @@
         <p><b>Type:</b> @HeatmapInput?.Input.First()?.ActivityType</p>
         <p><b>Route:</b></p>
 
-        <div id="map" style="height: 400px; width: 400px; margin-bottom: 16px;"></div>
+        <div id="map" style="height: 500px; width: 500px; margin-bottom: 16px;"></div>
 
     </DialogContent>
     <DialogActions>
@@ -24,7 +24,14 @@
         if (firstRender && !string.IsNullOrEmpty(HeatmapInput?.Input.First()?.EncodedPolyline))
         {
             string heatMapDataString = JsonSerializer.Serialize(HeatmapInput);
-            await JSRuntime.InvokeVoidAsync("initializeHeatMap", heatMapDataString);
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("initializeHeatMap", heatMapDataString);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing heat map: {ex.Message}");
+			}
         }
     }
 

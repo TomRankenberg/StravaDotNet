@@ -185,7 +185,8 @@
             StartDate = a.Activity.StartDate.Value,
             Distance = a.Activity.Distance.HasValue
                 ? $"{(a.Activity.Distance.Value / 1000):F2}km"
-                : "N/A"
+                : "N/A",
+            MapId = a.Activity.MapId
         }).ToList();
 
         // Avoid duplicates based on unique properties
