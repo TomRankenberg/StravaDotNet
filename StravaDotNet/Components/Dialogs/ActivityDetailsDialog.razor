@@ -1,56 +1,31 @@
 @using DataManagement.Models
 @using MudBlazor
+@using System.Text.Json
 @inject IJSRuntime JSRuntime
-
-
 <MudDialog>
     <DialogContent>
-        <h4>Activity Details</h4>
-        <p><b>Type:</b> @Activity?.ActivityType</p>
+        <p><b>Type:</b> @HeatmapInput?.Input.First()?.ActivityType</p>
         <p><b>Route:</b></p>
 
-        @if (!string.IsNullOrEmpty(DecodedRoute))
-        {
-            <div style="height:200px;width:100%;background:#eee;padding:8px;overflow:auto;">
-                <pre style="white-space:pre-wrap;margin:0;">@DecodedRoute</pre>
-            </div>
-        }
-        else if (!string.IsNullOrEmpty(Activity?.EncodedPolyline))
-        {
-            <div>Decoding route...</div>
-        }
-        else
-        {
-            <p>No route data.</p>
-        }
-    </DialogContent>
+        <div id="map" style="height: 400px; width: 400px; margin-bottom: 16px;"></div>
 
+    </DialogContent>
     <DialogActions>
         <MudButton OnClick="Close" Color="Color.Primary">Close</MudButton>
     </DialogActions>
 </MudDialog>
-
 @code {
-    [Parameter] public HeatmapInput? Activity { get; set; }
-
+    [Parameter] public HeatMapData? HeatmapInput { get; set; }
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
-
     private string? DecodedRoute;
 
-    protected override void OnParametersSet()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!string.IsNullOrEmpty(Activity?.EncodedPolyline))
+        if (firstRender && !string.IsNullOrEmpty(HeatmapInput?.Input.First()?.EncodedPolyline))
         {
-            // Replace with real polyline decode logic or JS interop as needed.
-            DecodedRoute = DecodePolylinePreview(Activity.EncodedPolyline);
+            string heatMapDataString = JsonSerializer.Serialize(HeatmapInput);
+            await JSRuntime.InvokeVoidAsync("initializeHeatMap", heatMapDataString);
         }
-    }
-
-    private string DecodePolylinePreview(string encoded)
-    {
-        // placeholder - return a short preview so the dialog renders without errors
-        // implement actual decoding (C# or JS interop) later
-        return $"Encoded polyline length: {encoded.Length}\n\n{encoded.Substring(0, Math.Min(200, encoded.Length))}";
     }
 
     void Close() => MudDialog?.Cancel();

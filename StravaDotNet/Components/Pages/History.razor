@@ -63,15 +63,14 @@
         var heatmapInput = await GetHeatmapInputForActivity(activity);
         if (heatmapInput != null)
         {
-            var parameters = new DialogParameters { ["Activity"] = heatmapInput };
+            var parameters = new DialogParameters { ["HeatmapInput"] = heatmapInput };
             await DialogService.ShowAsync<ActivityDetailsDialog>("Activity Details", parameters);
         }
     }
 
-    // Example stub: implement this to fetch the HeatmapInput for the activity
-    private async Task<HeatmapInput?> GetHeatmapInputForActivity(SimpleActivity activity)
+    private async Task<HeatMapData?> GetHeatmapInputForActivity(SimpleActivity activity)
     {
-        HeatmapInput? heatmapInput = await HeatmapService.GetHeatmapInput(activity.MapId, activity.Type);
+        HeatMapData? heatmapInput = await HeatmapService.GetHeatmapDataSingle(activity.MapId, activity.Type);
 
         return heatmapInput;
     }

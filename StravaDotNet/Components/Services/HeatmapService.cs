@@ -36,7 +36,7 @@ namespace StravaDotNet.Components.Services
             return data;
         }
 
-        public async Task<HeatmapInput> GetHeatmapInput(string mapId, string activityType)
+        public async Task<HeatMapData> GetHeatmapDataSingle(string mapId, string activityType)
         {
             IPolylineMap map = await mapRepo.GetMapByIdNoTracking(mapId);
             HeatmapInput input = new()
@@ -46,8 +46,13 @@ namespace StravaDotNet.Components.Services
                 LineColor = "#FF0000",
                 ActivityType = activityType
             };
+            HeatMapData heatMapData = new()
+            {
+                Input = [input],
+                Count = 1
+            };
 
-            return input;
+            return heatMapData;
         }
     }
 }
