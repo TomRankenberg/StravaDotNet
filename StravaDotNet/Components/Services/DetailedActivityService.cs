@@ -9,30 +9,50 @@ namespace StravaDotNet.Components.Services
     {
         private static readonly SemaphoreSlim _semaphore = new(4);
 
-        public async Task<List<ActivityVm>?> GetDetailedActivityVmsAsync(DateTime? from = null, DateTime? to = null)
+        public async Task<List<SimpleActivityVm>?> GetSimpleActivityVmsAsync(DateTime? from = null, DateTime? to = null)
         {
-            string url = "api/detailedactivities/GetActivityVms";
-            var queryParams = new List<string>();
-            if (from.HasValue)
-            {
-                queryParams.Add($"from={from.Value:yyyy-MM-dd}");
-            }
-            if (to.HasValue)
-            {
-                queryParams.Add($"to={to.Value:yyyy-MM-dd}");
-            }
-            if (queryParams.Count > 0)
-            {
-                url += "?" + string.Join("&", queryParams);
-            }
+            string url = BuildUrl(from, to);
 
             List<ActivityVm>? activityVms = await httpClient.GetFromJsonAsync<List<ActivityVm>>(url);
             if (activityVms == null)
             {
                 return null;
             }
+            else
+            {
+                List<SimpleActivityVm> simpleVms = [];
+                foreach (ActivityVm vm in activityVms)
+                {
+                    if (vm.Activity != null)
+                    {
+                        SimpleActivityVm simpleVm = new()
+                        {
+                            Type = vm.Activity.Type,
+                            StartDate = vm.Activity.StartDate,
+                            Distance = vm.Activity.Distance != null ? $"{vm.Activity.Distance / 1000:F2} km" : "N/A",
+                            MapId = vm.Activity.MapId,
+                            StartLatLng = vm.Activity.StartLatlng != null && vm.Activity.StartLatlng.Count == 2
+                                ? [vm.Activity.StartLatlng[0], vm.Activity.StartLatlng[1]]
+                                : null
+                        };
+                        simpleVms.Add(simpleVm);
+                    }
+                }
+                return simpleVms;
+            }
+        }
 
-            var tasks = activityVms
+        public async Task<List<ActivityVm>> GetDetailedActivityVmsAsync(DateTime? from = null, DateTime? to = null)
+        {
+            string url = BuildUrl(from, to);
+
+            List<ActivityVm>? activityVms = await httpClient.GetFromJsonAsync<List<ActivityVm>>(url);
+            if (activityVms == null)
+            {
+                return [];
+            }
+
+            List<Task> tasks = activityVms
                 .Where(vm => vm.Activity != null && vm.Activity.Id != null)
                 .Select(async vm =>
                 {
@@ -45,9 +65,14 @@ namespace StravaDotNet.Components.Services
             return activityVms;
         }
 
-        public async Task<List<ActivityDTO>?> GetDetailedActivitiesAsync()
+        public async Task<List<ActivityDTO>> GetDetailedActivitiesAsync()
         {
             List<ActivityDTO>? activities = await httpClient.GetFromJsonAsync<List<ActivityDTO>>("api/detailedactivities/GetAllActivities");
+
+            if (activities == null)
+            {
+                return [];
+            }
 
             return activities;
         }
@@ -72,7 +97,6 @@ namespace StravaDotNet.Components.Services
             {
                 _semaphore.Release();
             }
-
         }
 
         public List<ActivityVm> ConvertStatsToVm(List<ActivityForStats> activityForStats)
@@ -98,6 +122,25 @@ namespace StravaDotNet.Components.Services
                 vms.Add(vm);
             }
             return vms;
+        }
+
+        private static string BuildUrl(DateTime? from, DateTime? to)
+        {
+            string url = "api/detailedactivities/GetActivityVms";
+            var queryParams = new List<string>();
+            if (from.HasValue)
+            {
+                queryParams.Add($"from={from.Value:yyyy-MM-dd}");
+            }
+            if (to.HasValue)
+            {
+                queryParams.Add($"to={to.Value:yyyy-MM-dd}");
+            }
+            if (queryParams.Count > 0)
+            {
+                url += "?" + string.Join("&", queryParams);
+            }
+            return url;
         }
     }
 }

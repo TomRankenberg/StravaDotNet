@@ -15,7 +15,7 @@
 
 <PageTitle>Activity History</PageTitle>
 
-@foreach (CalendarWeek week in calendarWeeks.AsEnumerable().Reverse())
+@foreach (CalendarWeekVm week in calendarWeeks.AsEnumerable().Reverse())
 {
     <div class="week-row" style="display: flex;">
         @foreach (var day in week.Days)
@@ -46,14 +46,13 @@
 
 @code {
     private bool isLoaded = false;
-    private List<ActivityVm>? detailedActivities;
-    private List<SimpleActivity>? simpleActivities;
+    private List<SimpleActivityVm>? simpleActivities;
     private DateTime startDay = DateTime.Now.AddDays(-8 * 7); // Eight weeks back
     private DateTime endDay = DateTime.Now;
-    List<CalendarWeek> calendarWeeks = new();
+    List<CalendarWeekVm> calendarWeeks = new();
     private HeatmapInput? selectedActivity;
 
-    private async Task ShowActivityDetails(SimpleActivity? activity)
+    private async Task ShowActivityDetails(SimpleActivityVm? activity)
     {
         if (activity is null)
         {
@@ -64,13 +63,13 @@
         if (heatmapInput != null)
         {
             var parameters = new DialogParameters { ["HeatmapInput"] = heatmapInput };
-            await DialogService.ShowAsync<ActivityDetailsDialog>("Activity Details", parameters);
+            await DialogService.ShowAsync<ActivityDetailsDialog>("", parameters);
         }
     }
 
-    private async Task<HeatMapData?> GetHeatmapInputForActivity(SimpleActivity activity)
+    private async Task<HeatMapData?> GetHeatmapInputForActivity(SimpleActivityVm activity)
     {
-        HeatMapData? heatmapInput = await HeatmapService.GetHeatmapDataSingle(activity.MapId, activity.Type);
+        HeatMapData? heatmapInput = await HeatmapService.GetHeatmapDataSingle(activity.MapId, activity.Type, activity.StartLatLng);
 
         return heatmapInput;
     }
@@ -99,7 +98,6 @@
         return $"background-color: {bgColor}; color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);";
     }
 
-
     private static string GetChipColor(string activityType)
     {
         return activityType switch
@@ -111,7 +109,7 @@
         };
     }
 
-    private static string GetCardStyle(List<SimpleActivity> activities)
+    private static string GetCardStyle(List<SimpleActivityVm> activities)
     {
         if (activities == null || activities.Count == 0)
             return "background-color: #f5f5f5;";
@@ -139,29 +137,9 @@
 
     private async Task LoadData()
     {
-        detailedActivities = await DetailedActivityService.GetDetailedActivityVmsAsync(startDay, endDay);
-        simpleActivities = new List<SimpleActivity>();
-        if (detailedActivities == null || !detailedActivities.Any())
-        {
-            isLoaded = true;
-            return;
-        };
-        foreach (ActivityVm activity in detailedActivities)
-        {
-            if (activity.Activity.StartDate.HasValue && activity.Activity.Type != null)
-            {
-                simpleActivities.Add(new SimpleActivity
-                {
-                    Type = activity.Activity.Type,
-                    StartDate = activity.Activity.StartDate.Value,
-					Distance = activity.Activity.Distance.HasValue
-							? $"{(activity.Activity.Distance.Value / 1000):F2}km"
-							: "N/A",
-				    MapId = activity.Activity.MapId
-                });
-            }
-        }
-        simpleActivities = simpleActivities.OrderByDescending(x => x.StartDate).ToList();
+        simpleActivities = await DetailedActivityService.GetSimpleActivityVmsAsync(startDay, endDay);
+        
+        simpleActivities = simpleActivities?.OrderByDescending(x => x.StartDate).ToList();
         LoadCalendar();
         isLoaded = true;
     }
@@ -172,42 +150,45 @@
 
         var monthWeeks = GetCalendarWeeks(simpleActivities);
         calendarWeeks.AddRange(monthWeeks);
-		StateHasChanged();
+        StateHasChanged();
     }
 
     async Task LoadMoreWeeks()
     {
-        startDay = startDay.AddDays(-2 * 7); // Expand the range
-		List<ActivityVm>? newActivities = await DetailedActivityService.GetDetailedActivityVmsAsync(startDay, endDay);
-        var newSimpleActivities = newActivities.Select(a => new SimpleActivity
-        {
-            Type = a.Activity.Type,
-            StartDate = a.Activity.StartDate.Value,
-            Distance = a.Activity.Distance.HasValue
-                ? $"{(a.Activity.Distance.Value / 1000):F2}km"
-                : "N/A",
-            MapId = a.Activity.MapId
-        }).ToList();
+        startDay = startDay.AddDays(-4 * 7);
+        List<SimpleActivityVm>? newSimpleActivities = await DetailedActivityService.GetSimpleActivityVmsAsync(startDay, endDay);
 
         // Avoid duplicates based on unique properties
+        if (newSimpleActivities == null || !newSimpleActivities.Any())
+        {
+            return;
+        };
+
         foreach (var activity in newSimpleActivities)
         {
-            if (!simpleActivities.Any(a => a.StartDate == activity.StartDate && a.Type == activity.Type))
+            if (!simpleActivities!.Any(a => a.StartDate == activity.StartDate && a.Type == activity.Type))
             {
-                simpleActivities.Add(activity);
+                simpleActivities!.Add(activity);
             }
         }
 
         LoadCalendar();
     }
 
-    List<CalendarWeek> GetCalendarWeeks(List<SimpleActivity> activities)
+    List<CalendarWeekVm> GetCalendarWeeks(List<SimpleActivityVm>? activities)
     {
-        if (activities.Count == 0)
-            return new List<CalendarWeek>();
+        if (activities == null || activities.Count == 0)
+        {
+            return new List<CalendarWeekVm>();
+        }
 
-        var startDate = activities.Min(a => a.StartDate.Date);
-        var endDate = activities.Max(a => a.StartDate.Date);
+        if (activities.Min(a => a.StartDate?.Date) == null || activities.Max(a => a.StartDate?.Date) == null)
+        {
+            return new List<CalendarWeekVm>();
+		};
+
+        DateTime startDate = activities.Min(a => a.StartDate!.Value.Date);
+        DateTime endDate = activities.Max(a => a.StartDate!.Value.Date);
 
         // Align start date to previous Monday and end date to next Sunday
         int padStart = ((int)startDate.DayOfWeek + 6) % 7; // Monday = 0
@@ -216,14 +197,14 @@
         startDate = startDate.AddDays(-padStart);
         endDate = endDate.AddDays(padEnd);
 
-        List<CalendarWeek> weeks = new();
-        CalendarWeek currentWeek = new();
+        List<CalendarWeekVm> weeks = new();
+        CalendarWeekVm currentWeek = new();
 
-        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
         {
-            var dayActivities = activities.Where(a => a.StartDate.Date == date).ToList();
+            List<SimpleActivityVm> dayActivities = activities.Where(a => a.StartDate?.Date == date).ToList();
 
-            currentWeek.Days.Add(new CalendarDay
+            currentWeek.Days.Add(new CalendarDayVm
             {
                 Date = date,
                 Activities = dayActivities
@@ -232,32 +213,12 @@
             if (currentWeek.Days.Count == 7)
             {
                 weeks.Add(currentWeek);
-                currentWeek = new CalendarWeek();
+                currentWeek = new CalendarWeekVm();
             }
         }
 
         return weeks;
     }
-
-    private class SimpleActivity
-    {
-        public string Type { get; set; }
-        public DateTime StartDate { get; set; }
-        public string Distance { get; set; }
-		public string? MapId { get; set; }
-    }
-
-    private class CalendarDay
-    {
-        public DateTime Date { get; set; }
-        public List<SimpleActivity> Activities { get; set; } = new();
-    }
-
-    private class CalendarWeek
-    {
-        public List<CalendarDay> Days { get; set; } = new();
-    }
-
 }
 <style>
     .activity-card {

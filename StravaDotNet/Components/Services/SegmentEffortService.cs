@@ -4,9 +4,17 @@ namespace StravaDotNet.Components.Services
 {
     public class SegmentEffortService(HttpClient httpClient)
     {
-        public Task<List<DetailedSegmentEffort>?> GetDetailedSegmentEffortsAsync()
+        public async Task<List<DetailedSegmentEffort>> GetDetailedSegmentEffortsAsync()
         {
-            return httpClient.GetFromJsonAsync<List<DetailedSegmentEffort>>("api/segmenteffort/GetPRs");
+            List<DetailedSegmentEffort>? efforts = await httpClient.GetFromJsonAsync<List<DetailedSegmentEffort>>("api/segmenteffort/GetPRs");
+            if (efforts == null)
+            {
+                return [];
+            }
+            else
+            {
+                return efforts;
+            }
         }
     }
 }
