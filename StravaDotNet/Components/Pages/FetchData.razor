@@ -1,14 +1,20 @@
 ﻿@page "/fetchdata"
 @using System.Text.Json
+@using Contracts.Interfaces
 @using Services
 @inject NavigationManager Navigation
 @inject AuthState AuthState
+@inject IAuthService AuthService
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 @inject Microsoft.Extensions.Options.IOptions<AppSettings> Options
 
 @code {
+    private bool isLoading = false;
+    private bool isDataLoaded = false;
+    private bool isStravaConnected;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -24,8 +30,58 @@
             }
         }
     }
-    private bool isLoading = false;
-    private bool isDataLoaded = false;
+
+    private async Task ConnectToStrava()
+    {
+        IStravaUser user = await AuthService.ValidateCredentialsAsync();
+        isStravaConnected = CheckIfCredentialsValid(user);
+        if (isStravaConnected)
+        {
+            Console.WriteLine("Strava is already connected.");
+            return;
+        }
+        else
+        {
+			isStravaConnected = await UpdateStravaCredentials();
+			StateHasChanged();
+        };
+
+    }
+
+    private async Task<bool> UpdateStravaCredentials()
+    {
+		bool isConnected = false;
+        HttpResponseMessage response = await Http.GetAsync($"{Options.Value.BaseAddress}/api/Strava/ConnectToStrava");
+        if (response.IsSuccessStatusCode)
+        {
+            JsonResponse? jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>();
+            string? stravaAuthUrl = jsonResponse?.Url;
+            if (!string.IsNullOrEmpty(stravaAuthUrl))
+            {
+                // Open Strava auth in a new window/tab
+                await JSRuntime.InvokeVoidAsync("eval", $"let _discard_ = open(`{stravaAuthUrl}`, `_blank`)");
+                // Mark optimistic state — actual confirmation will come when the callback completes and you validate credentials again.
+                isConnected = true;
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            isConnected = false;
+            Console.WriteLine("Error calling ConnectToStrava");
+        }
+        return isConnected;
+    } 
+
+    private static bool CheckIfCredentialsValid(IStravaUser user)
+    {
+        if (int.TryParse(user.AccessTokenExpiresAt, out var secondsEpoch))
+        {
+            DateTime tokenExpiryDateTime = DateTimeOffset.FromUnixTimeSeconds(secondsEpoch).UtcDateTime;
+            return tokenExpiryDateTime > DateTime.UtcNow;
+        }
+        return false;
+	}
 
     private async Task GetActivitiesAsync()
     {
@@ -70,12 +126,26 @@
 			isLoading = false;
 		}
     }
+
+    public class JsonResponse
+    {
+        public string? Url { get; set; }
+    }
 }
 
+<form>
+    <button type="button" style="border: none; background: none; padding: 0;" @onclick="ConnectToStrava">
+        <img src="images/btn_strava_connect_with_white.png" alt="Connect to Strava" style="height: 48px; cursor: pointer;" />
+    </button>
+</form>
+
 <div>
-    <form>
-        <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync()">Update activities</button>
-    </form>
+@if (isStravaConnected)
+    {
+        <form>
+            <button type="button" class="btn btn-primary" @onclick="() => GetActivitiesAsync()">Update activities</button>
+        </form>
+    }
 
     @if (isLoading)
     {

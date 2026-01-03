@@ -4,11 +4,10 @@
 @rendermode InteractiveServer
 
 @code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            //bool isLoggedIn = await AuthState.GetIsLoggedInAsync();
             StateHasChanged(); // Ensure UI updates if value changes
         }
     }
@@ -57,6 +56,11 @@
                 </NavLink>
             </div>
         }
+        <div class="nav-item px-3">
+            <a class="nav-link" href="https://github.com/TomRankenberg/StravaDotNet">
+                About
+            </a>
+        </div>
     </nav>
 </div>
 

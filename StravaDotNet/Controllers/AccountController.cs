@@ -11,7 +11,6 @@ namespace StravaDotNet.Controllers
         public IActionResult Login(string returnUrl = "/")
         {
             var props = new AuthenticationProperties { RedirectUri = returnUrl };
-            // "Auth0" is the scheme name used by Auth0.AspNetCore.Authentication
             return Challenge(props, "Auth0");
         }
 
