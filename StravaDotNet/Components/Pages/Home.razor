@@ -21,39 +21,70 @@
 </form>
 
 @code {
+    private bool isAuth0LoggedIn;
+    private bool isStravaConnected;
+
     protected override async Task OnInitializedAsync()
     {
-        IStravaUser user = await AuthService.ValidateCredentialsAsync();
-        int secondsEpoch = int.Parse(user.AccessTokenExpiresAt);
-        DateTime tokenExpiryDateTime = new DateTime(1970, 1, 1).AddSeconds(secondsEpoch);
+        // AuthState now reflects Auth0 login via AuthenticationStateProvider.
+        isAuth0LoggedIn = await AuthState.GetIsLoggedInAsync();
 
-        AuthState.IsLoggedIn = tokenExpiryDateTime > DateTime.UtcNow;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        if (!isAuth0LoggedIn)
         {
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", AuthState.IsLoggedIn.ToString().ToLower());
+            // User is not signed in with Auth0 — do not attempt to validate Strava credentials.
+            isStravaConnected = false;
+            return;
         }
-    }
-    private async Task ConnectToStrava()
-    {
+
+        // If signed in to Auth0, check Strava connection / token expiry via your existing service.
         try
         {
-            var response = await Http.GetAsync($"{Options.Value.BaseAddress}/api/Strava/ConnectToStrava");
-            if (response.IsSuccessStatusCode)
+            IStravaUser user = await AuthService.ValidateCredentialsAsync();
+            if (int.TryParse(user.AccessTokenExpiresAt, out var secondsEpoch))
             {
-                var jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>();
-                var stravaAuthUrl = jsonResponse.Url; // Perform the redirection
-                await JSRuntime.InvokeVoidAsync("eval", $"let _discard_ = open(`{stravaAuthUrl}`, `_blank`)");
-                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "true");
-                AuthState.IsLoggedIn = true;
-                Navigation.NavigateTo("/", true);
+                DateTime tokenExpiryDateTime = DateTimeOffset.FromUnixTimeSeconds(secondsEpoch).UtcDateTime;
+                isStravaConnected = tokenExpiryDateTime > DateTime.UtcNow;
             }
             else
             {
-                AuthState.IsLoggedIn = false;
+                isStravaConnected = false;
+            }
+        }
+        catch
+        {
+            isStravaConnected = false;
+        }
+    }
+
+    private async Task ConnectToStrava()
+    {
+        // Require Auth0 login first.
+        if (!isAuth0LoggedIn)
+        {
+            // Redirect to the AccountController login which triggers Auth0 challenge.
+            Navigation.NavigateTo("/account/login", true);
+            return;
+        }
+
+        try
+        {
+            HttpResponseMessage response = await Http.GetAsync($"{Options.Value.BaseAddress}/api/Strava/ConnectToStrava");
+            if (response.IsSuccessStatusCode)
+            {
+                JsonResponse? jsonResponse = await response.Content.ReadFromJsonAsync<JsonResponse>();
+                string? stravaAuthUrl = jsonResponse?.Url;
+                if (!string.IsNullOrEmpty(stravaAuthUrl))
+                {
+                    // Open Strava auth in a new window/tab
+                    await JSRuntime.InvokeVoidAsync("eval", $"let _discard_ = open(`{stravaAuthUrl}`, `_blank`)");
+                    // Mark optimistic state — actual confirmation will come when the callback completes and you validate credentials again.
+                    isStravaConnected = true;
+                    StateHasChanged();
+                }
+            }
+            else
+            {
+                isStravaConnected = false;
                 Console.WriteLine("Error calling ConnectToStrava");
             }
         }
@@ -65,15 +96,21 @@
 
     private async Task Disconnect()
     {
-		await AuthService.RemoveCredentialsAsync();
-        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "isLoggedIn", "false");
-        AuthState.IsLoggedIn = false;
+        // Remove stored Strava credentials from your backend/service.
+        await AuthService.RemoveCredentialsAsync();
+
+        // Do not change AuthState here — AuthState is authoritative for Auth0 login status.
+        isStravaConnected = false;
+
+        // Optionally sign the user out of Auth0 as well:
+        // Navigation.NavigateTo("/account/logout", true);
+
         Navigation.NavigateTo("/", true);
-		StateHasChanged();
-	}
+        StateHasChanged();
+    }
 
     public class JsonResponse
     {
-        public string Url { get; set; }
+        public string? Url { get; set; }
     }
 }

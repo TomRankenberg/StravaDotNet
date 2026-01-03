@@ -8,8 +8,7 @@
     {
         if (firstRender)
         {
-            var isLoggedIn = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "isLoggedIn");
-            AuthState.IsLoggedIn = isLoggedIn == "true";
+            //bool isLoggedIn = await AuthState.GetIsLoggedInAsync();
             StateHasChanged(); // Ensure UI updates if value changes
         }
     }
