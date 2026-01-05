@@ -8,14 +8,22 @@ using MudBlazor.Services;
 using StravaDotNet;
 using StravaDotNet.Components;
 using StravaDotNet.Components.Services;
+using Auth0.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddScoped<AuthState>();
 builder.Services.AddMudServices();
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration["DBSettings:ConnectionString"]).LogTo(Console.WriteLine, LogLevel.Information));
+builder.Services.AddAuth0WebAppAuthentication(options =>
+{
+    options.Domain = builder.Configuration["Auth0:Domain"];
+    options.ClientId = builder.Configuration["Auth0:ClientId"];
+    options.ClientSecret = builder.Configuration["Auth0:ClientSecret"];
+});
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthState>();
 
 builder.Services.AddScoped<IStravaUserRepo, StravaUserRepo>();
 builder.Services.AddScoped<IActivitiesRepo, ActivitiesRepo>();
@@ -79,6 +87,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAntiforgery();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
