@@ -2,6 +2,7 @@ using Contracts.Interfaces;
 using Data.Context;
 using Data.Models;
 using Data.Repos;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
@@ -64,7 +65,16 @@ builder.Services.Configure<RazorPagesOptions>(options => options.RootDirectory =
 var baseUrl = builder.Configuration["BaseAddress"];
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();  // Trust any proxy
+    options.KnownProxies.Clear();   // Trust any proxy
+});
+
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
