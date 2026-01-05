@@ -1,5 +1,8 @@
 ﻿@using MudBlazor
 @inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject StravaDotNet.Components.Services.AuthState AuthState
+@implements IDisposable
 
 <MudThemeProvider/>
 <MudBlazor.MudDialogProvider />
@@ -10,8 +13,17 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href= "https://github.com/TomRankenberg/StravaDotNet" target="_blank">About</a>
+        <div class="top-row px-4" style="display:flex; align-items:center; justify-content:space-between;">
+            <div>
+                @if (!isLoggedIn)
+                {
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@Login">Login</MudButton>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="@Logout">Logout</MudButton>
+                }
+            </div>
         </div>
 
         <article class="content px-4">
@@ -25,3 +37,32 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    private bool isLoggedIn;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize and subscribe to changes from the shared AuthState wrapper
+        isLoggedIn = await AuthState.GetIsLoggedInAsync();
+        AuthState.AuthenticationStateChanged += OnAuthStateChanged;
+    }
+
+    private void OnAuthStateChanged()
+    {
+        // Called when AuthState signals a change; marshal to the renderer and refresh local flag
+        _ = InvokeAsync(async () =>
+        {
+            isLoggedIn = await AuthState.GetIsLoggedInAsync();
+            StateHasChanged();
+        });
+    }
+
+    private void Login() => Navigation.NavigateTo("/account/login", true);
+    private void Logout() => Navigation.NavigateTo("/account/logout", true);
+
+    public void Dispose()
+    {
+        AuthState.AuthenticationStateChanged -= OnAuthStateChanged;
+    }
+}
