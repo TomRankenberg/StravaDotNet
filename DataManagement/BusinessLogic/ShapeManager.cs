@@ -35,7 +35,7 @@ namespace DataManagement.BusinessLogic
 
             for (int i = 0; i < Templates.Count; i++)
             {
-                double distance = PathDistance(points, Templates[i]);
+                double distance = CalcPathDistance(points, Templates[i]);
                 if (distance < bestDistance)
                 {
                     bestDistance = distance;
@@ -48,10 +48,9 @@ namespace DataManagement.BusinessLogic
             return result;
         }
 
-        // Resample the path to n evenly spaced points
         private static List<Point> Resample(List<Point> points, int n)
         {
-            double pathLength = PathLength(points);
+            double pathLength = CalcPathLength(points);
             double interval = pathLength / (n - 1);
             double accumulatedDistance = 0;
 
@@ -59,7 +58,7 @@ namespace DataManagement.BusinessLogic
 
             for (int i = 1; i < points.Count; i++)
             {
-                double segmentLength = Distance(points[i - 1], points[i]);
+                double segmentLength = CalcDistance(points[i - 1], points[i]);
 
                 if (accumulatedDistance + segmentLength >= interval)
                 {
@@ -90,18 +89,16 @@ namespace DataManagement.BusinessLogic
             return newPoints;
         }
 
-        // Rotate so that the indicative angle is at 0 degrees
         private static List<Point> RotateToZero(List<Point> points)
         {
-            Point centroid = Centroid(points);
+            Point centroid = CalcCentroid(points);
             double angle = Math.Atan2(centroid.Y - points[0].Y, centroid.X - points[0].X);
             return RotateBy(points, -angle);
         }
 
-        // Rotate points by a given angle
         private static List<Point> RotateBy(List<Point> points, double angle)
         {
-            Point centroid = Centroid(points);
+            Point centroid = CalcCentroid(points);
             double cos = Math.Cos(angle);
             double sin = Math.Sin(angle);
 
@@ -116,7 +113,6 @@ namespace DataManagement.BusinessLogic
             return newPoints;
         }
 
-        // Scale to fit in a square
         private static List<Point> ScaleToSquare(List<Point> points, double size)
         {
             BoundingBox box = GetBoundingBox(points);
@@ -134,10 +130,9 @@ namespace DataManagement.BusinessLogic
             return newPoints;
         }
 
-        // Translate to origin
         private static List<Point> TranslateToOrigin(List<Point> points)
         {
-            Point centroid = Centroid(points);
+            Point centroid = CalcCentroid(points);
 
             List<Point> newPoints = [];
             foreach (var p in points)
@@ -148,27 +143,24 @@ namespace DataManagement.BusinessLogic
             return newPoints;
         }
 
-        // Calculate path length
-        private static double PathLength(List<Point> points)
+        private static double CalcPathLength(List<Point> points)
         {
             double length = 0;
             for (int i = 1; i < points.Count; i++)
             {
-                length += Distance(points[i - 1], points[i]);
+                length += CalcDistance(points[i - 1], points[i]);
             }
             return length;
         }
 
-        // Calculate distance between two points
-        private static double Distance(Point p1, Point p2)
+        private static double CalcDistance(Point p1, Point p2)
         {
             double dx = p2.X - p1.X;
             double dy = p2.Y - p1.Y;
             return Math.Sqrt(dx * dx + dy * dy);
         }
 
-        // Calculate centroid of points
-        private static Point Centroid(List<Point> points)
+        private static Point CalcCentroid(List<Point> points)
         {
             double sumX = 0, sumY = 0;
             foreach (Point p in points)
@@ -179,7 +171,6 @@ namespace DataManagement.BusinessLogic
             return new Point(sumX / points.Count, sumY / points.Count);
         }
 
-        // Get bounding box
         private static BoundingBox GetBoundingBox(List<Point> points)
         {
             double minX = double.MaxValue, minY = double.MaxValue;
@@ -198,13 +189,12 @@ namespace DataManagement.BusinessLogic
             return box;
         }
 
-        // Calculate distance between two paths
-        private static double PathDistance(List<Point> path1, List<Point> path2)
+        private static double CalcPathDistance(List<Point> path1, List<Point> path2)
         {
             double distance = 0;
             for (int i = 0; i < path1.Count; i++)
             {
-                distance += Distance(path1[i], path2[i]);
+                distance += CalcDistance(path1[i], path2[i]);
             }
             return distance / path1.Count;
         }

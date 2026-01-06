@@ -20,7 +20,7 @@ namespace DataManagementTests
         }
 
         [Fact]
-        public void Test1()
+        public void RecognizeTest()
         {
             // Arrange
             List<Point> testShape =
