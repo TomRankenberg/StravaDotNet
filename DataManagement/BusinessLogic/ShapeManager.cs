@@ -22,30 +22,24 @@ namespace DataManagement.BusinessLogic
             TemplateNames.Add(name);
         }
 
-        // Recognize a shape and return the best match
-        public RecognitionResult Recognize(List<Point> points)
+        // Compare an input shape against the templates and return recognition results
+        public List<RecognitionResult> Recognize(List<Point> points)
         {
+            List<RecognitionResult> results = [];
             points = Resample(points, NumPoints);
             points = RotateToZero(points);
             points = ScaleToSquare(points, SquareSize);
             points = TranslateToOrigin(points);
 
-            double bestDistance = double.MaxValue;
-            int bestIndex = -1;
-
             for (int i = 0; i < Templates.Count; i++)
             {
                 double distance = CalcPathDistance(points, Templates[i]);
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    bestIndex = i;
-                }
+                double score = 1.0 - (distance / (0.5 * Math.Sqrt(SquareSize * SquareSize + SquareSize * SquareSize)));
+
+                results.Add(new RecognitionResult(TemplateNames[i], Math.Max(score, 0.0)));
             }
 
-            double score = 1.0 - (bestDistance / (0.5 * Math.Sqrt(SquareSize * SquareSize + SquareSize * SquareSize)));
-            RecognitionResult result = new(TemplateNames[bestIndex], Math.Max(score, 0.0));
-            return result;
+            return results;
         }
 
         private static List<Point> Resample(List<Point> points, int n)

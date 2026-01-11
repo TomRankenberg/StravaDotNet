@@ -17,6 +17,15 @@ namespace DataManagementTests
                 new(0, 0)
             ];
             Sut.AddTemplate("triangle", triangle);
+
+            List<Point> square =
+            [
+                new(0, 0),
+                new(100, 0),
+                new(100, 100),
+                new(0, 100)
+            ];
+            Sut.AddTemplate("square", square);
         }
 
         [Fact]
@@ -32,11 +41,11 @@ namespace DataManagementTests
             ];
 
             // Act
-            RecognitionResult result = Sut.Recognize(testShape);
+            List<RecognitionResult> results = Sut.Recognize(testShape);
 
             // Assert
-            Assert.Equal("triangle", result.Name);
-            Assert.True(result.Score > 0.8);
+            Assert.Equal("triangle", results.First().Name);
+            Assert.True(results.First().Score > 0.8);
         }
     }
 }
