@@ -14,6 +14,9 @@
             return [coord[0], coord[1]];
         });
         L.polyline(latlngs, { smoothFactor: 5, color: item.LineColor, opacity: item.LineOpacity }).addTo(map);
+        if (data.Input.length === 1) {
+            map.fitBounds(L.polyline(latlngs).getBounds());
+        }
     });
 }
 

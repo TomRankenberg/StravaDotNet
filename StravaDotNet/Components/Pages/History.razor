@@ -15,42 +15,50 @@
 
 <PageTitle>Activity History</PageTitle>
 
-@foreach (CalendarWeekVm week in calendarWeeks.AsEnumerable().Reverse())
-{
-    <div class="week-row" style="display: flex;">
-        @foreach (var day in week.Days)
-        {
-        <div class="day-cell" style="flex: 1 0 14.2857%; padding: 4px;">
-            <MudCard Class="activity-card pa-2"
-						 Style="@($"{GetCardStyle(day.Activities)} cursor: pointer;")"
+<div @ref="contentContainer">
+    @foreach (CalendarWeekVm week in calendarWeeks.AsEnumerable().Reverse())
+    {
+        <div class="week-row" style="display: flex;">
+            @foreach (var day in week.Days)
+            {
+            <div class="day-cell" style="flex: 1 0 14.2857%; padding: 4px;">
+                <MudCard Class="activity-card pa-2"
+                         Style="@($"{GetCardStyle(day.Activities)} cursor: pointer;")"
                         @onclick="() => ShowActivityDetails(day.Activities.FirstOrDefault())">
-                <span>@day.Date.ToString("dd-MM-y")</span>
-                @foreach (var activity in day.Activities)
-                {
-                    <MudChip T="string" Style="@GetChipStyle(activity.Type)" Variant="Variant.Filled" Class="mt-1">
-                        @($"{activity.Distance} {activity.Type.ToLower()}")
-                    </MudChip>
-                }
-            </MudCard>
+                    <span>@day.Date.ToString("dd-MM-y")</span>
+                    @foreach (var activity in day.Activities)
+                    {
+                        <MudChip T="string" Style="@GetChipStyle(activity.Type)" Variant="Variant.Filled" Class="mt-1">
+                            @($"{activity.Distance} {activity.Type.ToLower()}")
+                        </MudChip>
+                    }
+                </MudCard>
+            </div>
+            }
         </div>
-        }
-    </div>
-}
+    }
+</div>
 
-@if (isLoaded)
-{
-    <form>
-        <button type="button" class="btn btn-secondary" style="margin-right:30px;" @onclick="LoadMoreWeeks">Load More</button>
-    </form>
-}
+<div @ref="loadMoreTrigger" class="load-more-trigger">
+    @if (isLoadingMore)
+    {
+        <MudProgressLinear Indeterminate="true" />
+    }
+</div>
 
 @code {
     private bool isLoaded = false;
+    private bool isLoadingMore = false;
     private List<SimpleActivityVm>? simpleActivities;
     private DateTime startDay = DateTime.Now.AddDays(-8 * 7); // Eight weeks back
     private DateTime endDay = DateTime.Now;
     List<CalendarWeekVm> calendarWeeks = new();
     private HeatmapInput? selectedActivity;
+    private ElementReference contentContainer;
+    private ElementReference loadMoreTrigger;
+
+    // DotNetObjectReference for instance method calls from JS
+    private DotNetObjectReference<object>? dotNetRef;
 
     private async Task ShowActivityDetails(SimpleActivityVm? activity)
     {
@@ -87,6 +95,10 @@
             {
                 await LoadData();
                 StateHasChanged();
+                
+                // Create a DotNetObjectReference for this component and pass it to JS
+                dotNetRef = DotNetObjectReference.Create<object>((object)this);
+                await JSRuntime.InvokeVoidAsync("setupInfiniteScroll", loadMoreTrigger, dotNetRef);
             }
         }
     }
@@ -127,9 +139,8 @@
             return $"background-color: {bgColor}; border-left: 6px solid {GetChipColor(types[0])};";
         }
 
-        // Blend two colors for mixed activities
         var color1 = GetChipColor(types[0]);
-        var color2 = GetChipColor(types[1 % types.Count]); // fallback if only one
+        var color2 = GetChipColor(types[1 % types.Count]);
 
         return $"background: linear-gradient(135deg, {color1}50 0%, {color2}50 100%); border-left: 6px solid {color1};";
     }
@@ -152,26 +163,42 @@
         StateHasChanged();
     }
 
-    async Task LoadMoreWeeks()
+    // Called from JS via dotNetRef.invokeMethodAsync("LoadMoreWeeks")
+    [JSInvokable]
+    public async Task LoadMoreWeeks()
     {
-        startDay = startDay.AddDays(-4 * 7);
-        List<SimpleActivityVm>? newSimpleActivities = await DetailedActivityService.GetSimpleActivityVmsAsync(startDay, endDay);
-
-        // Avoid duplicates based on unique properties
-        if (newSimpleActivities == null || !newSimpleActivities.Any())
-        {
+        if (isLoadingMore)
             return;
-        };
 
-        foreach (var activity in newSimpleActivities)
+        isLoadingMore = true;
+        StateHasChanged();
+
+        try
         {
-            if (!simpleActivities!.Any(a => a.StartDate == activity.StartDate && a.Type == activity.Type))
-            {
-                simpleActivities!.Add(activity);
-            }
-        }
+            startDay = startDay.AddDays(-4 * 7);
+            List<SimpleActivityVm>? newSimpleActivities = await DetailedActivityService.GetSimpleActivityVmsAsync(startDay, endDay);
 
-        LoadCalendar();
+            if (newSimpleActivities == null || !newSimpleActivities.Any())
+            {
+                isLoadingMore = false;
+                return;
+            }
+
+            foreach (var activity in newSimpleActivities)
+            {
+                if (!simpleActivities!.Any(a => a.StartDate == activity.StartDate && a.Type == activity.Type))
+                {
+                    simpleActivities!.Add(activity);
+                }
+            }
+
+            LoadCalendar();
+        }
+        finally
+        {
+            isLoadingMore = false;
+            StateHasChanged();
+        }
     }
 
     List<CalendarWeekVm> GetCalendarWeeks(List<SimpleActivityVm>? activities)
@@ -184,13 +211,12 @@
         if (activities.Min(a => a.StartDate?.Date) == null || activities.Max(a => a.StartDate?.Date) == null)
         {
             return new List<CalendarWeekVm>();
-		};
+        }
 
         DateTime startDate = activities.Min(a => a.StartDate!.Value.Date);
         DateTime endDate = activities.Max(a => a.StartDate!.Value.Date);
 
-        // Align start date to previous Monday and end date to next Sunday
-        int padStart = ((int)startDate.DayOfWeek + 6) % 7; // Monday = 0
+        int padStart = ((int)startDate.DayOfWeek + 6) % 7;
         int padEnd = 6 - ((int)endDate.DayOfWeek + 6) % 7;
 
         startDate = startDate.AddDays(-padStart);
@@ -218,13 +244,26 @@
 
         return weeks;
     }
+
+    // Cleanup observer and DotNetObjectReference
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("disposeInfiniteScroll");
+        }
+        catch { /* ignore JS errors during dispose */ }
+
+        dotNetRef?.Dispose();
+    }
 }
+
 <style>
     .activity-card {
         border-radius: 8px;
         box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         transition: transform 0.2s ease;
-		min-height: 120px;
+        min-height: 120px;
         word-break: break-word;
     }
 
@@ -249,18 +288,23 @@
         min-width: 120px;
         box-sizing: border-box;
     }
-    @@media (max-width: 700px) {
-    .week-row {
-        flex-direction: row;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        gap: 0;
-    }
-    .day-cell {
-        min-width: 180px;
-        flex: 0 0 auto;
-        padding: 6px;
-    }
-}
 
+    .load-more-trigger {
+        padding: 20px;
+        text-align: center;
+    }
+
+    @@media (max-width: 700px) {
+        .week-row {
+            flex-direction: row;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            gap: 0;
+        }
+        .day-cell {
+            min-width: 180px;
+            flex: 0 0 auto;
+            padding: 6px;
+        }
+    }
 </style>

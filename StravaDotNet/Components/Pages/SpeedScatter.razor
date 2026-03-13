@@ -19,9 +19,12 @@
     <div class="canvas-container">
         @foreach (var canvasId in canvasIds)
         {
-            <div class="canvas-wrapper">
-                <canvas id="@canvasId"></canvas>
-            </div>
+            <details class="canvas-details" open="@detailsOpen.Contains(canvasId)" @ontoggle="() => OnToggle(canvasId)">
+                <summary class="canvas-summary">@GetTitle(canvasId)</summary>
+                <div class="canvas-wrapper" id="@($"{canvasId}-wrapper")">
+                    <canvas id="@canvasId"></canvas>
+                </div>
+            </details>
         }
     </div>
 }
@@ -42,27 +45,48 @@
             }
         }
     }
+
     private List<ActivityVm>? activityVms;
     private readonly List<string> canvasIds = new()
     {
         "scatterPlotRun",
         "scatterPlotRide",
         "heartRatePlotRun",
-		"heartRatePlotRide",
+        "heartRatePlotRide",
         "stackedBarsMonths",
         "stackedBarsHours",
         "cumulativeRunDistance",
         "cumulativeRideDistance",
-		"cumulativeSwimDistance",
-		"cumulativeHoursTotal"
+        "cumulativeSwimDistance",
+        "cumulativeHoursTotal"
     };
     private HashSet<string> initializedCanvasIds = new();
+    private HashSet<string> detailsOpen = new();
+    private bool chartsAutoInitialized = false;
 
     private async Task LoadData()
     {
         activityVms = await dataRetrievalService.GetAllActivityVmsAsync();
-        StateHasChanged(); // Trigger re-render to ensure the canvas elements are added to the DOM
-        await PlotAllCharts();
+
+        // Check viewport width to decide whether to expand sections and auto-init charts
+        var width = await JSRuntime.InvokeAsync<int>("blazorHelpers.getWindowWidth");
+
+        detailsOpen.Clear();
+        if (width >= 768)
+        {
+            // Desktop/tablet: open all sections and auto-initialize charts
+            foreach (var id in canvasIds) detailsOpen.Add(id);
+            StateHasChanged(); // ensure details are open in DOM before plotting
+            await PlotAllCharts();
+            await JSRuntime.InvokeVoidAsync("blazorHelpers.registerChartResizeObservers", canvasIds);
+            chartsAutoInitialized = true;
+        }
+        else
+        {
+            // Mobile: keep collapsed, initialize on demand when user opens a section
+            chartsAutoInitialized = false;
+            StateHasChanged();
+        }
     }
 
     private async Task PlotAllCharts()
@@ -71,18 +95,18 @@
         {
             var tasks = new List<Task>()
             {
-            PlotChartIfNotInitialized("scatterPlotRun", () => PlotSpeed("Run")),
-            PlotChartIfNotInitialized("scatterPlotRide", () => PlotSpeed("Ride")),
-            PlotChartIfNotInitialized("heartRatePlotRun", () => PlotHeartRate("Run")),
-            PlotChartIfNotInitialized("heartRatePlotRide", () => PlotHeartRate("Ride")),
-            PlotChartIfNotInitialized("stackedBarsMonths", PlotMonthlyActivities),
-            PlotChartIfNotInitialized("stackedBarsHours", PlotHourlyActivities),
-            PlotChartIfNotInitialized("cumulativeRunDistance", () => PlotCumulativeActivities("Run")),
-            PlotChartIfNotInitialized("cumulativeRideDistance", () => PlotCumulativeActivities("Ride")),
-            PlotChartIfNotInitialized("cumulativeSwimDistance", () => PlotCumulativeActivities("Swim")),
-            PlotChartIfNotInitialized("cumulativeHoursTotal", () => PlotCumulativeActivities("All"))
+                PlotChartIfNotInitialized("scatterPlotRun", () => PlotSpeed("Run")),
+                PlotChartIfNotInitialized("scatterPlotRide", () => PlotSpeed("Ride")),
+                PlotChartIfNotInitialized("heartRatePlotRun", () => PlotHeartRate("Run")),
+                PlotChartIfNotInitialized("heartRatePlotRide", () => PlotHeartRate("Ride")),
+                PlotChartIfNotInitialized("stackedBarsMonths", PlotMonthlyActivities),
+                PlotChartIfNotInitialized("stackedBarsHours", PlotHourlyActivities),
+                PlotChartIfNotInitialized("cumulativeRunDistance", () => PlotCumulativeActivities("Run")),
+                PlotChartIfNotInitialized("cumulativeRideDistance", () => PlotCumulativeActivities("Ride")),
+                PlotChartIfNotInitialized("cumulativeSwimDistance", () => PlotCumulativeActivities("Swim")),
+                PlotChartIfNotInitialized("cumulativeHoursTotal", () => PlotCumulativeActivities("All"))
             };
-			await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks);
         }
     }
 
@@ -92,22 +116,106 @@
         {
             await plotFunction();
             initializedCanvasIds.Add(canvasId);
+            // register resize observer for this particular chart so it adapts to size changes
+            await JSRuntime.InvokeVoidAsync("blazorHelpers.registerChartResizeObservers", new[] { canvasId });
         }
+    }
+
+    private async Task OnToggle(string canvasId)
+    {
+        // details toggled; check if it's open and act accordingly
+        var isOpen = await JSRuntime.InvokeAsync<bool>("blazorHelpers.isDetailsOpen", canvasId);
+        if (isOpen)
+        {
+            // mark open so markup reflects state if user resizes later
+            detailsOpen.Add(canvasId);
+
+            if (!initializedCanvasIds.Contains(canvasId))
+            {
+                await EnsurePlotInitialized(canvasId);
+            }
+            else
+            {
+                // If chart already exists, request a resize so it fills the visible area
+                await JSRuntime.InvokeVoidAsync("blazorHelpers.resizeChart", canvasId);
+            }
+        }
+        else
+        {
+            detailsOpen.Remove(canvasId);
+        }
+    }
+
+    private async Task EnsurePlotInitialized(string canvasId)
+    {
+        switch (canvasId)
+        {
+            case "scatterPlotRun":
+                await PlotChartIfNotInitialized(canvasId, () => PlotSpeed("Run"));
+                break;
+            case "scatterPlotRide":
+                await PlotChartIfNotInitialized(canvasId, () => PlotSpeed("Ride"));
+                break;
+            case "heartRatePlotRun":
+                await PlotChartIfNotInitialized(canvasId, () => PlotHeartRate("Run"));
+                break;
+            case "heartRatePlotRide":
+                await PlotChartIfNotInitialized(canvasId, () => PlotHeartRate("Ride"));
+                break;
+            case "stackedBarsMonths":
+                await PlotChartIfNotInitialized(canvasId, PlotMonthlyActivities);
+                break;
+            case "stackedBarsHours":
+                await PlotChartIfNotInitialized(canvasId, PlotHourlyActivities);
+                break;
+            case "cumulativeRunDistance":
+                await PlotChartIfNotInitialized(canvasId, () => PlotCumulativeActivities("Run"));
+                break;
+            case "cumulativeRideDistance":
+                await PlotChartIfNotInitialized(canvasId, () => PlotCumulativeActivities("Ride"));
+                break;
+            case "cumulativeSwimDistance":
+                await PlotChartIfNotInitialized(canvasId, () => PlotCumulativeActivities("Swim"));
+                break;
+            case "cumulativeHoursTotal":
+                await PlotChartIfNotInitialized(canvasId, () => PlotCumulativeActivities("All"));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private string GetTitle(string canvasId)
+    {
+        return canvasId switch
+        {
+            "scatterPlotRun" => "Run speed (km/h)",
+            "scatterPlotRide" => "Ride speed (km/h)",
+            "heartRatePlotRun" => "Run heart rate",
+            "heartRatePlotRide" => "Ride heart rate",
+            "stackedBarsMonths" => "Activities by month",
+            "stackedBarsHours" => "Activities by hour",
+            "cumulativeRunDistance" => "Cumulative run distance",
+            "cumulativeRideDistance" => "Cumulative ride distance",
+            "cumulativeSwimDistance" => "Cumulative swim distance",
+            "cumulativeHoursTotal" => "Cumulative time (all)",
+            _ => canvasId
+        };
     }
 
     private async Task PlotSpeed(string activityType)
     {
         if (activityVms == null || !activityVms.Any(a => a.Activity.Type == activityType))
         {
-            return; // No activities of the specified type to plot
+            return;
         }
         var selectedActivities = activityVms.Where(a => a.Activity.Type == activityType).ToList();
         var data = plottingHelperService.PrepareScatterPlotData(
             selectedActivities,
-            a => a.Activity.Distance / 1000, // X-axis: Distance in km
-            a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6, // Y-axis: Speed in km/h
+            a => a.Activity.Distance / 1000,
+            a => (a.Activity.Distance / a.Activity.MovingTime) * 3.6,
             a => PlottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate)),
-            a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
+            a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate)
         );
 
         await JSRuntime.InvokeVoidAsync("plotScatterChart", data, $"scatterPlot{activityType}", $"Average {activityType.ToLower()} speed (km/h)");
@@ -117,27 +225,26 @@
     {
         if (activityVms == null || !activityVms.Any(a => a.Activity.Type == type))
         {
-            return; // No activities of the specified type to plot
+            return;
         }
         var selectedActivities = activityVms.Where(a => a.AverageHeartRate != 0 && a.Activity.Type == type).ToList();
         var data = plottingHelperService.PrepareScatterPlotData(
             selectedActivities,
-            a => a.Activity.Distance / 1000, // X-axis: Distance in km
-            a => a.AverageHeartRate, // Y-axis: Heart rate
+            a => a.Activity.Distance / 1000,
+            a => a.AverageHeartRate,
             a => PlottingHelperService.GetColorForDate(a.Activity.StartDate, activityVms.Min(a => a.Activity.StartDate), activityVms.Max(a => a.Activity.StartDate)),
-            a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate) // Tooltip: Date
+            a => DateOnly.FromDateTime((DateTime)a.Activity.StartDate)
         );
 
         await JSRuntime.InvokeVoidAsync("plotScatterChart", data, $"heartRatePlot{type}", $"Average {type.ToLower()} heart rate");
-
     }
 
     private async Task PlotMonthlyActivities()
     {
-		if (activityVms == null || !activityVms.Any(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim"))
-		{
-			return; // No activities of the specified types to plot
-		}
+        if (activityVms == null || !activityVms.Any(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim"))
+        {
+            return;
+        }
         List<ActivityVm> selectedActivities = activityVms
             .Where(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim")
             .ToList();
@@ -146,11 +253,11 @@
     }
 
     private async Task PlotHourlyActivities()
-    {  
-		if (activityVms == null || !activityVms.Any(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim"))
-		{
-			return; // No activities of the specified types to plot
-		}
+    {
+        if (activityVms == null || !activityVms.Any(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim"))
+        {
+            return;
+        }
         List<ActivityVm> selectedActivities = activityVms
             .Where(a => a.Activity.Type == "Run" || a.Activity.Type == "Ride" || a.Activity.Type == "Swim")
             .ToList();
@@ -169,7 +276,7 @@
             selectedActivities = activityVms;
             data = plottingHelperService.PrepareCumulativeTimeData(selectedActivities);
             plotId = "cumulativeHoursTotal";
-			yAxisTitle = "Cumulative time (hours)";
+            yAxisTitle = "Cumulative time (hours)";
         }
         else if (activityVms != null)
         {
@@ -180,6 +287,11 @@
         }
         await JSRuntime.InvokeVoidAsync("plotLineChart", data, plotId, "Day/Month", yAxisTitle);
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("blazorHelpers.disposeChartResizeObservers");
+    }
 }
 
 <style>
@@ -189,20 +301,55 @@
 
     .canvas-container {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 20px;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .canvas-details {
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 6px;
+        padding: 8px;
+        background: #fff;
+    }
+
+    .canvas-summary {
+        font-weight: 600;
+        cursor: pointer;
+        padding: 6px 4px;
+        list-style: none;
     }
 
     .canvas-wrapper {
-        flex: 1 1 calc(50% - 20px);
-        max-width: calc(50% - 20px);
+        width: 100%;
+        /* Ensure a stable visible area even when details was collapsed */
+        min-height: 320px;
+        /* Use aspect-ratio as fallback where supported */
+        aspect-ratio: 16 / 9;
+        padding: 8px 0;
+        box-sizing: border-box;
     }
 
     canvas {
         width: 100% !important;
-        height: auto !important;
-        border: 1px solid #ccc;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        height: 100% !important;
+        display: block;
+        background: white;
+    }
+
+    @@media (min-width: 768px) {
+        .canvas-container {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .canvas-details {
+            flex: 1 1 calc(50% - 20px);
+            max-width: calc(50% - 20px);
+        }
+
+        .canvas-wrapper {
+            min-height: 360px;
+        }
     }
 </style>

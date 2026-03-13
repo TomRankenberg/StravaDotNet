@@ -16,7 +16,7 @@ namespace StravaDotNet.Components.Services
                 Count = activities.Count
             };
 
-            List<ActivityDTO> activitiesList = activities.Where(a => a.MapId != null).ToList();
+            List<ActivityDTO> activitiesList = activities.Where(a => a.MapId != null && a.StartLatlng?.Count>1).ToList();
 
             List<HeatmapInput> inputs = [];
             foreach (ActivityDTO activity in activitiesList)
