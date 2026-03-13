@@ -14,8 +14,6 @@
 @code {
     [Parameter] public HeatMapData? HeatmapInput { get; set; }
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
-    private string? DecodedRoute;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !string.IsNullOrEmpty(HeatmapInput?.Input.First()?.EncodedPolyline))
