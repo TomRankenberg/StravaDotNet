@@ -7,12 +7,14 @@
             datasets: [{
                 label: 'Detailed Activities',
                 data: parsedData.map(point => ({ x: point.x, y: point.y, date: point.date })),
-                backgroundColor: parsedData.map(point => point.color), // Use the color property
-                borderColor: parsedData.map(point => point.color), // Use the color property
+                backgroundColor: parsedData.map(point => point.color),
+                borderColor: parsedData.map(point => point.color),
                 borderWidth: 1
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     type: 'linear',
@@ -42,7 +44,6 @@
                                 'Date: ' + context.raw.date,
                                 'Distance (km): ' + context.raw.x,
                                 yAxisTile + ': ' + context.raw.y,
-
                             ];
                         }
                     },
@@ -51,6 +52,9 @@
             }
         }
     });
+
+    window._charts = window._charts || {};
+    window._charts[type] = scatterChart;
 }
 
 window.chartInstances = window.chartInstances || {};
@@ -59,8 +63,9 @@ function plotMonthlyScatterChart(data, type, yAxisTitle) {
     var parsedData = JSON.parse(data); // Parse the JSON data
     var ctx = document.getElementById(type).getContext('2d');
     // Destroy existing chart instance if it exists
-    if (window.chartInstances[type]) {
-        window.chartInstances[type].destroy();
+    window._charts = window._charts || {};
+    if (window._charts[type]) {
+        try { window._charts[type].destroy(); } catch (e) { }
     }
     var scatterChart = new Chart(ctx, {
         type: 'scatter',
@@ -68,12 +73,14 @@ function plotMonthlyScatterChart(data, type, yAxisTitle) {
             datasets: [{
                 label: 'Best Efforts',
                 data: parsedData.map(point => ({ x: point.monthYear, y: point.y, date: point.date })),
-                backgroundColor: parsedData.map(point => point.color), // Use the color property
-                borderColor: parsedData.map(point => point.color), // Use the color property
+                backgroundColor: parsedData.map(point => point.color),
+                borderColor: parsedData.map(point => point.color),
                 borderWidth: 1
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     type: 'category',
@@ -110,18 +117,19 @@ function plotMonthlyScatterChart(data, type, yAxisTitle) {
             }
         }
     });
-    window.chartInstances[type] = scatterChart;
+    window._charts[type] = scatterChart;
 }
 
 function plotLineChart(data, canvasId, xLabel, yLabel) {
     const parsedData = JSON.parse(data);
     const ctx = document.getElementById(canvasId).getContext('2d');
 
-    new Chart(ctx, {
+    const chart = new Chart(ctx, {
         type: 'line',
         data: parsedData,
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: true,
@@ -137,19 +145,18 @@ function plotLineChart(data, canvasId, xLabel, yLabel) {
             },
             scales: {
                 x: {
-                    type: 'category', // Use a category scale for day/month
+                    type: 'category',
                     title: {
                         display: true,
                         text: xLabel
                     },
                     ticks: {
                         callback: function (value, index, ticks) {
-                            // Only show ticks for the first day of each month
                             const label = this.getLabelForValue(value);
                             return label.startsWith('01-') ? label : null;
                         },
-                        autoSkip: true, // Do not skip ticks
-                        maxRotation: 0, // Prevent label rotation
+                        autoSkip: true,
+                        maxRotation: 0,
                         minRotation: 0
                     }
                 },
@@ -162,10 +169,13 @@ function plotLineChart(data, canvasId, xLabel, yLabel) {
             }
         }
     });
+
+    window._charts = window._charts || {};
+    window._charts[canvasId] = chart;
 }
 
 function plotScatterChartWithLine(data, type, xAxisTitle, yAxisTile) {
-    var parsedData = JSON.parse(data); // Parse the JSON data
+    var parsedData = JSON.parse(data);
     var ctx = document.getElementById(type).getContext('2d');
     const scatterDataset = {
         label: 'Detailed Activities',
@@ -187,8 +197,8 @@ function plotScatterChartWithLine(data, type, xAxisTitle, yAxisTile) {
         borderColor: 'rgba(0,0,0,0.7)',
         borderWidth: 2,
         pointRadius: 0,
-        borderDash: [5, 5], // Optional: dashed line
-        order: 0 // Draw below points
+        borderDash: [5, 5],
+        order: 0
     };
     const datasets = [scatterDataset, diagonalLine];
 
@@ -196,6 +206,8 @@ function plotScatterChartWithLine(data, type, xAxisTitle, yAxisTile) {
         type: 'scatter',
         data: { datasets: datasets },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     type: 'linear',
@@ -223,7 +235,6 @@ function plotScatterChartWithLine(data, type, xAxisTitle, yAxisTile) {
                                 'Date: ' + context.raw.date,
                                 xAxisTitle + ': '+ context.raw.x,
                                 yAxisTile + ': ' + context.raw.y,
-
                             ];
                         }
                     },
@@ -232,4 +243,77 @@ function plotScatterChartWithLine(data, type, xAxisTitle, yAxisTile) {
             }
         }
     });
+
+    window._charts = window._charts || {};
+    window._charts[type] = scatterChart;
 }
+
+// Add small helpers to improve mobile responsiveness and resizing.
+
+window.blazorHelpers = window.blazorHelpers || {};
+
+window.blazorHelpers.getWindowWidth = function () {
+    return window.innerWidth;
+};
+
+window.blazorHelpers.isDetailsOpen = function (canvasId) {
+    try {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return false;
+        const details = canvas.closest('details');
+        return details ? details.open : false;
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
+};
+
+window.blazorHelpers.registerChartResizeObservers = function (chartIds) {
+    if (!chartIds || !Array.isArray(chartIds)) return;
+    if (!window._chartResizeObservers) window._chartResizeObservers = {};
+    chartIds.forEach(id => {
+        try {
+            const canvas = document.getElementById(id);
+            if (!canvas) return;
+            const container = canvas.parentElement;
+            if (!container) return;
+            if (window._chartResizeObservers[id]) return;
+
+            const ro = new ResizeObserver(() => {
+                try {
+                    const chart = window._charts && window._charts[id];
+                    if (chart && typeof chart.resize === 'function') {
+                        chart.resize();
+                    }
+                } catch (err) {
+                    console.error('chart resize error', err);
+                }
+            });
+            ro.observe(container);
+            window._chartResizeObservers[id] = ro;
+        } catch (e) {
+            console.error('registerChartResizeObservers error', e);
+        }
+    });
+};
+
+window.blazorHelpers.resizeChart = function (id) {
+    try {
+        const chart = window._charts && (window._charts[id] || window._charts["scatterPlot" + id] || window._charts[id.replace("scatterPlot","")]);
+        if (chart && typeof chart.resize === 'function') {
+            chart.resize();
+        }
+    } catch (e) {
+        console.error('resizeChart error', e);
+    }
+};
+
+window.blazorHelpers.disposeChartResizeObservers = function () {
+    if (!window._chartResizeObservers) return;
+    Object.keys(window._chartResizeObservers).forEach(k => {
+        try {
+            window._chartResizeObservers[k].disconnect();
+        } catch { }
+    });
+    window._chartResizeObservers = null;
+};
