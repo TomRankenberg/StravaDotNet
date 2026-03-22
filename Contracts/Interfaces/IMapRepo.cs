@@ -7,6 +7,6 @@
         Task<string> AddOrEditMap(IPolylineMap map);  
         Task<IPolylineMap> GetMapById(string id);
         Task<IPolylineMap> GetMapByIdNoTracking(string id);
-
+        Task<List<IPolylineMap>> GetMapsByIdsNoTracking(List<string> id);
     }
 }

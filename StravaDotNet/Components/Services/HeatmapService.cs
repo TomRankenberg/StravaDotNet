@@ -17,6 +17,8 @@ namespace StravaDotNet.Components.Services
             };
 
             List<ActivityDTO> activitiesList = activities.Where(a => a.MapId != null && a.StartLatlng?.Count>1).ToList();
+            List<string> mapIds = activitiesList.Select(a => a.MapId!).ToList();
+            List<IPolylineMap> maps = await mapRepo.GetMapsByIdsNoTracking(mapIds);
 
             List<HeatmapInput> inputs = [];
             foreach (ActivityDTO activity in activitiesList)
@@ -25,7 +27,11 @@ namespace StravaDotNet.Components.Services
                 {
                     continue;
                 }
-                IPolylineMap map = await mapRepo.GetMapByIdNoTracking(activity.MapId);
+                IPolylineMap? map = maps.FirstOrDefault(m => m.Id == activity.MapId);
+                if (map == null)
+                {
+                    continue;
+                }
                 inputs.Add(new HeatmapInput
                 {
                     ActivityType = activity.Type,

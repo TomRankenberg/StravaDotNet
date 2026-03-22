@@ -39,6 +39,14 @@ namespace Data.Repos
             return context.PolylineMaps.Find(id);
         }
 
+        public async Task<List<IPolylineMap>> GetMapsByIdsNoTracking(List<string> id)
+        {
+            List<IPolylineMap> maps = await context.PolylineMaps.AsNoTracking()
+                .Where(m => id.Contains(m.Id)).Cast<IPolylineMap>()
+                .ToListAsync();
+            return maps;
+        }
+
         public async Task<IPolylineMap> GetMapByIdNoTracking(string id)
         {
             IPolylineMap map = await context.PolylineMaps.AsNoTracking().FirstAsync(m => m.Id == id);
