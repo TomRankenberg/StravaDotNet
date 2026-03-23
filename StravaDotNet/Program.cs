@@ -55,10 +55,13 @@ builder.Services.AddHttpClient<SegmentEffortService>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration.GetSection("AppSettings")["BaseAddress"]);
 });
+builder.Services.AddHttpClient<StatsService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration.GetSection("AppSettings")["BaseAddress"]);
+});
 builder.Services.AddScoped<HeatmapService>();
 builder.Services.AddScoped<DataRetrievalService>();
 builder.Services.AddScoped<PlottingHelperService>();
-builder.Services.AddScoped<StatsService>();
 builder.Services.AddScoped<ISavingService, SavingService>();
 builder.Services.AddHttpClient<IAuthService, AuthService>();
 builder.Services.AddHttpClient<IStravaService, StravaService>();

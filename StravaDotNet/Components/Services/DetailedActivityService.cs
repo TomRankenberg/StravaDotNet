@@ -2,6 +2,7 @@ using Contracts.DTOs;
 using Data.Models.Strava;
 using Statistics.Models;
 using StravaDotNet.ViewModels;
+using System.Text.Json;
 
 namespace StravaDotNet.Components.Services
 {
@@ -52,15 +53,32 @@ namespace StravaDotNet.Components.Services
                 return [];
             }
 
-            List<Task> tasks = activityVms
+            List<long> activityIds = activityVms
                 .Where(vm => vm.Activity != null && vm.Activity.Id != null)
-                .Select(async vm =>
-                {
-                    vm.AverageHeartRate = await CalculateAverageHeartRateAsync(vm.Activity.Id.Value);
-                })
+                .Select(vm => vm.Activity.Id.Value)
                 .ToList();
 
-            await Task.WhenAll(tasks);
+            HttpResponseMessage? heartRateResponse = await httpClient.PostAsJsonAsync<List<long>>("api/stream/GetHeartStreamsFromActivityIds", activityIds);
+
+            if (heartRateResponse != null && heartRateResponse.IsSuccessStatusCode)
+            {
+                string streamContent = await heartRateResponse.Content.ReadAsStringAsync();
+                JsonSerializerOptions jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                Dictionary<long, HeartrateStream>? keyValuePairs = JsonSerializer.Deserialize<Dictionary<long, HeartrateStream>>(streamContent, jsonOptions);
+
+                if (keyValuePairs != null)
+                {
+                    foreach (ActivityVm activityVm in activityVms.Where(vm => vm.Activity?.Id != null))
+                    {
+                        long activityId = activityVm.Activity!.Id!.Value;
+                        if (keyValuePairs.TryGetValue(activityId, out HeartrateStream? heartrateStream) && heartrateStream?.Data != null && heartrateStream.Data.Count > 0)
+                        {
+                            double average = heartrateStream.Data.Where(x => x != null).Average(x => (double)(x ?? 0));
+                            activityVm.AverageHeartRate = average;
+                        }
+                    }
+                }
+            }
 
             return activityVms;
         }

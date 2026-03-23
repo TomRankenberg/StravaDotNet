@@ -1,4 +1,5 @@
-﻿using Data.Converters;
+﻿using System;
+using Data.Converters;
 using Data.Models;
 using Data.Models.Strava;
 using Microsoft.EntityFrameworkCore;
@@ -75,7 +76,7 @@ namespace Data.Context
             modelBuilder.Entity<TimeStream>().HasKey(ts => ts.TimeStreamId);
             modelBuilder.Entity<TimeStream>()
                 .HasOne<StreamSet>()
-                .WithOne()
+                .WithOne(s => s.Time)
                 .HasForeignKey<TimeStream>(ts => ts.StreamSetId);
             modelBuilder.Entity<TimeStream>()
                 .Property(ts => ts.Data)
@@ -84,7 +85,7 @@ namespace Data.Context
             modelBuilder.Entity<DistanceStream>().HasKey(ts => ts.DistanceStreamId);
             modelBuilder.Entity<DistanceStream>()
                 .HasOne<StreamSet>()
-                .WithOne()
+                .WithOne(s => s.Distance)
                 .HasForeignKey<DistanceStream>(ds => ds.StreamSetId);
             modelBuilder.Entity<DistanceStream>()
                 .Property(ts => ts.Data)
@@ -93,13 +94,13 @@ namespace Data.Context
             modelBuilder.Entity<LatLngStream>().HasKey(ts => ts.LatLngStreamId);
             modelBuilder.Entity<LatLngStream>()
                 .HasOne<StreamSet>()
-                .WithOne()
+                .WithOne(s => s.Latlng)
                 .HasForeignKey<LatLngStream>(ls => ls.StreamSetId);
 
             modelBuilder.Entity<AltitudeStream>().HasKey(ts => ts.AltitudeStreamId);
             modelBuilder.Entity<AltitudeStream>()
                 .HasOne<StreamSet>()
-                .WithOne()
+                .WithOne(s => s.Altitude)
                 .HasForeignKey<AltitudeStream>(als => als.StreamSetId);
             modelBuilder.Entity<AltitudeStream>()
                 .Property(ts => ts.Data)
@@ -108,7 +109,7 @@ namespace Data.Context
             modelBuilder.Entity<SmoothVelocityStream>().HasKey(ts => ts.SmoothVelocityStreamId);
             modelBuilder.Entity<SmoothVelocityStream>()
                 .HasOne<StreamSet>()
-                .WithOne()
+                .WithOne(s => s.VelocitySmooth)
                 .HasForeignKey<SmoothVelocityStream>(svs => svs.StreamSetId);
             modelBuilder.Entity<SmoothVelocityStream>()
                 .Property(ts => ts.Data)
@@ -116,9 +117,9 @@ namespace Data.Context
 
             modelBuilder.Entity<HeartrateStream>().HasKey(ts => ts.HeartrateStreamId);
             modelBuilder.Entity<HeartrateStream>()
-                .HasOne<StreamSet>()
-                .WithOne()
-                .HasForeignKey<HeartrateStream>(hs => hs.StreamSetId);
+                .HasOne(h => h.StreamSet)
+                .WithOne(s => s.Heartrate)
+                .HasForeignKey<HeartrateStream>(h => h.StreamSetId);
             modelBuilder.Entity<HeartrateStream>()
                 .Property(ts => ts.Data)
                 .HasConversion(new IntListConverter());
@@ -126,7 +127,7 @@ namespace Data.Context
             modelBuilder.Entity<CadenceStream>().HasKey(ts => ts.CadenceStreamId);
             modelBuilder.Entity<CadenceStream>()
                 .HasOne<StreamSet>()
-                .WithOne()
+                .WithOne(s => s.Cadence)
                 .HasForeignKey<CadenceStream>(cs => cs.StreamSetId);
             modelBuilder.Entity<CadenceStream>()
                 .Property(ts => ts.Data)
@@ -135,7 +136,7 @@ namespace Data.Context
             modelBuilder.Entity<PowerStream>().HasKey(ts => ts.PowerStreamId);
             modelBuilder.Entity<PowerStream>()
                 .HasOne<StreamSet>()
-                .WithOne()
+                .WithOne(s => s.Watts)
                 .HasForeignKey<PowerStream>(ps => ps.StreamSetId);
             modelBuilder.Entity<PowerStream>()
                 .Property(ts => ts.Data)
@@ -144,7 +145,7 @@ namespace Data.Context
             modelBuilder.Entity<TemperatureStream>().HasKey(ts => ts.TemperatureStreamId);
             modelBuilder.Entity<TemperatureStream>()
                 .HasOne<StreamSet>()
-                .WithOne()
+                .WithOne(s => s.Temp)
                 .HasForeignKey<TemperatureStream>(ts => ts.StreamSetId);
             modelBuilder.Entity<TemperatureStream>()
                 .Property(ts => ts.Data)
@@ -153,7 +154,7 @@ namespace Data.Context
             modelBuilder.Entity<MovingStream>().HasKey(ts => ts.MovingStreamId);
             modelBuilder.Entity<MovingStream>()
                 .HasOne<StreamSet>()
-                .WithOne()
+                .WithOne(s => s.Moving)
                 .HasForeignKey<MovingStream>(ms => ms.StreamSetId);
             modelBuilder.Entity<MovingStream>()
                 .Property(ts => ts.Data)
@@ -162,7 +163,7 @@ namespace Data.Context
             modelBuilder.Entity<SmoothGradeStream>().HasKey(ts => ts.SmoothGradeId);
             modelBuilder.Entity<SmoothGradeStream>()
                 .HasOne<StreamSet>()
-                .WithOne()
+                .WithOne(s => s.GradeSmooth)
                 .HasForeignKey<SmoothGradeStream>(sgs => sgs.StreamSetId);
             modelBuilder.Entity<SmoothGradeStream>()
                 .Property(ts => ts.Data)

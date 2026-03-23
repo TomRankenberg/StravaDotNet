@@ -2,6 +2,7 @@ using System.Text;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Contracts.Interfaces;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Data.Models.Strava
 {
@@ -14,6 +15,10 @@ namespace Data.Models.Strava
     {
         public int? HeartrateStreamId { get; set; }
         public long StreamSetId { get; set; }
+
+        // navigation to StreamSet to allow EF to join in one query
+        [ForeignKey(nameof(StreamSetId))]
+        public StreamSet? StreamSet { get; set; }
 
         /// <summary>
         /// The number of data points in this stream

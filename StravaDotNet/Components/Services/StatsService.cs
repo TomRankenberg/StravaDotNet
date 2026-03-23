@@ -1,8 +1,9 @@
 ﻿using Contracts.DTOs;
+using Data.Models.Strava;
 using Statistics.BusinessLogic;
 using Statistics.Models;
-using System.Text;
 using System.Text.Json;
+using System.Text;
 
 namespace StravaDotNet.Components.Services
 {
@@ -32,17 +33,58 @@ namespace StravaDotNet.Components.Services
 
         public async Task<List<ActivityForStats>> PredictStaticAsync(List<ActivityDTO> activities)
         {
-            List<Task<ActivityForStats>> tasks = activities
+            List<long> activityIds = activities
                 .Where(a => a.Id.HasValue)
-                .Select(async activity =>
-                {
-                    double avgHeartRate = await detailedActivityService.CalculateAverageHeartRateAsync(activity.Id);
-                    return ActivityStatsConverter.ConvertToActivityForStats(activity, avgHeartRate);
-                }).ToList();
-
-            List<ActivityForStats> activityStatsList = (await Task.WhenAll(tasks))
-                .Where(stats => stats != null)
+                .Select(a => a.Id!.Value)
                 .ToList();
+
+            if (activityIds.Count == 0)
+            {
+                return [];
+            }
+
+            // Single HTTP call to fetch all heartrate streams for the activity ids
+            HttpResponseMessage heartRateResponse = await httpClient.PostAsJsonAsync<List<long>>(
+                "api/stream/GetHeartStreamsFromActivityIds",
+                activityIds);
+
+            Dictionary<long, HeartrateStream>? streamsByActivityId = null;
+            if (heartRateResponse != null && heartRateResponse.IsSuccessStatusCode)
+            {
+                string streamContent = await heartRateResponse.Content.ReadAsStringAsync();
+                JsonSerializerOptions jsonOptions = new() { PropertyNameCaseInsensitive = true };
+                streamsByActivityId = JsonSerializer.Deserialize<Dictionary<long, HeartrateStream>>(streamContent, jsonOptions);
+            }
+
+            // Compute average heart rate per activity id from the batch result
+            Dictionary<long, double> avgHrById = new();
+            if (streamsByActivityId != null)
+            {
+                foreach (KeyValuePair<long, HeartrateStream> kvp in streamsByActivityId)
+                {
+                    long id = kvp.Key;
+                    HeartrateStream? hrStream = kvp.Value ?? new HeartrateStream();
+                    double avg = 0;
+                    if (hrStream.Data != null && hrStream.Data.Count > 0)
+                    {
+                        avg = hrStream.Data.Where(x => x != null).Average(x => (double)(x ?? 0));
+                    }
+                    avgHrById[id] = avg;
+                }
+            }
+
+            // Build ActivityForStats list using the precomputed averages
+            List<ActivityForStats> activityStatsList = [];
+            foreach (ActivityDTO activity in activities.Where(a => a.Id.HasValue))
+            {
+                long id = activity.Id!.Value;
+                double avgHeartRate = avgHrById.TryGetValue(id, out double foundAvg) ? foundAvg : 0;
+                ActivityForStats? stats = ActivityStatsConverter.ConvertToActivityForStats(activity, avgHeartRate);
+                if (stats != null)
+                {
+                    activityStatsList.Add(stats);
+                }
+            }
 
             activityStatsList = ActivityStatsConverter.AddRecentTimeSpent(activityStatsList, 60);
             activityStatsList = ActivityStatsConverter.AddPredictedHeartRate(activityStatsList);
